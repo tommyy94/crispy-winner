@@ -1,0 +1,4 @@
+<!DOCTYPE CrossStudio_Project_File>
+<solution Name="Start" target="8" version="2">
+  <import file_name="BSP/Microchip/SAME70Q21_SAME70_XPlained/Start_Microchip_SAME70_XPlained.emProject" />
+</solution>

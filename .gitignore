@@ -1,0 +1,15 @@
+/Output
+*.emSession
+*.jlink
+*.user
+*.d
+*.o
+*.a
+CRYPTO
+FS
+SECURE
+COMPRESS
+SEGGER/SYS
+SEGGER/Syscalls
+
+*.swp

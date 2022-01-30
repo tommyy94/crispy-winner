@@ -1,0 +1,525 @@
+<!DOCTYPE CrossStudio_Project_File>
+<solution Name="Device" target="8" version="2">
+  <project Name="Start_SAME70_XPlained">
+    <configuration
+      Name="Common"
+      Placement="Flash"
+      Target="ATSAME70Q21"
+      arm_architecture="v7EM"
+      arm_assembler_variant="gcc"
+      arm_core_type="Cortex-M7"
+      arm_endian="Little"
+      arm_fp_abi="SoftFP"
+      arm_fpu_type="FPv5-D16"
+      arm_linker_allow_multiple_definition="No"
+      arm_linker_heap_size="32768"
+      arm_linker_process_stack_size="8192"
+      arm_linker_stack_size="8192"
+      arm_linker_variant="SEGGER"
+      arm_target_device_name="ATSAME70Q21"
+      arm_target_interface_type="SWD"
+      build_intermediate_directory="$(ProjectDir)/Output/$(Configuration)/Obj"
+      build_output_directory="$(ProjectDir)/Output/$(Configuration)"
+      c_additional_options="-Wall;-Wextra;-Wunused-variable;-Wmissing-field-initializers;-Wundef;-ffunction-sections;-fdata-sections"
+      c_only_additional_options="-Wmissing-prototypes"
+      c_preprocessor_definitions="__SAME70Q21__;__SAM_E_FAMILY;ARM_MATH_CM7;USE_RTT=1;WEBS_USE_SAMPLE_2018=1"
+      c_user_include_directories="$(ProjectDir)/Setup;$(ProjectDir)/Setup/CoreSupport;$(ProjectDir)/Setup/DeviceSupport;$(ProjectDir)/Setup/DeviceSupport/component;$(ProjectDir)/Setup/DeviceSupport/instance;$(ProjectDir)/Setup/DeviceSupport/pio;$(ProjectDir)/../../../Application/GUI/SEGGERDEMO;$(ProjectDir)/../../../Application/GUI/SEGGERDEMO/Src;$(ProjectDir)/../../../Application/SEGGERDEMO;$(ProjectDir)/../../../Application/SEGGERDEMO/Src;$(ProjectDir)/../../../COMPRESS/Config;$(ProjectDir)/../../../COMPRESS/Inc;$(ProjectDir)/../../../CRYPTO/Config;$(ProjectDir)/../../../CRYPTO/Inc;$(ProjectDir)/../../../FS/Config;$(ProjectDir)/../../../FS/Inc;$(ProjectDir)/../../../FS/Setup/SAME70Q21_Microchip_SAME70_XPlained;$(ProjectDir)/../../../GUI/Config;$(ProjectDir)/../../../GUI/Inc;$(ProjectDir)/../../../GUI/Setup/SAME70Q21_Microchip_SAME70_XPlained;$(ProjectDir)/../../../IOT/Config;$(ProjectDir)/../../../IOT/Inc;$(ProjectDir)/../../../IP/Config;$(ProjectDir)/../../../IP/Inc;$(ProjectDir)/../../../IP/Setup/IP_FS/FS_RO_2018/Generated;$(ProjectDir)/../../../MB/Config;$(ProjectDir)/../../../MB/Inc;$(ProjectDir)/../../../OS/Config;$(ProjectDir)/../../../OS/Inc;$(ProjectDir)/../../../SECURE/Config;$(ProjectDir)/../../../SECURE/Inc;$(ProjectDir)/../../../SECURE/Keys;$(ProjectDir)/../../../SEGGER;$(ProjectDir)/../../../SEGGER/Config;$(ProjectDir)/../../../SEGGER/Inc;$(ProjectDir)/../../../SEGGER/Syscalls;$(ProjectDir)/../../../SEGGER/SystemView;$(ProjectDir)/../../../SSH/Config;$(ProjectDir)/../../../SSH/Inc;$(ProjectDir)/../../../SSL/Certificates;$(ProjectDir)/../../../SSL/Config;$(ProjectDir)/../../../SSL/Inc;$(ProjectDir)/../../../USB-D/Config;$(ProjectDir)/../../../USB-D/Inc;$(ProjectDir)/../../../USB-H/Config;$(ProjectDir)/../../../USB-H/Inc;$(ProjectDir)/../../../BSP/Drivers/DMA;$(ProjectDir)/../../../BSP/Drivers/MPU-6050;$(ProjectDir)/../../../BSP/Drivers/PORT;$(ProjectDir)/../../../BSP/Drivers/PWM_Driver;$(ProjectDir)/../../../BSP/Drivers/RTC_Driver;$(ProjectDir)/../../../BSP/Drivers/sd_mmc;$(ProjectDir)/../../../BSP/Drivers/SPI_Driver;$(ProjectDir)/../../../BSP/Drivers/TWI;$(ProjectDir)/../../../Application/include"
+      debug_register_definition_file="$(ProjectDir)/Setup/ATSAME70Q21_Registers.xml"
+      debug_target_connection="J-Link"
+      debug_threads_script="$(ProjectDir)/Setup/embOSPluginSES.js"
+      gcc_enable_all_warnings="Yes"
+      gcc_entry_point="Reset_Handler"
+      link_linker_script_file="$(ProjectDir)/Setup/SEGGER_Flash.icf"
+      linker_additional_options="--gc-sections"
+      linker_memory_map_file="$(ProjectDir)/Setup/ATSAME70Q21_MemoryMap.xml"
+      linker_printf_fmt_level="long"
+      linker_printf_fp_enabled="Yes"
+      linker_printf_width_precision_supported="Yes"
+      linker_scanf_fp_enabled="Yes"
+      project_directory=""
+      project_type="Executable"
+      speed="8000"
+      target_trace_initialize_script="EnableTrace(&quot;$(TraceInterfaceType)&quot;)" />
+    <folder Name="Application">
+      <folder Name="include">
+        <file file_name="../../../Application/include/gyro.h" />
+        <file file_name="../../../Application/include/logWriter.h" />
+        <file file_name="../../../Application/include/system.h" />
+        <file file_name="../../../Application/include/throttle.h" />
+        <file file_name="../../../Application/include/wireless.h" />
+      </folder>
+      <folder Name="source">
+        <file file_name="../../../Application/source/gyro.c">
+          <configuration Name="Debug" build_exclude_from_build="No" />
+        </file>
+        <file file_name="../../../Application/source/logWriter.c">
+          <configuration Name="Debug" build_exclude_from_build="No" />
+        </file>
+        <file file_name="../../../Application/source/throttle.c">
+          <configuration Name="Debug" build_exclude_from_build="No" />
+        </file>
+        <file file_name="../../../Application/source/wireless.c" />
+        <file file_name="../../../Application/source/main.c" />
+      </folder>
+    </folder>
+    <folder Name="COMPRESS">
+      <folder Name="Config">
+        <file file_name="../../../COMPRESS/Config/COMPRESS_Conf.h" />
+        <file file_name="../../../COMPRESS/Config/COMPRESS_ConfigIO.c" />
+      </folder>
+      <folder Name="Inc">
+        <file file_name="../../../COMPRESS/Inc/COMPRESS.h" />
+        <file file_name="../../../COMPRESS/Inc/COMPRESS_ConfDefaults.h" />
+        <file file_name="../../../COMPRESS/Inc/COMPRESS_HUFF_CANON.h" />
+        <file file_name="../../../COMPRESS/Inc/COMPRESS_LZSS_CORE.h" />
+        <file file_name="../../../COMPRESS/Inc/CTG.h" />
+        <file file_name="../../../COMPRESS/Inc/CTG_ConfDefaults.h" />
+      </folder>
+      <folder Name="Lib">
+        <file file_name="../../../COMPRESS/Lib/libCOMPRESS_v7m_t_vfpv4_le_d.a">
+          <configuration Name="Release" build_exclude_from_build="Yes" />
+          <configuration
+            Name="Release_SystemView"
+            build_exclude_from_build="Yes" />
+        </file>
+        <file file_name="../../../COMPRESS/Lib/libCOMPRESS_v7m_t_vfpv4_le_r.a">
+          <configuration Name="Debug" build_exclude_from_build="Yes" />
+        </file>
+      </folder>
+      <configuration Name="Debug" build_exclude_from_build="Yes" />
+    </folder>
+    <folder Name="CRYPTO">
+      <folder Name="Config">
+        <file file_name="../../../CRYPTO/Config/CRYPTO_Conf.h" />
+      </folder>
+      <folder Name="Inc">
+        <file file_name="../../../CRYPTO/Inc/CRYPTO.h" />
+        <file file_name="../../../CRYPTO/Inc/CRYPTO_ConfDefaults.h" />
+        <file file_name="../../../CRYPTO/Inc/CRYPTO_OID_List.h" />
+        <file file_name="../../../CRYPTO/Inc/CRYPTO_PRIME_List.h" />
+      </folder>
+      <folder Name="Lib">
+        <file file_name="../../../CRYPTO/Lib/libCRYPTO_v7m_t_vfpv4_le_d.a">
+          <configuration Name="Debug" build_exclude_from_build="Yes" />
+        </file>
+        <file file_name="../../../CRYPTO/Lib/libCRYPTO_v7m_t_vfpv4_le_r.a">
+          <configuration Name="Release" build_exclude_from_build="Yes" />
+          <configuration
+            Name="Release_SystemView"
+            build_exclude_from_build="Yes" />
+        </file>
+      </folder>
+      <folder Name="OS">
+        <file file_name="../../../CRYPTO/OS/CRYPTO_OS_embOS.c" />
+      </folder>
+      <folder Name="Setup">
+        <folder Name="GenericSamples">
+          <configuration Name="Common" build_exclude_from_build="Yes" />
+          <file file_name="../../../CRYPTO/Setup/GenericSamples/CRYPTO_X_Config_Full_CM.c" />
+          <file file_name="../../../CRYPTO/Setup/GenericSamples/CRYPTO_X_Config_SECURE_ECDSA_CM.c" />
+          <file file_name="../../../CRYPTO/Setup/GenericSamples/CRYPTO_X_Config_SECURE_RSA_CM.c" />
+          <file file_name="../../../CRYPTO/Setup/GenericSamples/CRYPTO_X_Config_SSH_CM.c" />
+          <file file_name="../../../CRYPTO/Setup/GenericSamples/CRYPTO_X_Config_SSL_CM.c" />
+        </folder>
+        <folder Name="SAME70Q21_Microchip_SAME70_XPlained">
+          <file file_name="../../../CRYPTO/Setup/SAME70Q21_Microchip_SAME70_XPlained/CRYPTO_X_Config_SECURE_RSA_CM.c" />
+        </folder>
+      </folder>
+      <configuration Name="Debug" build_exclude_from_build="Yes" />
+    </folder>
+    <folder Name="FS">
+      <folder Name="Config">
+        <file file_name="../../../FS/Config/FS_Conf.h" />
+        <file file_name="../../../FS/Config/FS_ConfigIO.c" />
+      </folder>
+      <folder Name="Inc">
+        <file file_name="../../../FS/Inc/EFS.h" />
+        <file file_name="../../../FS/Inc/FAT.h" />
+        <file file_name="../../../FS/Inc/FS.h" />
+        <file file_name="../../../FS/Inc/FS_API.h" />
+        <file file_name="../../../FS/Inc/FS_CLib.h" />
+        <file file_name="../../../FS/Inc/FS_ConfDefaults.h" />
+        <file file_name="../../../FS/Inc/FS_Debug.h" />
+        <file file_name="../../../FS/Inc/FS_Dev.h" />
+        <file file_name="../../../FS/Inc/FS_DF_X_HW.h" />
+        <file file_name="../../../FS/Inc/FS_Lbl.h" />
+        <file file_name="../../../FS/Inc/FS_OS.h" />
+        <file file_name="../../../FS/Inc/FS_Storage.h" />
+        <file file_name="../../../FS/Inc/FS_Types.h" />
+        <file file_name="../../../FS/Inc/IDE_X_HW.h" />
+        <file file_name="../../../FS/Inc/MMC_SD_CardMode_X_HW.h" />
+        <file file_name="../../../FS/Inc/MMC_X_HW.h" />
+        <file file_name="../../../FS/Inc/NAND_HW_SPI_X.h" />
+        <file file_name="../../../FS/Inc/NAND_X_HW.h" />
+        <file file_name="../../../FS/Inc/NOR_HW_SPI_X.h" />
+        <file file_name="../../../FS/Inc/NOR_SPI_Dev.h" />
+      </folder>
+      <folder Name="Lib">
+        <file file_name="../../../FS/Lib/libFS_v7m_t_vfpv4_le_r.a">
+          <configuration Name="Debug" build_exclude_from_build="Yes" />
+        </file>
+        <file file_name="../../../FS/Lib/libFS_v7m_t_vfpv4_le_d.a">
+          <configuration Name="Release" build_exclude_from_build="Yes" />
+          <configuration
+            Name="Release_SystemView"
+            build_exclude_from_build="Yes" />
+        </file>
+      </folder>
+      <folder Name="OS">
+        <file file_name="../../../FS/OS/FS_X_embOS.c" />
+      </folder>
+      <folder Name="Setup">
+        <folder Name="SAME70Q21_Microchip_SAME70_XPlained">
+          <folder Name="Driver" />
+          <folder Name="Config">
+            <folder Name="Excluded">
+              <configuration Name="Common" build_exclude_from_build="Yes" />
+              <file file_name="../../../FS/Setup/SAME70Q21_Microchip_SAME70_XPlained/FS_ConfigRAMDisk.c" />
+            </folder>
+            <file file_name="../../../FS/Setup/SAME70Q21_Microchip_SAME70_XPlained/FS_ConfigRAMDisk_23k.c" />
+          </folder>
+        </folder>
+      </folder>
+      <configuration Name="Debug" build_exclude_from_build="Yes" />
+    </folder>
+    <folder Name="OS">
+      <folder Name="Inc">
+        <file file_name="../../../OS/Inc/BSP.h" />
+        <file file_name="../../../OS/Inc/JLINKMEM.h" />
+        <file file_name="../../../OS/Inc/OS_Config.h" />
+        <file file_name="../../../OS/Inc/RTOS.h" />
+      </folder>
+      <folder Name="Lib">
+        <file file_name="../../../OS/Lib/libos_v7m_t_vfpv4_le_dp.a">
+          <configuration Name="Release" build_exclude_from_build="Yes" />
+          <configuration
+            Name="Release_SystemView"
+            build_exclude_from_build="Yes" />
+        </file>
+        <file file_name="../../../OS/Lib/libos_v7m_t_vfpv4_le_r.a">
+          <configuration Name="Debug" build_exclude_from_build="Yes" />
+          <configuration
+            Name="Release_SystemView"
+            build_exclude_from_build="Yes" />
+        </file>
+        <file file_name="../../../OS/Lib/libos_v7m_t_vfpv4_le_sp.a">
+          <configuration Name="Debug" build_exclude_from_build="Yes" />
+          <configuration Name="Release" build_exclude_from_build="Yes" />
+        </file>
+      </folder>
+      <folder Name="Setup">
+        <folder Name="CoreSupport">
+          <file file_name="Setup/CoreSupport/cmsis_compiler.h" />
+          <file file_name="Setup/CoreSupport/cmsis_gcc.h" />
+          <file file_name="Setup/CoreSupport/cmsis_version.h" />
+          <file file_name="Setup/CoreSupport/core_cm7.h" />
+          <file file_name="Setup/CoreSupport/mpu_armv7.h" />
+        </folder>
+        <folder Name="DeviceSupport">
+          <folder Name="component">
+            <file file_name="Setup/DeviceSupport/component/acc.h" />
+            <file file_name="Setup/DeviceSupport/component/aes.h" />
+            <file file_name="Setup/DeviceSupport/component/afec.h" />
+            <file file_name="Setup/DeviceSupport/component/chipid.h" />
+            <file file_name="Setup/DeviceSupport/component/dacc.h" />
+            <file file_name="Setup/DeviceSupport/component/efc.h" />
+            <file file_name="Setup/DeviceSupport/component/gmac.h" />
+            <file file_name="Setup/DeviceSupport/component/gpbr.h" />
+            <file file_name="Setup/DeviceSupport/component/hsmci.h" />
+            <file file_name="Setup/DeviceSupport/component/icm.h" />
+            <file file_name="Setup/DeviceSupport/component/isi.h" />
+            <file file_name="Setup/DeviceSupport/component/matrix.h" />
+            <file file_name="Setup/DeviceSupport/component/mcan.h" />
+            <file file_name="Setup/DeviceSupport/component/pio.h" />
+            <file file_name="Setup/DeviceSupport/component/pmc.h" />
+            <file file_name="Setup/DeviceSupport/component/pwm.h" />
+            <file file_name="Setup/DeviceSupport/component/qspi.h" />
+            <file file_name="Setup/DeviceSupport/component/rstc.h" />
+            <file file_name="Setup/DeviceSupport/component/rswdt.h" />
+            <file file_name="Setup/DeviceSupport/component/rtc.h" />
+            <file file_name="Setup/DeviceSupport/component/rtt.h" />
+            <file file_name="Setup/DeviceSupport/component/sdramc.h" />
+            <file file_name="Setup/DeviceSupport/component/smc.h" />
+            <file file_name="Setup/DeviceSupport/component/spi.h" />
+            <file file_name="Setup/DeviceSupport/component/ssc.h" />
+            <file file_name="Setup/DeviceSupport/component/supc.h" />
+            <file file_name="Setup/DeviceSupport/component/tc.h" />
+            <file file_name="Setup/DeviceSupport/component/trng.h" />
+            <file file_name="Setup/DeviceSupport/component/twihs.h" />
+            <file file_name="Setup/DeviceSupport/component/uart.h" />
+            <file file_name="Setup/DeviceSupport/component/usart.h" />
+            <file file_name="Setup/DeviceSupport/component/usbhs.h" />
+            <file file_name="Setup/DeviceSupport/component/utmi.h" />
+            <file file_name="Setup/DeviceSupport/component/wdt.h" />
+            <file file_name="Setup/DeviceSupport/component/xdmac.h" />
+          </folder>
+          <folder Name="instance">
+            <file file_name="Setup/DeviceSupport/instance/acc.h" />
+            <file file_name="Setup/DeviceSupport/instance/aes.h" />
+            <file file_name="Setup/DeviceSupport/instance/afec0.h" />
+            <file file_name="Setup/DeviceSupport/instance/afec1.h" />
+            <file file_name="Setup/DeviceSupport/instance/chipid.h" />
+            <file file_name="Setup/DeviceSupport/instance/dacc.h" />
+            <file file_name="Setup/DeviceSupport/instance/efc.h" />
+            <file file_name="Setup/DeviceSupport/instance/gmac.h" />
+            <file file_name="Setup/DeviceSupport/instance/gpbr.h" />
+            <file file_name="Setup/DeviceSupport/instance/hsmci.h" />
+            <file file_name="Setup/DeviceSupport/instance/icm.h" />
+            <file file_name="Setup/DeviceSupport/instance/isi.h" />
+            <file file_name="Setup/DeviceSupport/instance/matrix.h" />
+            <file file_name="Setup/DeviceSupport/instance/mcan0.h" />
+            <file file_name="Setup/DeviceSupport/instance/mcan1.h" />
+            <file file_name="Setup/DeviceSupport/instance/pioa.h" />
+            <file file_name="Setup/DeviceSupport/instance/piob.h" />
+            <file file_name="Setup/DeviceSupport/instance/pioc.h" />
+            <file file_name="Setup/DeviceSupport/instance/piod.h" />
+            <file file_name="Setup/DeviceSupport/instance/pioe.h" />
+            <file file_name="Setup/DeviceSupport/instance/pmc.h" />
+            <file file_name="Setup/DeviceSupport/instance/pwm0.h" />
+            <file file_name="Setup/DeviceSupport/instance/pwm1.h" />
+            <file file_name="Setup/DeviceSupport/instance/qspi.h" />
+            <file file_name="Setup/DeviceSupport/instance/rstc.h" />
+            <file file_name="Setup/DeviceSupport/instance/rswdt.h" />
+            <file file_name="Setup/DeviceSupport/instance/rtc.h" />
+            <file file_name="Setup/DeviceSupport/instance/rtt.h" />
+            <file file_name="Setup/DeviceSupport/instance/sdramc.h" />
+            <file file_name="Setup/DeviceSupport/instance/smc.h" />
+            <file file_name="Setup/DeviceSupport/instance/spi0.h" />
+            <file file_name="Setup/DeviceSupport/instance/spi1.h" />
+            <file file_name="Setup/DeviceSupport/instance/ssc.h" />
+            <file file_name="Setup/DeviceSupport/instance/supc.h" />
+            <file file_name="Setup/DeviceSupport/instance/tc0.h" />
+            <file file_name="Setup/DeviceSupport/instance/tc1.h" />
+            <file file_name="Setup/DeviceSupport/instance/tc2.h" />
+            <file file_name="Setup/DeviceSupport/instance/tc3.h" />
+            <file file_name="Setup/DeviceSupport/instance/trng.h" />
+            <file file_name="Setup/DeviceSupport/instance/twihs0.h" />
+            <file file_name="Setup/DeviceSupport/instance/twihs1.h" />
+            <file file_name="Setup/DeviceSupport/instance/twihs2.h" />
+            <file file_name="Setup/DeviceSupport/instance/uart0.h" />
+            <file file_name="Setup/DeviceSupport/instance/uart1.h" />
+            <file file_name="Setup/DeviceSupport/instance/uart2.h" />
+            <file file_name="Setup/DeviceSupport/instance/uart3.h" />
+            <file file_name="Setup/DeviceSupport/instance/uart4.h" />
+            <file file_name="Setup/DeviceSupport/instance/usart0.h" />
+            <file file_name="Setup/DeviceSupport/instance/usart1.h" />
+            <file file_name="Setup/DeviceSupport/instance/usart2.h" />
+            <file file_name="Setup/DeviceSupport/instance/usbhs.h" />
+            <file file_name="Setup/DeviceSupport/instance/utmi.h" />
+            <file file_name="Setup/DeviceSupport/instance/wdt.h" />
+            <file file_name="Setup/DeviceSupport/instance/xdmac.h" />
+          </folder>
+          <folder Name="pio">
+            <file file_name="Setup/DeviceSupport/pio/same70j19.h" />
+            <file file_name="Setup/DeviceSupport/pio/same70j20.h" />
+            <file file_name="Setup/DeviceSupport/pio/same70j21.h" />
+            <file file_name="Setup/DeviceSupport/pio/same70n19.h" />
+            <file file_name="Setup/DeviceSupport/pio/same70n20.h" />
+            <file file_name="Setup/DeviceSupport/pio/same70n21.h" />
+            <file file_name="Setup/DeviceSupport/pio/same70q19.h" />
+            <file file_name="Setup/DeviceSupport/pio/same70q20.h" />
+            <file file_name="Setup/DeviceSupport/pio/same70q21.h" />
+          </folder>
+          <file file_name="Setup/DeviceSupport/ATSAME70Q21_Vectors.s" />
+          <file file_name="Setup/DeviceSupport/SAM-E_Startup.s" />
+          <file file_name="Setup/DeviceSupport/same70.h" />
+          <file file_name="Setup/DeviceSupport/same70q21.h" />
+          <file file_name="Setup/DeviceSupport/system_same70.c" />
+          <file file_name="Setup/DeviceSupport/system_same70.h" />
+        </folder>
+        <file file_name="Setup/ATSAME70Q21_MemoryMap.xml" />
+        <file file_name="Setup/ATSAME70Q21_Registers.xml" />
+        <file file_name="Setup/BSP.c" />
+        <file file_name="Setup/embOSPluginSES.js">
+          <configuration Name="Common" file_type="Threads Script" />
+        </file>
+        <file file_name="Setup/HardFaultHandler.S" />
+        <file file_name="Setup/JLINKMEM_Process.c" />
+        <file file_name="Setup/OS_Error.c" />
+        <file file_name="Setup/OS_ThreadSafe.c" />
+        <file file_name="Setup/RTOSInit_SAME70.c" />
+        <file file_name="Setup/SEGGER_Flash.icf" />
+        <file file_name="Setup/SEGGER_RTT_Conf.h" />
+        <file file_name="Setup/SEGGER_SYSVIEW_Conf.h" />
+        <file file_name="Setup/SEGGER_SYSVIEW_Config_embOS.c" />
+        <file file_name="Setup/SEGGER_THUMB_Startup.s" />
+      </folder>
+    </folder>
+    <folder Name="SECURE">
+      <folder Name="Config">
+        <file file_name="../../../SECURE/Config/SECURE_ECDSA_Conf.h" />
+        <file file_name="../../../SECURE/Config/SECURE_RSA_Conf.h" />
+      </folder>
+      <folder Name="Inc">
+        <file file_name="../../../SECURE/Inc/SECURE.h" />
+        <file file_name="../../../SECURE/Inc/SECURE_ECDSA.h" />
+        <file file_name="../../../SECURE/Inc/SECURE_ECDSA_ConfDefaults.h" />
+        <file file_name="../../../SECURE/Inc/SECURE_RSA.h" />
+        <file file_name="../../../SECURE/Inc/SECURE_RSA_ConfDefaults.h" />
+        <file file_name="../../../SECURE/Inc/SECURE_TrialKey.h" />
+      </folder>
+      <folder Name="Keys">
+        <file file_name="../../../SECURE/Keys/SECURE_ECDSA_PrivateKey_P192.h" />
+        <file file_name="../../../SECURE/Keys/SECURE_ECDSA_PrivateKey_P224.h" />
+        <file file_name="../../../SECURE/Keys/SECURE_ECDSA_PrivateKey_P256.h" />
+        <file file_name="../../../SECURE/Keys/SECURE_ECDSA_PrivateKey_P384.h" />
+        <file file_name="../../../SECURE/Keys/SECURE_ECDSA_PrivateKey_P521.h" />
+        <file file_name="../../../SECURE/Keys/SECURE_ECDSA_PublicKey_P192.h" />
+        <file file_name="../../../SECURE/Keys/SECURE_ECDSA_PublicKey_P224.h" />
+        <file file_name="../../../SECURE/Keys/SECURE_ECDSA_PublicKey_P256.h" />
+        <file file_name="../../../SECURE/Keys/SECURE_ECDSA_PublicKey_P384.h" />
+        <file file_name="../../../SECURE/Keys/SECURE_ECDSA_PublicKey_P521.h" />
+        <file file_name="../../../SECURE/Keys/SECURE_RSA_PrivateKey_1024b.h" />
+        <file file_name="../../../SECURE/Keys/SECURE_RSA_PrivateKey_2048b.h" />
+        <file file_name="../../../SECURE/Keys/SECURE_RSA_PrivateKey_512b.h" />
+        <file file_name="../../../SECURE/Keys/SECURE_RSA_PrivateKey_Expert.h" />
+        <file file_name="../../../SECURE/Keys/SECURE_RSA_PublicKey_1024b.h" />
+        <file file_name="../../../SECURE/Keys/SECURE_RSA_PublicKey_2048b.h" />
+        <file file_name="../../../SECURE/Keys/SECURE_RSA_PublicKey_512b.h" />
+        <file file_name="../../../SECURE/Keys/SECURE_RSA_PublicKey_Expert.h" />
+      </folder>
+      <folder Name="Lib">
+        <file file_name="../../../SECURE/Lib/libSECURE_v7m_t_vfpv4_le_d.a">
+          <configuration Name="Release" build_exclude_from_build="Yes" />
+          <configuration
+            Name="Release_SystemView"
+            build_exclude_from_build="Yes" />
+        </file>
+        <file file_name="../../../SECURE/Lib/libSECURE_v7m_t_vfpv4_le_r.a">
+          <configuration Name="Debug" build_exclude_from_build="Yes" />
+        </file>
+      </folder>
+      <configuration Name="Debug" build_exclude_from_build="Yes" />
+    </folder>
+    <folder Name="SEGGER">
+      <folder Name="Config">
+        <file file_name="../../../SEGGER/Config/SEGGER_MEM_Conf.h" />
+      </folder>
+      <folder Name="Inc">
+        <file file_name="../../../SEGGER/Inc/Global.h" />
+        <file file_name="../../../SEGGER/Inc/SEGGER.h" />
+        <file file_name="../../../SEGGER/Inc/SEGGER_MEM.h" />
+        <file file_name="../../../SEGGER/Inc/SEGGER_MEM_ConfDefaults.h" />
+        <file file_name="../../../SEGGER/Inc/SEGGER_RTT.h" />
+        <file file_name="../../../SEGGER/Inc/SEGGER_SHELL.h" />
+        <file file_name="../../../SEGGER/Inc/SEGGER_SYS.h" />
+        <file file_name="../../../SEGGER/Inc/SEGGER_UTIL.h" />
+      </folder>
+      <folder Name="Lib">
+        <file file_name="../../../SEGGER/Lib/libSEGGER_v7m_t_vfpv4_le_d.a">
+          <configuration Name="Release" build_exclude_from_build="Yes" />
+          <configuration
+            Name="Release_SystemView"
+            build_exclude_from_build="Yes" />
+        </file>
+        <file file_name="../../../SEGGER/Lib/libSEGGER_v7m_t_vfpv4_le_r.a">
+          <configuration Name="Debug" build_exclude_from_build="Yes" />
+          <configuration
+            Name="Release_SystemView"
+            build_exclude_from_build="Yes" />
+        </file>
+        <file file_name="../../../SEGGER/Lib/libSEGGER_v7m_t_vfpv4_le_sp.a">
+          <configuration Name="Debug" build_exclude_from_build="Yes" />
+          <configuration Name="Release" build_exclude_from_build="Yes" />
+        </file>
+      </folder>
+      <folder Name="RTT">
+        <file file_name="../../../SEGGER/RTT/SEGGER_RTT.c" />
+        <file file_name="../../../SEGGER/RTT/SEGGER_RTT_printf.c" />
+      </folder>
+      <folder Name="SYS">
+        <file file_name="../../../SEGGER/SYS/SEGGER_SYS.c" />
+        <file file_name="../../../SEGGER/SYS/SEGGER_SYS.h" />
+        <file file_name="../../../SEGGER/SYS/SEGGER_SYS_embOS.c" />
+        <file file_name="../../../SEGGER/SYS/SEGGER_SYS_IO.c" />
+        <file file_name="../../../SEGGER/SYS/SEGGER_SYS_IO_ConfDefaults.h" />
+        <file file_name="../../../SEGGER/SYS/SEGGER_SYS_IO_printf.c" />
+        <file file_name="../../../SEGGER/SYS/SEGGER_SYS_IO_RTT.c" />
+        <file file_name="../../../SEGGER/SYS/SEGGER_SYS_OS_embOS.c">
+          <configuration Name="Debug" build_exclude_from_build="Yes" />
+        </file>
+      </folder>
+      <folder Name="Syscalls">
+        <file file_name="../../../SEGGER/Syscalls/SEGGER_RTT_Syscalls_SES.c" />
+      </folder>
+      <folder Name="SystemView">
+        <file file_name="../../../SEGGER/SystemView/SEGGER_SYSVIEW.c" />
+        <file file_name="../../../SEGGER/SystemView/SEGGER_SYSVIEW.h" />
+        <file file_name="../../../SEGGER/SystemView/SEGGER_SYSVIEW_ConfDefaults.h" />
+        <file file_name="../../../SEGGER/SystemView/SEGGER_SYSVIEW_embOS.c" />
+        <file file_name="../../../SEGGER/SystemView/SEGGER_SYSVIEW_embOS.h" />
+        <file file_name="../../../SEGGER/SystemView/SEGGER_SYSVIEW_Int.h" />
+      </folder>
+      <file file_name="../../../SEGGER/SEGGER_HardFaultHandler.c" />
+    </folder>
+    <folder Name="BSP">
+      <folder Name="Drivers">
+        <folder Name="DMA">
+          <file file_name="../../../BSP/Drivers/DMA/dma.c" />
+          <file file_name="../../../BSP/Drivers/DMA/dma.h" />
+        </folder>
+        <folder Name="MPU-6050">
+          <file file_name="../../../BSP/Drivers/MPU-6050/mpu-6050.c" />
+          <file file_name="../../../BSP/Drivers/MPU-6050/mpu-6050.h" />
+        </folder>
+        <folder Name="sd_mmc">
+          <file file_name="../../../BSP/Drivers/sd_mmc/sd_mmc.c">
+            <configuration Name="Debug" build_exclude_from_build="Yes" />
+          </file>
+          <file file_name="../../../BSP/Drivers/sd_mmc/sd_mmc.h">
+            <configuration Name="Debug" build_exclude_from_build="Yes" />
+          </file>
+          <file file_name="../../../BSP/Drivers/sd_mmc/sd_mmc_protocol.h">
+            <configuration Name="Debug" build_exclude_from_build="Yes" />
+          </file>
+        </folder>
+        <folder Name="TWI">
+          <file file_name="../../../BSP/Drivers/TWI/twi.c" />
+          <file file_name="../../../BSP/Drivers/TWI/twi.h" />
+          <file file_name="../../../BSP/Drivers/TWI/twi_Isr.c" />
+          <file file_name="../../../BSP/Drivers/TWI/twi_util.h" />
+        </folder>
+        <folder Name="PORT">
+          <file file_name="../../../BSP/Drivers/PORT/port.c" />
+          <file file_name="../../../BSP/Drivers/PORT/port.h" />
+        </folder>
+        <folder Name="PWM Driver">
+          <file file_name="duty_cycle.py" />
+          <file file_name="../../../BSP/Drivers/PWM_Driver/pwm_driver.c" />
+          <file file_name="../../../BSP/Drivers/PWM_Driver/pwm_driver.h" />
+          <file file_name="../../../BSP/Drivers/PWM_Driver/pwm_tables.c" />
+        </folder>
+        <folder Name="SPI Driver">
+          <file file_name="notes.txt" />
+          <file file_name="../../../BSP/Drivers/SPI_Driver/spi_dma.c" />
+          <file file_name="../../../BSP/Drivers/SPI_Driver/spi_driver.c" />
+          <file file_name="../../../BSP/Drivers/SPI_Driver/spi_driver.h" />
+        </folder>
+        <folder Name="RTC Driver">
+          <file file_name="../../../BSP/Drivers/RTC_Driver/rtc_driver.c" />
+          <file file_name="../../../BSP/Drivers/RTC_Driver/rtc_driver.h" />
+        </folder>
+      </folder>
+    </folder>
+    <configuration
+      Name="Debug"
+      arm_linker_heap_size="32768"
+      arm_linker_process_stack_size="32768"
+      arm_linker_stack_size="32768" />
+  </project>
+  <configuration
+    Name="Debug"
+    c_preprocessor_definitions="DEBUG=1"
+    gcc_debugging_level="Level 3"
+    gcc_optimization_level="None" />
+  <configuration
+    Name="Release"
+    c_preprocessor_definitions="NDEBUG"
+    gcc_debugging_level="Level 3"
+    gcc_optimization_level="Level 3" />
+  <configuration
+    Name="Release_SystemView"
+    c_preprocessor_definitions="NDEBUG;OS_LIBMODE_SP;USE_SYSTEMVIEW=1"
+    gcc_debugging_level="Level 3"
+    gcc_optimization_level="Level 3" />
+</solution>

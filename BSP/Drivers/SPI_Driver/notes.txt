@@ -1,0 +1,4 @@
+- Add 100k pullup to SS line
+- Pullup/down on MISO to reduce power consumption
+- ATWINC3400 max SPI freq. 48 MHz
+
