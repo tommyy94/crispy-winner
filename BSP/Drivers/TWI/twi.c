@@ -131,11 +131,11 @@ bool TWI_Xfer(TWI_Adapter *pxAdap, const uint32_t ulCount)
         if (ret == false)
         {
             TWI_AbortXfer(pxAdap);
-            //Journal_vWriteError(I2C_ERROR);
+            Journal_vWriteError(I2C_ERROR);
         }
     }
 
-    while ((pxAdap->pxInst->TWIHS_SR & TWIHS_SR_TXCOMP) == 0)
+    //while ((pxAdap->pxInst->TWIHS_SR & TWIHS_SR_TXCOMP) == 0)
     {
         ; /* Wait until transmission complete */
     }
