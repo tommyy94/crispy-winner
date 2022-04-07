@@ -281,7 +281,7 @@ bool MPU6050_AccelRead(AxisStruct_t *pxAccel)
  *
  * @retval  status    Read status.
  */
-bool MPU6050_vGyroRead(AxisStruct_t *pxGyro)
+bool MPU6050_GyroRead(AxisStruct_t *pxGyro)
 {
     bool    status;
     uint8_t ucReg     = MPU6050_GYRO_XOUT_H;
