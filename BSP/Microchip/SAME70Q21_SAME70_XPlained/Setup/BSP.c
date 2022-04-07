@@ -11,6 +11,7 @@
 #include "twi.h"
 #include "dma.h"
 #include "twi.h"
+#include "io.h"
 #include "mpu.h"
 
 /* ATWINC3400 */
@@ -20,6 +21,9 @@
 void BSP_Init(void)
 {
     MPU_Config();
+
+    /* Enable PORT and PIO clock gating */
+    IO_Init();
 
     /* Initialize communications */
     DMA_Init();
