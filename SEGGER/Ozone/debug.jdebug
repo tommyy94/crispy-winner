@@ -4,8 +4,8 @@
 *                         www.segger.com                             *
 **********************************************************************
 
-File          : /home/tommy/Documents/SEGGER Embedded Studio for ARM Projects/Controller_SAME54/Device/Middleware/SEGGER/debug.jdebug
-Created       : 22 Feb 2022 13:28
+File          : /home/tommy/Documents/SEGGER Embedded Studio for ARM Projects/Device_SAME70/SEGGER/Ozone/debug.jdebug
+Created       : 5 Mar 2022 14:13
 Ozone Version : V3.26a
 */
 
@@ -23,17 +23,17 @@ void OnProjectLoad (void) {
   // Dialog-generated settings
   //
   Project.AddPathSubstitute ("/home/tommy/Documents/SEGGER Embedded Studio for ARM Projects/Device_SAME70/SEGGER/Ozone", "$(ProjectDir)");
-  Project.AddPathSubstitute ("/home/tommy/Documents/segger embedded studio for arm projects/device_same70/segger/ozone", "$(ProjectDir)");
+  Project.AddPathSubstitute ("/home/tommy/documents/segger embedded studio for arm projects/device_same70/segger/ozone", "$(ProjectDir)");
   Project.SetDevice ("ATSAME70Q21");
-  Project.SetHostIF ("IP", "192.168.10.5");
+  Project.SetHostIF ("USB", "260107991");
   Project.SetTargetIF ("SWD");
   Project.SetTIFSpeed ("4 MHz");
   Project.AddSvdFile ("$(InstallDir)/Config/CPU/Cortex-M7F.svd");
-  Project.SetJLinkScript ("/home/tommy/Documents/segger embedded studio for arm projects/device_same70/segger/ozone/JLinkScript.pex");
+  Project.AddSvdFile ("$(InstallDir)/Config/Peripherals/ATSAME70Q21.svd");
   //
   // User settings
   //
-  File.Open ("/home/tommy/Documents/SEGGER Embedded Studio for ARM Projects/Device_SAME70/BSP/Microchip/SAME70Q21_SAME70_XPlained/Output/Debug/Device_SAME70.elf");
+  File.Open ("/home/tommy/Documents/SEGGER Embedded Studio for ARM Projects/Device_SAME70/BSP/Microchip/SAME70Q21_SAME70_XPlained/Output/Debug/Start_SAME70_XPlained.elf");
 }
 
 /*********************************************************************
@@ -340,7 +340,7 @@ void _SetupTarget(void) {
   //
   // Set up entry point PC
   //
-  PC = Elf.GetEntryPointPC();
+  PC = Target.ReadU32(VectorTableAddr + 4);
   if (PC != 0xFFFFFFFF) {
     Target.SetReg("PC", PC);
   } else {
