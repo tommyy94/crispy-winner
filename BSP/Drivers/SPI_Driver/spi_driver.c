@@ -2,8 +2,10 @@
 #include "RTOS.h"
 
 #include "spi_driver.h"
+#include "pmc_driver.h"
 #include "system.h"
 #include "logWriter.h"
+#include "io.h"
 
 
 typedef enum
@@ -26,6 +28,8 @@ typedef enum
 } SPI_SlaveSelect;
 
 
+extern void SPI0_IRQHandler(void);
+
 __STATIC_INLINE void SPI0_IO_Init(void);
 __STATIC_INLINE void SPI_Reset(Spi *spi);
 __STATIC_INLINE void SPI_SetMode(Spi *spi, SPI_SlaveSelect slave, SPI_Mode mode);
@@ -33,25 +37,24 @@ __STATIC_INLINE void SPI_SetMode(Spi *spi, SPI_SlaveSelect slave, SPI_Mode mode)
 
 void SPI0_Init(void)
 {
-    Pmc *pmc = PMC;
     Spi *spi = SPI0;
+    SPI_SlaveSelect slave = SLAVE_1;
+    
+    SPI0_IO_Init();
+    SPI0_DMA_Init();
     
     /**
      * Enable SPI0 clock gating
      * - SPI0 clock = Peripheral clock / 2
      *              = 150 MHz / 2 = 75 MHz
      */
-    pmc->PMC_PCR |= PMC_PCR_CMD | PMC_PCR_PID(ID_SPI0) | PMC_PCR_EN;
-    
-    SPI0_IO_Init();    
-    SPI0_DMA_Init();
+    PMC_PeripheralClockEnable(ID_SPI0);
     
     /* Wait data read before transfer
      * Master Mode
      * Chip Select 1
      */
-    spi->SPI_MR = SPI_MR_MSTR | SPI_MR_PCS(~(1u << 0));
-    //spi->SPI_MR = SPI_MR_MSTR | SPI_MR_PCS_NPCS1;
+    spi->SPI_MR = SPI_MR_MSTR | SPI_MR_PCS(~(1u << slave));
     
     /* SPI0.CS1 Baud rate = Main clock / 2
      * Serial Clock Bit Rate = f_perclock / SPCK Bit Rate
@@ -59,11 +62,11 @@ void SPI0_Init(void)
      * NOTE: SCBR should not be 0!
      * 8 bits per transfer
      */
-    spi->SPI_CSR[SLAVE_1] = SPI_CSR_SCBR(16) | SPI_CSR_BITS_8_BIT; /* 2.6 MHz */
-    assert((spi->SPI_CSR[SLAVE_1] & SPI_CSR_SCBR_Msk) != 0);
+    spi->SPI_CSR[slave] = SPI_CSR_SCBR(32) | SPI_CSR_BITS_8_BIT; /* 2.6 MHz */
+    assert((spi->SPI_CSR[slave] & SPI_CSR_SCBR_Msk) != 0);
     
     /* CPOL = 0, CPHA = 1, SPCK inactive LOW */
-    SPI_SetMode(spi, SLAVE_1, MODE_0);
+    SPI_SetMode(spi, slave, MODE_1);
     
     /* Send data only when receive register empty */
     spi->SPI_MR |= SPI_MR_WDRBT;
@@ -73,37 +76,26 @@ void SPI0_Init(void)
      * - Mode Fault error
      */
     spi->SPI_IER = SPI_IER_OVRES | SPI_IER_MODF;
-    
-    OS_ARM_ISRSetPrio(SPI0_IRQn + IRQn_OFFSET, SPI0_IRQ_PRIO);
-    OS_ARM_EnableISR(SPI0_IRQn + IRQn_OFFSET);
+
+    NVIC_ClearPendingIRQ(SPI0_IRQn);
+    NVIC_SetPriority(SPI0_IRQn, SPI0_IRQ_PRIO);
+    NVIC_EnableIRQ(SPI0_IRQn);
 }
 
 
 __STATIC_INLINE void SPI0_IO_Init(void)
 {
-    Pio *piob = PIOB;
-    Pio *piod = PIOD;
-    const uint32_t spiMask = PIO_ABCDSR_P25 | PIO_ABCDSR_P22
-                           | PIO_ABCDSR_P21 | PIO_ABCDSR_P20;
-
-    /* Select peripheral function B */
-    piod->PIO_ABCDSR[0] |= spiMask;
-    piod->PIO_ABCDSR[1] &= ~(spiMask);
-
-    /* Select peripheral function D */
-    piob->PIO_ABCDSR[0] |= PIO_ABCDSR_P2;
-    piob->PIO_ABCDSR[1] |= PIO_ABCDSR_P2;
-    
-    /* Set peripheral function */
-    piod->PIO_PDR = spiMask;
-    piob->PIO_PDR = PIO_PDR_P2;
+    //const uint32_t selfTestPin = PIO_ABCDSR_P2;   /* CS0  */
+    const uint32_t spiMask     = PIO_ABCDSR_P25   /* CS1  */
+                               | PIO_ABCDSR_P22   /* SCK  */
+                               | PIO_ABCDSR_P21   /* MOSI */
+                               | PIO_ABCDSR_P20;  /* MISO */
 
     /* Enable internal pulldown for MISO */
-    piod->PIO_MDER    = PIO_MDER_P20;
-    piod->PIO_PUDR    = PIO_PUDR_P20;
-    piod->PIO_PPDER   = PIO_PPDER_P20;
-    piod->PIO_DRIVER |= PIO_DRIVER_LINE20_HIGH_DRIVE;
-    
+    IO_ConfigurePull(PIOD, PIO_PUDR_P20, IO_PULLDOWN);
+
+    IO_SetPeripheralFunction(PIOD, spiMask, IO_PERIPH_B);
+    //IO_SetPeripheralFunction(PIOB, selfTestPin, IO_PERIPH_D);
 }
 
 
@@ -209,14 +201,13 @@ __STATIC_INLINE void SPI_Reset(Spi *spi)
     spi->SPI_CR |= SPI_CR_SWRST;
 }
 
-void SPI0_Handler(void)
+void SPI0_IRQHandler(void)
 {
     uint32_t status;
-    Spi *spi = SPI0;
 
     OS_INT_Enter();
 
-    status = spi->SPI_SR;
+    status = SPI0->SPI_SR;
     assert((status & SPI_SR_MODF)  == 0);
     Journal_vWriteError(SPI_ERROR);
 
