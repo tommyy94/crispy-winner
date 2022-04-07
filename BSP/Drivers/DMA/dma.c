@@ -3,6 +3,7 @@
 
 #include "dma.h"
 #include "logWriter.h"
+#include "pmc_driver.h"
 #include "system.h"
 
 
@@ -19,7 +20,7 @@ void DMA_Init(void)
   Pmc   *pmc = PMC;
 
   /* Enable XDMAC clock gating */
-  //pmc->PMC_PCR |= PMC_PCR_CMD | PMC_PCR_PID(XDMAC_CLOCK_ID) | PMC_PCR_EN;
+  PMC_PeripheralClockEnable(ID_XDMAC);
   pmc->PMC_PCR |= PMC_PCR_CMD | PMC_PCR_PID(ID_XDMAC) | PMC_PCR_EN;
   
   /* Disable all channels */

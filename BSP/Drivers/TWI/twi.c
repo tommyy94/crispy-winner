@@ -9,9 +9,10 @@
 /* User includes */
 #include "twi.h"
 #include "twi_util.h"
-#include "port.h"
+#include "io.h"
 #include "system.h"
 #include "logWriter.h"
+#include "pmc_driver.h"
 
 
 #define TWI0_PORT       (PIOA)
@@ -66,9 +67,7 @@ void TWI0_vInit(void)
      * - TWI0 clock = Peripheral clock / 2
      *              = 150 MHz / 2 = 75 MHz
      */
-    //PMC->PMC_PCR |= PMC_PCR_CMD | PMC_PCR_PID(TWIHS0_CLOCK_ID) | PMC_PCR_EN;
-    /* Maybe works ??? */
-    PMC->PMC_PCR |= PMC_PCR_CMD | PMC_PCR_PID(ID_TWIHS0) | PMC_PCR_EN;
+    PMC_PeripheralClockEnable(ID_TWIHS0);
 
     //TWIHS0->TWIHS_CWGR = TWIHS_CWGR_CKDIV(1) | TWIHS_CWGR_CHDIV(43) | TWIHS_CWGR_CLDIV(43);
     TWIHS0->TWIHS_CWGR = TWIHS_CWGR_CKDIV(1) | TWIHS_CWGR_CHDIV(153) | TWIHS_CWGR_CLDIV(153);
@@ -99,7 +98,7 @@ void TWI0_vInit(void)
  */
 bool TWI_Xfer(TWI_Adapter *pxAdap, const uint32_t ulCount)
 {
-    bool ret;
+    bool ret = false;
 
     /* Sanity check */
     assert((pxAdap->pxInst == TWIHS0)
@@ -177,8 +176,8 @@ static void TWI_AbortXfer(TWI_Adapter *pxAdap)
  */
 static void TWI0_IO_vInit(void)
 {
-    PIO_ConfigurePull(TWI0_PORT, PIN_TWCK0 | PIN_TWD0, PIO_PULLUP);
-    PIO_vSetPeripheralFunction(TWI0_PORT, PIN_TWCK0 | PIN_TWD0, PIO_PERIPH_A);
+    IO_ConfigurePull(TWI0_PORT, PIN_TWCK0 | PIN_TWD0, IO_PULLUP);
+    IO_SetPeripheralFunction(TWI0_PORT, PIN_TWCK0 | PIN_TWD0, IO_PERIPH_A);
 }
 
 

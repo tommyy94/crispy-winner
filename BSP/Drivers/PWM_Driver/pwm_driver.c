@@ -2,6 +2,7 @@
 #include "pwm_driver.h"
 #include "pio.h"
 #include "logWriter.h"
+#include "pmc_driver.h"
 
 
 static void     PWM_IO_Init(void);
@@ -21,8 +22,8 @@ void PWM_Init(void)
      * Enable PWM clock gating
      * - PWM0 & PWM1 clock = 75 MHz
      */
-    PMC->PMC_PCR = PMC_PCR_CMD | PMC_PCR_PID(ID_PWM0) | PMC_PCR_EN;
-    PMC->PMC_PCR = PMC_PCR_CMD | PMC_PCR_PID(ID_PWM1) | PMC_PCR_EN;
+    PMC_PeripheralClockEnable(ID_PWM0);
+    PMC_PeripheralClockEnable(ID_PWM1);
                                   
     /* clkA & clkB = 75 MHz / 16 = 4,68 MHz => center-aligned so 2,34 MHz */
     PWM0->PWM_CLK = PWM_CLK_PREA_CLK_DIV16 | PWM_CLK_DIVA_PREA;
