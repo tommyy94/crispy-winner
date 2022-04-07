@@ -28,7 +28,7 @@ static OS_STACKPTR int stackJournal[512]    __attribute__((aligned(8)));
        OS_TASK         journalTCB;
 static OS_STACKPTR int stackRtc[512]        __attribute__((aligned(8)));
        OS_TASK         rtcTCB;
-static OS_STACKPTR int stackWireless[512]       __attribute__((aligned(8)));
+static OS_STACKPTR int stackWireless[2048]  __attribute__((aligned(8)));
 static OS_TASK         wirelessTCB;
 static OS_STACKPTR int stackThrottle[512]   __attribute__((aligned(8)));
 static OS_TASK         throttleTCB;
