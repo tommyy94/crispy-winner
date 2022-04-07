@@ -260,6 +260,16 @@ __SEGGER_init_zpak:
   .thumb_func
 
 _start:
+  ldr r0, =__tbss_start__
+  ldr r1, =__tbss_end__
+  mov r2, #0
+  bl memset
+  /*Initialize RTT area*/
+  ldr r0, =__RTT_Data_start__
+  ldr r1, =__RTT_Data_end__
+  mov r2, #0
+  bl memset
+
   ldr r0, = __stack_end__
   mov sp, r0
   ldr r4, =__SEGGER_init_table__

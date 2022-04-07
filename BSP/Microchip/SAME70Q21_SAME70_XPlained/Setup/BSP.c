@@ -11,6 +11,7 @@
 #include "twi.h"
 #include "dma.h"
 #include "twi.h"
+#include "mpu.h"
 
 /* ATWINC3400 */
 //#include "common/include/nm_common.h"
@@ -18,6 +19,8 @@
 
 void BSP_Init(void)
 {
+    MPU_Config();
+
     /* Initialize communications */
     DMA_Init();
     SPI0_Init();

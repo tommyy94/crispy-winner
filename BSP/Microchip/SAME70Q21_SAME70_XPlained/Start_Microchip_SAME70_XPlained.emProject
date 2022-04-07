@@ -424,8 +424,20 @@
         </file>
       </folder>
       <folder Name="RTT">
-        <file file_name="../../../SEGGER/RTT/SEGGER_RTT.c" />
-        <file file_name="../../../SEGGER/RTT/SEGGER_RTT_printf.c" />
+        <file file_name="../../../SEGGER/RTT/SEGGER_RTT.c">
+          <configuration
+            Name="Debug"
+            default_code_section=".RTT_text"
+            gcc_optimization_level="Level 3 for more speed" />
+          <configuration Name="Common" default_code_section=".RTT_text" />
+        </file>
+        <file file_name="../../../SEGGER/RTT/SEGGER_RTT_printf.c">
+          <configuration
+            Name="Debug"
+            default_code_section=".RTT_text"
+            gcc_optimization_level="Level 3 for more speed" />
+          <configuration Name="Common" default_code_section=".RTT_text" />
+        </file>
       </folder>
       <folder Name="SYS">
         <file file_name="../../../SEGGER/SYS/SEGGER_SYS.c" />
