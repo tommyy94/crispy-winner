@@ -32,7 +32,7 @@ static OS_STACKPTR int stackWireless[2048]  __attribute__((aligned(8)));
 static OS_TASK         wirelessTCB;
 static OS_STACKPTR int stackThrottle[512]   __attribute__((aligned(8)));
 static OS_TASK         throttleTCB;
-static OS_STACKPTR int stackGyro[4096]      __attribute__((aligned(8)));
+static OS_STACKPTR int stackGyro[512]       __attribute__((aligned(8)));
 static OS_TASK         gyroTCB;
 
 OS_QUEUE          throttleQ;
