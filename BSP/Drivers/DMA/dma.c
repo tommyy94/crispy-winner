@@ -10,90 +10,127 @@
 extern OS_EVENT dmaEvt;
 extern OS_TASK journalTCB;
 
+extern void XDMAC_IRQHandler(void);
 
 static void DMA_Init_memcpy(void);
 
 
 void DMA_Init(void)
 {
-  Xdmac *dma = XDMAC;
-  Pmc   *pmc = PMC;
-
   /* Enable XDMAC clock gating */
   PMC_PeripheralClockEnable(ID_XDMAC);
-  pmc->PMC_PCR |= PMC_PCR_CMD | PMC_PCR_PID(ID_XDMAC) | PMC_PCR_EN;
   
   /* Disable all channels */
-  dma->XDMAC_GD = 0xFFFFFFFF;
+  XDMAC->XDMAC_GD = 0xFFFFFFFF;
 
   DMA_Init_memcpy();
-  
-  OS_ARM_ISRSetPrio(XDMAC_IRQn + IRQn_OFFSET, XDMAC_IRQ_PRIO);
-  OS_ARM_EnableISR(XDMAC_IRQn + IRQn_OFFSET);
+
+  NVIC_ClearPendingIRQ(XDMAC_IRQn);
+  NVIC_SetPriority(XDMAC_IRQn, XDMAC_IRQ_PRIO);
+  NVIC_EnableIRQ(XDMAC_IRQn);
 }
 
 
 static void DMA_Init_memcpy(void)
-{
-  Xdmac *dma = XDMAC;
+{  
+  XdmacChid *pDmaCh = &XDMAC->XDMAC_CHID[DMA_MEMCPY_CH];
   
-  /* Memory-to-memory */
-  dma->XDMAC_CHID[DMA_MEMCPY_CH].XDMAC_CC  = XDMAC_CC_TYPE_MEM_TRAN;
-  
-  /* Single byte transfer
+  /* Memory-to-memory
+   * Single byte transfer
    * single burst byte bursts
    * 32-bit data
    * Read and write data through the system bus interface 0
    * Hardware request
+   * Increment source and destination addresses
    */
-  dma->XDMAC_CHID[DMA_MEMCPY_CH].XDMAC_CC |= XDMAC_CC_CSIZE_CHK_1 | XDMAC_CC_MBSIZE_SINGLE
-                                         |  XDMAC_CC_DWIDTH_WORD
-                                         |  XDMAC_CC_SIF_AHB_IF0 | XDMAC_CC_DIF_AHB_IF0
-                                         |  XDMAC_CC_SWREQ_SWR_CONNECTED;
+  pDmaCh->XDMAC_CC |= XDMAC_CC_CSIZE_CHK_1
+                   |  XDMAC_CC_MBSIZE_SINGLE
+                   |  XDMAC_CC_DWIDTH_WORD
+                   |  XDMAC_CC_SIF_AHB_IF0
+                   |  XDMAC_CC_DIF_AHB_IF0
+                   |  XDMAC_CC_SWREQ_SWR_CONNECTED
+                   |  XDMAC_CC_SAM_INCREMENTED_AM
+                   |  XDMAC_CC_DAM_INCREMENTED_AM;
 
   /* The following registers need to be cleared */
-  dma->XDMAC_CHID[DMA_MEMCPY_CH].XDMAC_CNDC    = 0;
-  dma->XDMAC_CHID[DMA_MEMCPY_CH].XDMAC_CBC     = 0;
-  dma->XDMAC_CHID[DMA_MEMCPY_CH].XDMAC_CDS_MSP = 0;
-  dma->XDMAC_CHID[DMA_MEMCPY_CH].XDMAC_CSUS    = 0;
-  dma->XDMAC_CHID[DMA_MEMCPY_CH].XDMAC_CDUS    = 0;
+  pDmaCh->XDMAC_CNDC    = 0;
+  pDmaCh->XDMAC_CBC     = 0;
+  pDmaCh->XDMAC_CDS_MSP = 0;
+  pDmaCh->XDMAC_CSUS    = 0;
+  pDmaCh->XDMAC_CDUS    = 0;
 }
 
 
 void DMA_memcpy(uint32_t *dest, uint32_t *src, uint32_t n)
 {
-  Xdmac *dma = XDMAC;
+  XdmacChid *pDmaCh = &XDMAC->XDMAC_CHID[DMA_MEMCPY_CH];
 
-  dma->XDMAC_CHID[DMA_MEMCPY_CH].XDMAC_CSA  = (uint32_t)src;
-  dma->XDMAC_CHID[DMA_MEMCPY_CH].XDMAC_CDA  = (uint32_t)dest;
-  dma->XDMAC_CHID[DMA_MEMCPY_CH].XDMAC_CUBC = n;
+  pDmaCh->XDMAC_CSA  = XDMAC_CSA_SA((uint32_t)src);
+  pDmaCh->XDMAC_CDA  = XDMAC_CDA_DA((uint32_t)dest);
+  pDmaCh->XDMAC_CUBC = XDMAC_CUBC_UBLEN(n);
 
   /* Enable interrupts if needed... */
 
   /* Enable channel 0 */
   __DMB();
-  dma->XDMAC_GE = XDMAC_GE_EN0;
+  XDMAC->XDMAC_GE = XDMAC_GE_EN0;
 
   /* Poll for transfer completion */
-  while ((dma->XDMAC_GS & XDMAC_GS_ST0) != 0);
+  while ((XDMAC->XDMAC_GS & XDMAC_GS_ST0) != 0);
+}
+
+uint32_t DMA_ComputeBurstSize(const uint32_t len)
+{
+    uint32_t bsize;
+
+    /* Determine burst size */
+    bsize = XDMAC_CC_MBSIZE_SINGLE;
+    if ((len % 16) == 0)
+    {
+        if ((len / 16) > 0)
+        {
+            bsize = XDMAC_CC_MBSIZE_SIXTEEN;
+        }
+    }
+    else if ((len % 8) == 0)
+    {
+        if ((len / 8) > 0)
+        {
+            bsize = XDMAC_CC_MBSIZE_EIGHT;
+        }
+    }
+    else if ((len % 4) == 0)
+    {
+        if ((len / 4) > 0)
+        {
+            bsize = XDMAC_CC_MBSIZE_FOUR;
+        }
+    }
+    else
+    {
+        /* Burst size should be single if we ever get here */
+    }
+
+    bsize = XDMAC_CC_MBSIZE_SINGLE;
+    return bsize;
 }
 
 
-void XDMAC_Handler(void)
+void XDMAC_IRQHandler(void)
 {
-  uint32_t globalIrqMask;
-  uint32_t spiStatus;
+  uint32_t        globalIrqMask;
+  uint32_t        spiStatus;
+  const uint32_t  dmaErrMask = XDMAC_CIS_ROIS
+                             | XDMAC_CIS_WBEIS
+                             | XDMAC_CIS_RBEIS;
 
   OS_INT_Enter();
 
-  const uint32_t dmaErrMask = XDMAC_CIS_ROIS | XDMAC_CIS_WBEIS | XDMAC_CIS_RBEIS;
-  Xdmac *dma = XDMAC;
-
-  globalIrqMask = dma->XDMAC_GIS;
+  globalIrqMask = XDMAC->XDMAC_GIS;
 
   /* Pending IRQ cleared by reading XDMAC_CISx */
-  spiStatus  = (dma->XDMAC_CHID[DMA_SPI0_TX_CH].XDMAC_CIS & dmaErrMask);
-  spiStatus |= (dma->XDMAC_CHID[DMA_SPI0_RX_CH].XDMAC_CIS & dmaErrMask);
+  spiStatus  = (XDMAC->XDMAC_CHID[DMA_SPI0_TX_CH].XDMAC_CIS & dmaErrMask);
+  spiStatus |= (XDMAC->XDMAC_CHID[DMA_SPI0_RX_CH].XDMAC_CIS & dmaErrMask);
   if (spiStatus != 0)
   {
     Journal_vWriteError(DMA_ERROR);
