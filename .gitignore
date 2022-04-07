@@ -5,11 +5,12 @@
 *.d
 *.o
 *.a
+*.ind
+*.elf
+*.map
 CRYPTO
 FS
 SECURE
 COMPRESS
 SEGGER/SYS
 SEGGER/Syscalls
-
-*.swp
