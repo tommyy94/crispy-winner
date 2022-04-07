@@ -506,6 +506,14 @@
           <file file_name="../../../BSP/Drivers/RTC_Driver/rtc_driver.c" />
           <file file_name="../../../BSP/Drivers/RTC_Driver/rtc_driver.h" />
         </folder>
+        <folder Name="PMC Driver">
+          <file file_name="../../../BSP/Drivers/PMC_Driver/pmc_driver.c" />
+          <file file_name="../../../BSP/Drivers/PMC_Driver/pmc_driver.h" />
+        </folder>
+        <folder Name="MPU">
+          <file file_name="../../../BSP/Drivers/MPU/mpu.c" />
+          <file file_name="../../../BSP/Drivers/MPU/mpu.h" />
+        </folder>
       </folder>
     </folder>
     <configuration
