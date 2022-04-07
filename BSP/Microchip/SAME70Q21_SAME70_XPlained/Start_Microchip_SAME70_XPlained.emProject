@@ -22,8 +22,8 @@
       build_output_directory="$(ProjectDir)/Output/$(Configuration)"
       c_additional_options="-Wall;-Wextra;-Wunused-variable;-Wmissing-field-initializers;-Wundef;-ffunction-sections;-fdata-sections"
       c_only_additional_options="-Wmissing-prototypes"
-      c_preprocessor_definitions="__SAME70Q21__;__SAM_E_FAMILY;ARM_MATH_CM7;USE_RTT=1;WEBS_USE_SAMPLE_2018=1"
-      c_user_include_directories="$(ProjectDir)/Setup;$(ProjectDir)/Setup/CoreSupport;$(ProjectDir)/Setup/DeviceSupport;$(ProjectDir)/Setup/DeviceSupport/component;$(ProjectDir)/Setup/DeviceSupport/instance;$(ProjectDir)/Setup/DeviceSupport/pio;$(ProjectDir)/../../../Application/GUI/SEGGERDEMO;$(ProjectDir)/../../../Application/GUI/SEGGERDEMO/Src;$(ProjectDir)/../../../Application/SEGGERDEMO;$(ProjectDir)/../../../Application/SEGGERDEMO/Src;$(ProjectDir)/../../../COMPRESS/Config;$(ProjectDir)/../../../COMPRESS/Inc;$(ProjectDir)/../../../CRYPTO/Config;$(ProjectDir)/../../../CRYPTO/Inc;$(ProjectDir)/../../../FS/Config;$(ProjectDir)/../../../FS/Inc;$(ProjectDir)/../../../FS/Setup/SAME70Q21_Microchip_SAME70_XPlained;$(ProjectDir)/../../../GUI/Config;$(ProjectDir)/../../../GUI/Inc;$(ProjectDir)/../../../GUI/Setup/SAME70Q21_Microchip_SAME70_XPlained;$(ProjectDir)/../../../IOT/Config;$(ProjectDir)/../../../IOT/Inc;$(ProjectDir)/../../../IP/Config;$(ProjectDir)/../../../IP/Inc;$(ProjectDir)/../../../IP/Setup/IP_FS/FS_RO_2018/Generated;$(ProjectDir)/../../../MB/Config;$(ProjectDir)/../../../MB/Inc;$(ProjectDir)/../../../OS/Config;$(ProjectDir)/../../../OS/Inc;$(ProjectDir)/../../../SECURE/Config;$(ProjectDir)/../../../SECURE/Inc;$(ProjectDir)/../../../SECURE/Keys;$(ProjectDir)/../../../SEGGER;$(ProjectDir)/../../../SEGGER/Config;$(ProjectDir)/../../../SEGGER/Inc;$(ProjectDir)/../../../SEGGER/Syscalls;$(ProjectDir)/../../../SEGGER/SystemView;$(ProjectDir)/../../../SSH/Config;$(ProjectDir)/../../../SSH/Inc;$(ProjectDir)/../../../SSL/Certificates;$(ProjectDir)/../../../SSL/Config;$(ProjectDir)/../../../SSL/Inc;$(ProjectDir)/../../../USB-D/Config;$(ProjectDir)/../../../USB-D/Inc;$(ProjectDir)/../../../USB-H/Config;$(ProjectDir)/../../../USB-H/Inc;$(ProjectDir)/../../../BSP/Drivers/DMA;$(ProjectDir)/../../../BSP/Drivers/MPU-6050;$(ProjectDir)/../../../BSP/Drivers/PORT;$(ProjectDir)/../../../BSP/Drivers/PWM_Driver;$(ProjectDir)/../../../BSP/Drivers/RTC_Driver;$(ProjectDir)/../../../BSP/Drivers/sd_mmc;$(ProjectDir)/../../../BSP/Drivers/SPI_Driver;$(ProjectDir)/../../../BSP/Drivers/TWI;$(ProjectDir)/../../../Application/include"
+      c_preprocessor_definitions="__SAME70Q21__;__SAM_E_FAMILY;ARM_MATH_CM7;USE_RTT=1;WIFI_PROVISIONING;BLE_DEVICE_ROLE=BLE_PERIPHERAL"
+      c_user_include_directories="$(ProjectDir)/Setup;$(ProjectDir)/Setup/CoreSupport;$(ProjectDir)/Setup/DeviceSupport;$(ProjectDir)/Setup/DeviceSupport/component;$(ProjectDir)/Setup/DeviceSupport/instance;$(ProjectDir)/Setup/DeviceSupport/pio;$(ProjectDir)/../../../Application/GUI/SEGGERDEMO;$(ProjectDir)/../../../Application/GUI/SEGGERDEMO/Src;$(ProjectDir)/../../../Application/SEGGERDEMO;$(ProjectDir)/../../../Application/SEGGERDEMO/Src;$(ProjectDir)/../../../COMPRESS/Config;$(ProjectDir)/../../../COMPRESS/Inc;$(ProjectDir)/../../../CRYPTO/Config;$(ProjectDir)/../../../CRYPTO/Inc;$(ProjectDir)/../../../FS/Config;$(ProjectDir)/../../../FS/Inc;$(ProjectDir)/../../../FS/Setup/SAME70Q21_Microchip_SAME70_XPlained;$(ProjectDir)/../../../GUI/Config;$(ProjectDir)/../../../GUI/Inc;$(ProjectDir)/../../../GUI/Setup/SAME70Q21_Microchip_SAME70_XPlained;$(ProjectDir)/../../../IOT/Config;$(ProjectDir)/../../../IOT/Inc;$(ProjectDir)/../../../IP/Config;$(ProjectDir)/../../../IP/Inc;$(ProjectDir)/../../../IP/Setup/IP_FS/FS_RO_2018/Generated;$(ProjectDir)/../../../MB/Config;$(ProjectDir)/../../../MB/Inc;$(ProjectDir)/../../../OS/Config;$(ProjectDir)/../../../OS/Inc;$(ProjectDir)/../../../SECURE/Config;$(ProjectDir)/../../../SECURE/Inc;$(ProjectDir)/../../../SECURE/Keys;$(ProjectDir)/../../../SEGGER;$(ProjectDir)/../../../SEGGER/Config;$(ProjectDir)/../../../SEGGER/Inc;$(ProjectDir)/../../../SEGGER/Syscalls;$(ProjectDir)/../../../SEGGER/SystemView;$(ProjectDir)/../../../SSH/Config;$(ProjectDir)/../../../SSH/Inc;$(ProjectDir)/../../../SSL/Certificates;$(ProjectDir)/../../../SSL/Config;$(ProjectDir)/../../../SSL/Inc;$(ProjectDir)/../../../USB-D/Config;$(ProjectDir)/../../../USB-D/Inc;$(ProjectDir)/../../../USB-H/Config;$(ProjectDir)/../../../USB-H/Inc;$(ProjectDir)/../../../BSP/Drivers/DMA;$(ProjectDir)/../../../BSP/Drivers/MPU;$(ProjectDir)/../../../BSP/Drivers/MPU-6050;$(ProjectDir)/../../../BSP/Drivers/IO;$(ProjectDir)/../../../BSP/Drivers/PWM_Driver;$(ProjectDir)/../../../BSP/Drivers/PMC_Driver;$(ProjectDir)/../../../BSP/Drivers/RTC_Driver;$(ProjectDir)/../../../BSP/Drivers/sd_mmc;$(ProjectDir)/../../../BSP/Drivers/SPI_Driver;$(ProjectDir)/../../../BSP/Drivers/TWI;$(ProjectDir)/../../../Application/include;$(ProjectDir)/../../../Middleware/winc3400;$(ProjectDir)/../../../Middleware/winc3400/config;$(ProjectDir)/../../../Middleware/winc3400/ble;$(ProjectDir)/../../../Middleware/winc3400/ble/utils;$(ProjectDir)/../../../Middleware/winc3400/ble/atmel_ble_api/include;$(ProjectDir)/../../../Middleware/winc3400/ble/ble_services/ble_mgr;$(ProjectDir)/../../../Middleware/winc3400/winc3400_ble_api/include;$(ProjectDir)/../../../Middleware/winc3400/ble/ble_profiles/wifi_provisioning;$(ProjectDir)/../../../Middleware/winc3400/ble/ble_services/wifi_con;$(ProjectDir)/../../../Middleware/winc3400/ble/ble_services/wifi_scan"
       debug_register_definition_file="$(ProjectDir)/Setup/ATSAME70Q21_Registers.xml"
       debug_target_connection="J-Link"
       debug_threads_script="$(ProjectDir)/Setup/embOSPluginSES.js"
@@ -506,6 +506,177 @@
       arm_linker_heap_size="32768"
       arm_linker_process_stack_size="32768"
       arm_linker_stack_size="32768" />
+    <folder Name="Middleware">
+      <folder Name="winc3400">
+        <folder Name="ble">
+          <folder Name="atmel_ble_api">
+            <folder Name="include">
+              <file file_name="../../../Middleware/winc3400/ble/atmel_ble_api/include/at_ble_api.h" />
+              <file file_name="../../../Middleware/winc3400/ble/atmel_ble_api/includeplatform.h" />
+              <file file_name="../../../Middleware/winc3400/ble/atmel_ble_api/includewifiprov_api.h" />
+            </folder>
+          </folder>
+          <folder Name="ble_profiles">
+            <folder Name="wifi_provisioning">
+              <file file_name="../../../Middleware/winc3400/ble/ble_profiles/wifi_provisioning/wifi_provisioning.c" />
+              <file file_name="../../../Middleware/winc3400/ble/ble_profiles/wifi_provisioning/wifi_provisioning.h" />
+            </folder>
+          </folder>
+          <folder Name="ble_services">
+            <folder Name="ble_mgr">
+              <file file_name="../../../Middleware/winc3400/ble/ble_services/ble_mgr/ble_manager.c" />
+              <file file_name="../../../Middleware/winc3400/ble/ble_services/ble_mgr/ble_manager.h" />
+            </folder>
+            <folder Name="wifi_con">
+              <file file_name="../../../Middleware/winc3400/ble/ble_services/wifi_con/wifi_con.c" />
+              <file file_name="../../../Middleware/winc3400/ble/ble_services/wifi_con/wifi_con.h" />
+            </folder>
+            <folder Name="wifi_scan">
+              <file file_name="../../../Middleware/winc3400/ble/ble_services/wifi_scan/wifi_scan.c" />
+              <file file_name="../../../Middleware/winc3400/ble/ble_services/wifi_scan/wifi_scan.h" />
+            </folder>
+          </folder>
+          <folder Name="inc">
+            <file file_name="../../../Middleware/winc3400/ble/ble_services/inc/profiles.h" />
+          </folder>
+          <folder Name="utils">
+            <file file_name="../../../Middleware/winc3400/ble/ble_services/ble_utils/ble_utils.h" />
+          </folder>
+        </folder>
+        <folder Name="bsp">
+          <folder Name="include">
+            <file file_name="../../../Middleware/winc3400/bsp/include/nm_bsp.h" />
+            <file file_name="../../../Middleware/winc3400/bsp/include/nm_bsp_internal.h" />
+            <file file_name="../../../Middleware/winc3400/bsp/include/nm_bsp_same70.h" />
+          </folder>
+          <folder Name="source">
+            <file file_name="../../../Middleware/winc3400/bsp/source/nm_bsp_same70.c" />
+          </folder>
+        </folder>
+        <folder Name="bus_wrapper">
+          <folder Name="include">
+            <file file_name="../../../Middleware/winc3400/bus_wrapper/nm_bus_wrapper.h" />
+          </folder>
+          <folder Name="source">
+            <file file_name="../../../Middleware/winc3400/bus_wrapper/source/nm_bus_wrapper_same70.c" />
+          </folder>
+        </folder>
+        <folder Name="common">
+          <folder Name="include">
+            <file file_name="../../../Middleware/winc3400/common/include/efuse.h" />
+            <file file_name="../../../Middleware/winc3400/common/include/nm_common.h" />
+            <file file_name="../../../Middleware/winc3400/common/include/nm_debug.h" />
+          </folder>
+          <folder Name="source">
+            <file file_name="../../../Middleware/winc3400/common/source/efuse.c" />
+            <file file_name="../../../Middleware/winc3400/common/source/nm_common.c" />
+          </folder>
+        </folder>
+        <folder Name="config">
+          <file file_name="../../../Middleware/winc3400/config/conf_board.h" />
+          <file file_name="../../../Middleware/winc3400/config/conf_clocks.h" />
+          <file file_name="../../../Middleware/winc3400/config/conf_extint.h" />
+          <file file_name="../../../Middleware/winc3400/config/conf_spi.h" />
+          <file file_name="../../../Middleware/winc3400/config/conf_sysfont.h" />
+          <file file_name="../../../Middleware/winc3400/config/conf_winc.h" />
+        </folder>
+        <folder Name="driver">
+          <folder Name="include">
+            <file file_name="../../../Middleware/winc3400/driver/include/ecc_types.h" />
+            <file file_name="../../../Middleware/winc3400/driver/include/m2m_ate_mode.h" />
+            <file file_name="../../../Middleware/winc3400/driver/include/m2m_crypto.h" />
+            <file file_name="../../../Middleware/winc3400/driver/include/m2m_flash.h" />
+            <file file_name="../../../Middleware/winc3400/driver/include/m2m_ota.h" />
+            <file file_name="../../../Middleware/winc3400/driver/include/m2m_periph.h" />
+            <file file_name="../../../Middleware/winc3400/driver/include/m2m_ssl.h" />
+            <file file_name="../../../Middleware/winc3400/driver/include/m2m_types.h" />
+            <file file_name="../../../Middleware/winc3400/driver/include/m2m_wifi.h" />
+          </folder>
+          <folder Name="source">
+            <file file_name="../../../Middleware/winc3400/driver/source/m2m_ate_mode.c" />
+            <file file_name="../../../Middleware/winc3400/driver/source/m2m_crypto.c" />
+            <file file_name="../../../Middleware/winc3400/driver/source/m2m_flash.c" />
+            <file file_name="../../../Middleware/winc3400/driver/source/m2m_hif.c" />
+            <file file_name="../../../Middleware/winc3400/driver/source/m2m_hif.h" />
+            <file file_name="../../../Middleware/winc3400/driver/source/m2m_ota.c" />
+            <file file_name="../../../Middleware/winc3400/driver/source/m2m_periph.c" />
+            <file file_name="../../../Middleware/winc3400/driver/source/m2m_ssl.c" />
+            <file file_name="../../../Middleware/winc3400/driver/source/m2m_wifi.c" />
+            <file file_name="../../../Middleware/winc3400/driver/source/nmasic.c" />
+            <file file_name="../../../Middleware/winc3400/driver/source/nmasic.h" />
+            <file file_name="../../../Middleware/winc3400/driver/source/nmbus.c" />
+            <file file_name="../../../Middleware/winc3400/driver/source/nmbus.h" />
+            <file file_name="../../../Middleware/winc3400/driver/source/nmdrv.c" />
+            <file file_name="../../../Middleware/winc3400/driver/source/nmdrv.h" />
+            <file file_name="../../../Middleware/winc3400/driver/source/nmi2c.c" />
+            <file file_name="../../../Middleware/winc3400/driver/source/nmi2c.h" />
+            <file file_name="../../../Middleware/winc3400/driver/source/nmspi.c" />
+            <file file_name="../../../Middleware/winc3400/driver/source/nmspi.h" />
+            <file file_name="../../../Middleware/winc3400/driver/source/nmuart.c" />
+            <file file_name="../../../Middleware/winc3400/driver/source/nmuart.h" />
+          </folder>
+        </folder>
+        <folder Name="programmer">
+          <file file_name="../../../Middleware/winc3400/programmer/programmer.h" />
+        </folder>
+        <folder Name="socket">
+          <folder Name="include">
+            <file file_name="../../../Middleware/winc3400/socket/include/m2m_socket_host_if.h" />
+            <file file_name="../../../Middleware/winc3400/socket/include/socket.h" />
+          </folder>
+          <folder Name="source">
+            <file file_name="../../../Middleware/winc3400/socket/source/socket.c" />
+            <file file_name="../../../Middleware/winc3400/socket/source/socket_internal.h" />
+          </folder>
+        </folder>
+        <folder Name="spi_flash">
+          <folder Name="include">
+            <file file_name="../../../Middleware/winc3400/spi_flash/include/spi_flash.h" />
+            <file file_name="../../../Middleware/winc3400/spi_flash/include/spi_flash_map.h" />
+          </folder>
+          <folder Name="source">
+            <file file_name="../../../Middleware/winc3400/spi_flash/source/spi_flash.c" />
+          </folder>
+        </folder>
+        <folder Name="winc3400_ble_api">
+          <folder Name="include">
+            <file file_name="../../../Middleware/winc3400/winc3400_ble_api/include/cmn_defs.h" />
+            <file file_name="../../../Middleware/winc3400/winc3400_ble_api/include/dbg_task.h" />
+            <file file_name="../../../Middleware/winc3400/winc3400_ble_api/include/device.h" />
+            <file file_name="../../../Middleware/winc3400/winc3400_ble_api/include/error.h" />
+            <file file_name="../../../Middleware/winc3400/winc3400_ble_api/include/event.h" />
+            <file file_name="../../../Middleware/winc3400/winc3400_ble_api/include/gapc_task.h" />
+            <file file_name="../../../Middleware/winc3400/winc3400_ble_api/include/gapm_task.h" />
+            <file file_name="../../../Middleware/winc3400/winc3400_ble_api/include/gattc_task.h" />
+            <file file_name="../../../Middleware/winc3400/winc3400_ble_api/include/gattm_task.h" />
+            <file file_name="../../../Middleware/winc3400/winc3400_ble_api/include/interface.h" />
+            <file file_name="../../../Middleware/winc3400/winc3400_ble_api/include/ll_if.h" />
+            <file file_name="../../../Middleware/winc3400/winc3400_ble_api/include/profiles.h" />
+            <file file_name="../../../Middleware/winc3400/winc3400_ble_api/include/wifiprov_task.h" />
+          </folder>
+          <folder Name="src">
+            <file file_name="../../../Middleware/winc3400/winc3400_ble_api/src/dbg_task.c" />
+            <file file_name="../../../Middleware/winc3400/winc3400_ble_api/src/error.c" />
+            <file file_name="../../../Middleware/winc3400/winc3400_ble_api/src/event.c" />
+            <file file_name="../../../Middleware/winc3400/winc3400_ble_api/src/gap.c" />
+            <file file_name="../../../Middleware/winc3400/winc3400_ble_api/src/apc_task.c" />
+            <file file_name="../../../Middleware/winc3400/winc3400_ble_api/src/gapm_task.c" />
+            <file file_name="../../../Middleware/winc3400/winc3400_ble_api/src/gatt_client.c" />
+            <file file_name="../../../Middleware/winc3400/winc3400_ble_api/src/gatt_server.c" />
+            <file file_name="../../../Middleware/winc3400/winc3400_ble_api/src/gattc_task.c" />
+            <file file_name="../../../Middleware/winc3400/winc3400_ble_api/src/gattm_task.c" />
+            <file file_name="../../../Middleware/winc3400/winc3400_ble_api/src/interface.c" />
+            <file file_name="../../../Middleware/winc3400/winc3400_ble_api/src/platform.c" />
+            <file file_name="../../../Middleware/winc3400/winc3400_ble_api/src/security.c" />
+            <file file_name="../../../Middleware/winc3400/winc3400_ble_api/src/wifiprov_task.c" />
+          </folder>
+          <configuration Name="Debug" build_exclude_from_build="Yes" />
+        </folder>
+        <file file_name="../../../Middleware/winc3400/WINC3400_BLE_APIs.chm" />
+        <file file_name="../../../Middleware/winc3400/WINC3400_BLE_SDK.chm" />
+        <file file_name="../../../Middleware/winc3400/WINC3400_IoT_SW_APIs.chm" />
+      </folder>
+    </folder>
   </project>
   <configuration
     Name="Debug"
