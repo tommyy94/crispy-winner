@@ -485,9 +485,10 @@
           <file file_name="../../../BSP/Drivers/TWI/twi_Isr.c" />
           <file file_name="../../../BSP/Drivers/TWI/twi_util.h" />
         </folder>
-        <folder Name="PORT">
-          <file file_name="../../../BSP/Drivers/PORT/port.c" />
-          <file file_name="../../../BSP/Drivers/PORT/port.h" />
+        <folder Name="IO">
+          <file file_name="../../../BSP/Drivers/IO/io.c" />
+          <file file_name="../../../BSP/Drivers/IO/io.h" />
+          <file file_name="../../../BSP/Drivers/IO/io_isr.c" />
         </folder>
         <folder Name="PWM Driver">
           <file file_name="duty_cycle.py" />
