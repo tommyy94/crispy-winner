@@ -2,6 +2,7 @@
 <solution Name="Device" target="8" version="2">
   <project Name="Start_SAME70_XPlained">
     <configuration
+      CMSIS_CORE="Yes"
       Name="Common"
       Placement="Flash"
       Target="ATSAME70Q21"
@@ -208,13 +209,6 @@
         </file>
       </folder>
       <folder Name="Setup">
-        <folder Name="CoreSupport">
-          <file file_name="Setup/CoreSupport/cmsis_compiler.h" />
-          <file file_name="Setup/CoreSupport/cmsis_gcc.h" />
-          <file file_name="Setup/CoreSupport/cmsis_version.h" />
-          <file file_name="Setup/CoreSupport/core_cm7.h" />
-          <file file_name="Setup/CoreSupport/mpu_armv7.h" />
-        </folder>
         <folder Name="DeviceSupport">
           <folder Name="component">
             <file file_name="Setup/DeviceSupport/component/acc.h" />
