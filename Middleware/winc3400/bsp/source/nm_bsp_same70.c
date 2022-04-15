@@ -66,7 +66,7 @@ static void init_chip_pins(void)
     IO_ConfigureOutput(WINC3400_PORT, outMask, outMask);
     IO_ClearOutput(WINC3400_PORT, outMask);
 
-    IO_ConfigurePull(WINC3400_PORT, WINC3400_RST_PIN, IO_PULLUP);
+    IO_ConfigurePull(WINC3400_PORT, IO_MASK(WINC3400_RST_PIN), IO_PULLUP);
 }
 
 /*
@@ -135,10 +135,10 @@ void nm_bsp_sleep(uint32 u32TimeMsec)
  */
 void nm_bsp_register_isr(tpfNmBspIsr pfIsr)
 {
-    nmIrqn = IO_ConfigureIRQ(WINC3400_IRQ_PORT, IO_SENSE_FALL, WINC3400_IRQ_PIN);
+    nmIrqn = IO_ConfigureIRQ(WINC3400_IRQ_PORT, IO_SENSE_FALL, IO_MASK(WINC3400_IRQ_PIN));
     IO_InstallIrqHandler(WINC3400_IRQ_PIN, pfIsr);
     
-    IO_ConfigurePull(WINC3400_IRQ_PORT, WINC3400_IRQ_PIN, IO_PULLUP);
+    IO_ConfigurePull(WINC3400_IRQ_PORT, IO_MASK(WINC3400_IRQ_PIN), IO_PULLUP);
 }
 
 
