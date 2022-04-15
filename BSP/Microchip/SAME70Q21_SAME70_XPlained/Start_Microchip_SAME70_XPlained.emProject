@@ -465,6 +465,9 @@
         <folder Name="MPU-6050">
           <file file_name="../../../BSP/Drivers/MPU-6050/mpu-6050.c" />
           <file file_name="../../../BSP/Drivers/MPU-6050/mpu-6050.h" />
+          <file file_name="../../Drivers/MPU-6050/mpu-6050_i2c_layer.c" />
+          <file file_name="../../Drivers/MPU-6050/mpu-6050_i2c_layer.h" />
+          <file file_name="../../Drivers/MPU-6050/mpu-6050_defs.h" />
         </folder>
         <folder Name="sd_mmc">
           <file file_name="../../../BSP/Drivers/sd_mmc/sd_mmc.c">
