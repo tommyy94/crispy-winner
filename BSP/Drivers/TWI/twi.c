@@ -8,7 +8,6 @@
 
 /* User includes */
 #include "twi.h"
-#include "twi_util.h"
 #include "io.h"
 #include "system.h"
 #include "logWriter.h"
@@ -20,18 +19,24 @@
 #define PIN_TWD0        (1 << 3u)
 
 
-extern OS_MAILBOX         twiMbox;
-extern OS_SEMAPHORE       twiSema;
+static OS_TIMER_EX twiTmr;
+uint32_t xferStatus = TWI_SUCCESS;
 
 
-static void    TWI0_IO_vInit(void);
-static void    TWI_vReleaseSlave(Twihs *pxTwi);
-static void    TWI_vSetMasterMode(Twihs *pxTwi);
-static void    TWI_vSetSlaveMode(Twihs *pxTwi);
-static bool    TWI_bWrite(Twihs *pxTwi, const uint32_t ulTarget, TWI_Msg *pxMsg);
-static bool    TWI_bRead(Twihs *pxTwi, const uint32_t ulTarget, TWI_Msg *pxMsg);
-static void    TWI_vFlushTHR(Twihs *pxTwi);
-static void    TWI_AbortXfer(TWI_Adapter *pxAdap);
+static void    TWI0_IO_Init(void);
+static void    TWI_ReleaseSlave(Twihs *pTwi);
+static void    TWI_SetMasterMode(Twihs *pTwi);
+static void    TWI_SetSlaveMode(Twihs *pTwi);
+static void    TWI_Write(Twihs *pTwi, const uint32_t sAddr, TWI_Msg *pMsg, uint32_t  *const pStatus);
+static void    TWI_Read(Twihs *pTwi, const uint32_t sAddr, TWI_Msg *pMsg, uint32_t  *const pStatus);
+static void    TWI_FlushTHR(Twihs *pTwi);
+static void    TWI_AbortXfer(TWI_Adapter *pAdap);
+static void    TWI_TimeoutCallback(uint32_t *const pStatus);
+
+
+__STATIC_INLINE void TWI_WriteTHR(Twihs *pTwi, uint8_t *const pByte, uint32_t  *const pStatus);
+__STATIC_INLINE void TWI_ReadRHR(Twihs *pTwi, uint8_t *const pByte, uint32_t  *const pStatus);
+__STATIC_INLINE void TWI_WriteCR(Twihs *pTwi, uint32_t mask);
 
 
 /**
@@ -48,19 +53,19 @@ static void    TWI_AbortXfer(TWI_Adapter *pxAdap);
  *   uint8_t     buf1            = { 0x75 };
  *   uint8_t     buf2            = { 0x00 };
  *
- *   xTwiAdap.pxInst             = TWIHS0;
- *   xTwiAdap.ulAddr             = ADDR_MPU6050;
- *   xTwiAdap.pxMsg[0].pucBuf    = &buf1;
- *   xTwiAdap.pxMsg[0].ulLen     = 1;
- *   xTwiAdap.pxMsg[0].ulFlags   = TWI_WRITE;
- *   xTwiAdap.pxMsg[1].pucBuf    = &buf2;
- *   xTwiAdap.pxMsg[1].ulLen     = 1;
- *   xTwiAdap.pxMsg[1].ulFlags   = TWI_READ;
+ *   xTwiAdap.pInst             = TWIHS0;
+ *   xTwiAdap.addr             = ADDR_MPU6050;
+ *   xTwiAdap.pMsg[0].buf    = &buf1;
+ *   xTwiAdap.pMsg[0].len     = 1;
+ *   xTwiAdap.pMsg[0].flags   = TWI_WRITE;
+ *   xTwiAdap.pMsg[1].buf    = &buf2;
+ *   xTwiAdap.pMsg[1].len     = 1;
+ *   xTwiAdap.pMsg[1].flags   = TWI_READ;
  *   TWI_vXfer(&xTwiAdap, 2);
  */
-void TWI0_vInit(void)
+void TWI0_Init(void)
 {
-    TWI0_IO_vInit();
+    TWI0_IO_Init();
 
     /**
      * Enable TWI0 clock gating
@@ -69,17 +74,16 @@ void TWI0_vInit(void)
      */
     PMC_PeripheralClockEnable(ID_TWIHS0);
 
-    //TWIHS0->TWIHS_CWGR = TWIHS_CWGR_CKDIV(1) | TWIHS_CWGR_CHDIV(43) | TWIHS_CWGR_CLDIV(43);
-    TWIHS0->TWIHS_CWGR = TWIHS_CWGR_CKDIV(1) | TWIHS_CWGR_CHDIV(153) | TWIHS_CWGR_CLDIV(153);
+    TWIHS0->TWIHS_CWGR = TWIHS_CWGR_CKDIV(1) | TWIHS_CWGR_CHDIV(90) | TWIHS_CWGR_CLDIV(90);
     /* These seem to be missing */
-    #define TWIHS_CR_FIFODIS  (1u << 29)
-    #define TWIHS_CR_FIFOEN   (1u << 28)
-    #define TWIHS_CR_THRCLR   (1u << 24)
-    TWI_vWriteCR(TWIHS0, TWIHS_CR_FIFOEN | TWIHS_CR_THRCLR);
+#define TWIHS_CR_FIFODIS  (1u << 29)
+#define TWIHS_CR_FIFOEN   (1u << 28)
+#define TWIHS_CR_THRCLR   (1u << 24)
+    TWI_WriteCR(TWIHS0, TWIHS_CR_FIFOEN | TWIHS_CR_THRCLR);
 
     TWIHS0->TWIHS_IER = TWIHS_IER_ARBLST | TWIHS_IER_UNRE | TWIHS_IER_OVRE;
 
-    TWI_vSetMasterMode(TWIHS0);
+    TWI_SetMasterMode(TWIHS0);
 
     NVIC_ClearPendingIRQ(TWIHS0_IRQn);
     NVIC_SetPriority(TWIHS0_IRQn, TWIHS0_IRQ_PRIO);
@@ -90,58 +94,83 @@ void TWI0_vInit(void)
 /**
  * @brief   Transfer messages.
  *
- * @param   pxAdap    Pointer to TWI adapter.
+ * @param   pAdap       Pointer to TWI adapter.
  *
- * @param   ulCount   Transfer count.
+ * @param   count       Transfer count.
  *
- * @retval  ret       Xfer status.
+ * @param   timeoutMs   Timeout in milliseconds.
+ *
+ * @retval  status      Xfer status.
  */
-bool TWI_Xfer(TWI_Adapter *pxAdap, const uint32_t ulCount)
+uint32_t TWI_Xfer(TWI_Adapter      *pAdap,
+                  const uint32_t    count,
+                  const uint32_t    timeoutMs)
 {
-    bool ret = false;
+    uint32_t status = TWI_SUCCESS;
 
     /* Sanity check */
-    assert((pxAdap->pxInst == TWIHS0)
-              || (pxAdap->pxInst == TWIHS1)
-              || (pxAdap->pxInst == TWIHS2));
+    assert((pAdap->pInst == TWIHS0)
+        || (pAdap->pInst == TWIHS1)
+        || (pAdap->pInst == TWIHS2));
+ 
+    OS_TIMER_CreateEx(&twiTmr, (void *)TWI_TimeoutCallback, timeoutMs, &status);
 
-    for (uint32_t ulK = 0; ulK < ulCount; ulK++)
+    for (uint32_t i = 0; i < count; i++)
     {
-        assert((pxAdap->pxMsg[ulK].ulFlags == TWI_WRITE)
-                  || (pxAdap->pxMsg[ulK].ulFlags == TWI_READ));
+        assert((pAdap->msgArr[i].flags & TWI_WRITE)
+            || (pAdap->msgArr[i].flags & TWI_READ));
 
-        if (pxAdap->pxMsg[ulK].ulFlags == TWI_READ)
+        if (pAdap->msgArr[i].flags & TWI_READ)
         {
-            ret = TWI_bRead(pxAdap->pxInst,
-                            pxAdap->ulAddr,
-                            &(pxAdap->pxMsg[ulK]));
+            TWI_Read(pAdap->pInst,
+                     pAdap->addr,
+                     &(pAdap->msgArr[i]),
+                     &status);
         }
         else
         {
-            if (ulK < (ulCount - 1))
+            if (i < (count - 1))
             {
-                pxAdap->pxMsg[ulK].ulFlags |= TWI_SR;
+                pAdap->msgArr[i].flags |= TWI_SR;
             }
-            ret = TWI_bWrite(pxAdap->pxInst,
-                             pxAdap->ulAddr,
-                             &(pxAdap->pxMsg[ulK]));
+            TWI_Write(pAdap->pInst,
+                      pAdap->addr,
+                      &(pAdap->msgArr[i]),
+                      &status);
         }
 
-        if (ret == false)
+        if (status != TWI_SUCCESS)
         {
-            TWI_AbortXfer(pxAdap);
+            TWI_AbortXfer(pAdap);
             Journal_vWriteError(I2C_ERROR);
+            goto endXfer;
         }
     }
 
-    //while ((pxAdap->pxInst->TWIHS_SR & TWIHS_SR_TXCOMP) == 0)
+    while (((pAdap->pInst->TWIHS_SR & TWIHS_SR_TXCOMP) == 0)
+        && (status == TWI_SUCCESS))
     {
         ; /* Wait until transmission complete */
     }
 
-    TWI_vFlushTHR(pxAdap->pxInst);
+endXfer:
+    //TWI_FlushTHR(pAdap->pInst);
+    OS_TIMER_DeleteEx(&twiTmr);
 
-    return ret;
+    return status;
+}
+
+
+/*
+ * @brief   TWI transfer timeout callback.
+ *
+ * @param   pStatus     Pointer to store timeout information.
+ *
+ * @return  None.
+ */
+static void TWI_TimeoutCallback(uint32_t *const pStatus)
+{
+    *pStatus = TWI_TIMEOUT;
 }
 
 
@@ -149,20 +178,82 @@ bool TWI_Xfer(TWI_Adapter *pxAdap, const uint32_t ulCount)
  * @brief   Reset TWI hardware and RTOS
  *          signaling.
  *
- * @param   pxAdap    Pointer to TWI adapter.
+ * @param   pAdap    Pointer to TWI adapter.
  *
  * @return  None.
  */
-static void TWI_AbortXfer(TWI_Adapter *pxAdap)
+static void TWI_AbortXfer(TWI_Adapter *pAdap)
 {
     /* Reset hardware */
-    TWIHS0->TWIHS_IDR = TWIHS_IDR_TXRDY | TWIHS_IDR_RXRDY;
-    TWI_vSetMasterMode(pxAdap->pxInst);
-    TWI_vReleaseSlave(pxAdap->pxInst);
+    TWI_SetMasterMode(pAdap->pInst);
+    TWI_ReleaseSlave(pAdap->pInst);
+}
 
-    /* Clear signaling */
-    OS_MAILBOX_Clear(&twiMbox);
-    OS_SEMAPHORE_SetValue(&twiSema, 0);
+
+/**
+ * @brief   Write Transmit Holding Register.
+ *
+ * @param   pTwi     TWI instance pointer.
+ *
+ * @param   pByte    Pointer to byte to write.
+ *
+ * @param   pStatus  pStatus
+ *
+ * @retval  In pStatus pointer.
+ */
+__STATIC_INLINE void TWI_WriteTHR(Twihs             *pTwi,
+                                  uint8_t  *const    pByte,
+                                  uint32_t *const    pStatus)
+{
+    assert((pTwi == TWIHS0) || (pTwi == TWIHS1) || (pTwi == TWIHS2));
+    pTwi->TWIHS_THR = TWIHS_THR_TXDATA(*pByte);
+    while (((pTwi->TWIHS_SR & TWIHS_SR_TXRDY) == 0)
+        && (*pStatus == TWI_SUCCESS))
+    {
+        ; /* Wait until buffer empty */    
+    }
+}
+
+
+/**
+ * @brief   Read Receive Holding Register.
+ *
+ * @param   pTwi     TWI instance pointer.
+ *
+ * @param   pByte    Pointer where byte is read.
+ *
+ * @param   pStatus  pStatus
+ *
+ * @retval  In pStatus pointer.
+ */
+__STATIC_INLINE void TWI_ReadRHR(Twihs             *pTwi,
+                                 uint8_t  *const    pByte,
+                                 uint32_t *const    pStatus)
+{
+    assert((pTwi == TWIHS0) || (pTwi == TWIHS1) || (pTwi == TWIHS2));
+    while (((pTwi->TWIHS_SR & TWIHS_SR_RXRDY) == 0)
+        && (*pStatus == TWI_SUCCESS))
+    {
+        ; /* Wait until buffer full */    
+    }
+    *pByte = pTwi->TWIHS_RHR & TWIHS_RHR_RXDATA_Msk;
+}
+
+
+/**
+ * @brief   Write control register.
+ *
+ * @param   pAdap   Pointer to TWI adapter.
+ *
+ * @param   mask    Mask to write.
+ *
+ * @retval  None.
+ */
+__STATIC_INLINE void TWI_WriteCR(Twihs *pTwi, uint32_t mask)
+{
+    assert((pTwi == TWIHS0) || (pTwi == TWIHS1) || (pTwi == TWIHS2));
+    pTwi->TWIHS_CR = mask;
+    __DMB();
 }
 
 
@@ -174,7 +265,7 @@ static void TWI_AbortXfer(TWI_Adapter *pxAdap)
  *
  * @retval  None.
  */
-static void TWI0_IO_vInit(void)
+static void TWI0_IO_Init(void)
 {
     IO_ConfigurePull(TWI0_PORT, PIN_TWCK0 | PIN_TWD0, IO_PULLUP);
     IO_SetPeripheralFunction(TWI0_PORT, PIN_TWCK0 | PIN_TWD0, IO_PERIPH_A);
@@ -184,85 +275,103 @@ static void TWI0_IO_vInit(void)
 /**
  * @brief   Write TWI.
  *
- * @param   pxTwi     TWI instance pointer.
+ * @param   pTwi     TWI instance pointer.
  *
- * @param   ulTarget  Device address to write.
+ * @param   sAddr    Slave address to write.
  *
- * @param   pxMsg     Message buffer.
+ * @param   pMsg     Message buffer.
  *
- * @retval  xRet      Write success/failure.
+ * @param   pStatus  pStatus
+ *
+ * @retval  In pStatus pointer.
  */
-static bool TWI_bWrite(
-    Twihs             *pxTwi,
-    const   uint32_t   ulTarget,
-    TWI_Msg           *pxMsg)
+static void TWI_Write(
+    Twihs             *pTwi,
+    const   uint32_t   sAddr,
+    TWI_Msg           *pMsg,
+    uint32_t *const    pStatus)
 {
-    uint32_t ret;
 
-    assert((pxTwi == TWIHS0) || (pxTwi == TWIHS1) || (pxTwi == TWIHS2));
-
-    ret = OS_MAILBOX_Put(&twiMbox, &pxMsg);
-    assert(ret == 0);
+    assert((pTwi == TWIHS0) || (pTwi == TWIHS1) || (pTwi == TWIHS2));
 
     /* START bit sent automatically when writing */
-    pxTwi->TWIHS_MMR &= ~TWIHS_MMR_MREAD;
+    pTwi->TWIHS_MMR &= ~TWIHS_MMR_MREAD;
     __DMB();
-    pxTwi->TWIHS_MMR |= TWIHS_MMR_DADR(ulTarget);
+    pTwi->TWIHS_MMR |= TWIHS_MMR_DADR(sAddr);
     __DMB();
 
-    /* Enabling IRQ starts xfer and begin waiting until xfer done */
-    pxTwi->TWIHS_IER = TWIHS_IER_TXRDY;
-    ret = OS_SEMAPHORE_TakeTimed(&twiSema, 100);
-    assert(ret != 0);
+    for (uint32_t i = 0; i < pMsg->len; i++)
+    {
+        TWI_WriteTHR(pTwi, &pMsg->buf[i], pStatus);
+        if (*pStatus == TWI_SUCCESS)
+        {
+            break;
+        }
+    }
 
-    assert((pxTwi->TWIHS_SR & TWI_ERR_MASK) == 0);
-
-    return (bool)ret;
+    /* Don't send stop if repeated start set */
+    if ((pMsg->flags & TWI_SR) == 0)
+    {
+        TWI_WriteCR(pTwi, TWIHS_CR_STOP);
+    }
 }
 
 
 /**
  * @brief   Read TWI.
  *
- * @param   pxTwi     TWI instance pointer.
+ * @param   pTwi     TWI instance pointer.
  *
- * @param   ulTarget  Device address to read.
+ * @param   sAddr    Slave address to read.
  *
- * @param   pxMsg     Receive buffer.
+ * @param   pMsg     Receive buffer.
  *
- * @retval  xRet      Read success/failure.
+ * @param   pStatus  pStatus
+ *
+ * @retval  In pStatus pointer.
  */
-static bool TWI_bRead(
-    Twihs           *pxTwi,
-    const uint32_t   ulTarget,
-    TWI_Msg         *pxMsg)
+static void TWI_Read(
+    Twihs            *pTwi,
+    const uint32_t    sAddr,
+    TWI_Msg          *pMsg,
+    uint32_t *const   pStatus)
 {
-    uint32_t    ret;
-    uint32_t    ulMask       = TWIHS_CR_START;
 
-    assert((pxTwi == TWIHS0) || (pxTwi == TWIHS1) || (pxTwi == TWIHS2));
-
-    ret = OS_MAILBOX_Put(&twiMbox, &pxMsg);
-    assert(ret == 0);
-
-    pxTwi->TWIHS_MMR |= TWIHS_MMR_DADR(ulTarget) | TWIHS_MMR_MREAD;
+    assert((pTwi == TWIHS0) || (pTwi == TWIHS1) || (pTwi == TWIHS2));
+    
+    pTwi->TWIHS_MMR |= TWIHS_MMR_DADR(sAddr) | TWIHS_MMR_MREAD;
     __DMB();
 
-    /* START & STOP on single byte read */
-    if (pxMsg->ulLen == 1)
+    if (pMsg->len == 1)
     {
-        ulMask |= TWIHS_CR_STOP;
+        /* Send START and STOP on single byte reads.
+         * Must send STOP before last byte transfer
+         * to avoid trigger another transfer.
+         */
+        TWI_WriteCR(pTwi, TWIHS_CR_START | TWIHS_CR_STOP);
+        TWI_ReadRHR(pTwi, &pMsg->buf[0], pStatus);
     }
-    TWI_vWriteCR(pxTwi, ulMask);
-
-    /* Enabling IRQ starts xfer and begin waiting until xfer done */
-    pxTwi->TWIHS_IER = TWIHS_IER_RXRDY;
-    ret = OS_SEMAPHORE_TakeTimed(&twiSema, 100);
-    assert(ret != 0);
-
-    assert((pxTwi->TWIHS_SR & TWI_ERR_MASK) == 0);
-
-    return (bool)ret;
+    else
+    {
+        TWI_WriteCR(pTwi, TWIHS_CR_START);
+        
+        for (uint32_t i = 0; i < pMsg->len; i++)
+        {
+            if (i == (pMsg->len - 1))
+            {
+                /*
+                 * Must send STOP before last byte transfer
+                 * to avoid trigger another transfer.
+                 */
+                TWI_WriteCR(pTwi, TWIHS_CR_STOP);
+            }
+            TWI_ReadRHR(pTwi, &pMsg->buf[i], pStatus);
+            if (*pStatus != TWI_SUCCESS)
+            {
+                break;        
+            }
+        }
+    }
 }
 
 
@@ -273,48 +382,48 @@ static bool TWI_bRead(
  *
  * @return  None.
  */
-static void TWI_vReleaseSlave(Twihs *pxTwi)
+static void TWI_ReleaseSlave(Twihs *pTwi)
 {
-    assert((pxTwi == TWIHS0) || (pxTwi == TWIHS1) || (pxTwi == TWIHS2));
-    TWI_vWriteCR(pxTwi, TWIHS_CR_CLEAR | TWIHS_CR_THRCLR);
+    assert((pTwi == TWIHS0) || (pTwi == TWIHS1) || (pTwi == TWIHS2));
+    TWI_WriteCR(pTwi, TWIHS_CR_CLEAR | TWIHS_CR_THRCLR);
 }
 
 /**
  * @brief   Set TWI master mode.
  *
- * @param   pxTwi   Pointer to TWI instance.
+ * @param   pTwi   Pointer to TWI instance.
  *
  * @retval  None.
  */
-static void TWI_vSetMasterMode(Twihs *pxTwi)
+static void TWI_SetMasterMode(Twihs *pTwi)
 {
-    assert((pxTwi == TWIHS0) || (pxTwi == TWIHS1) || (pxTwi == TWIHS2));
-    TWI_vWriteCR(TWIHS0, TWIHS_CR_MSEN | TWIHS_CR_SVDIS);
+    assert((pTwi == TWIHS0) || (pTwi == TWIHS1) || (pTwi == TWIHS2));
+    TWI_WriteCR(TWIHS0, TWIHS_CR_MSEN | TWIHS_CR_SVDIS);
 }
 
 
 /**
  * @brief   Set TWI slave mode.
  *
- * @param   pxTwi   Pointer to TWI instance.
+ * @param   pTwi   Pointer to TWI instance.
  *
  * @retval  None.
  */
-static void TWI_vSetSlaveMode(Twihs *pxTwi)
+static void TWI_SetSlaveMode(Twihs *pTwi)
 {
-    assert((pxTwi == TWIHS0) || (pxTwi == TWIHS1) || (pxTwi == TWIHS2));
-    TWI_vWriteCR(TWIHS0, TWIHS_CR_MSDIS | TWIHS_CR_SVEN);
+    assert((pTwi == TWIHS0) || (pTwi == TWIHS1) || (pTwi == TWIHS2));
+    TWI_WriteCR(TWIHS0, TWIHS_CR_MSDIS | TWIHS_CR_SVEN);
 }
 
 
 /**
  * @brief   Flush transmit holding register.
  *
- * @param   pxTwi   Pointer to TWIHS instance.
+ * @param   pTwi   Pointer to TWIHS instance.
  *
  * @retval  None.
  */
-static void TWI_vFlushTHR(Twihs *pxTwi)
+static void TWI_FlushTHR(Twihs *pTwi)
 {
-    TWI_vWriteCR(pxTwi, TWIHS_CR_THRCLR);
+    TWI_WriteCR(pTwi, TWIHS_CR_THRCLR);
 }
