@@ -27,7 +27,7 @@ void BSP_Init(void)
 
     /* Initialize communications */
     DMA_Init();
-    TWI0_vInit();
+    TWI0_Init();
 
     /* Initialize motor control */
     //PWM_Init();

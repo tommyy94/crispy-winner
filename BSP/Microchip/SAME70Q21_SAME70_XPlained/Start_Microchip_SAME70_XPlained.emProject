@@ -480,8 +480,7 @@
         <folder Name="TWI">
           <file file_name="../../../BSP/Drivers/TWI/twi.c" />
           <file file_name="../../../BSP/Drivers/TWI/twi.h" />
-          <file file_name="../../../BSP/Drivers/TWI/twi_Isr.c" />
-          <file file_name="../../../BSP/Drivers/TWI/twi_util.h" />
+          <file file_name="../../../BSP/Drivers/TWI/twi_isr.c" />
         </folder>
         <folder Name="IO">
           <file file_name="../../../BSP/Drivers/IO/io.c" />
