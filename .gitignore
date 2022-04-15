@@ -14,3 +14,5 @@ SECURE
 COMPRESS
 SEGGER/SYS
 SEGGER/Syscalls
+
+*.swp
