@@ -28,16 +28,16 @@ void gyro_vTask(void *pvArg)
 
     while (1)
     {
-        evtMask = OS_EVENT_GetMask(&svEvt, SUPERVISION_EVT_GYRO);
-        assert(evtMask == SUPERVISION_EVT_GYRO);
+        evtMask = OS_EVENT_GetMaskTimed(&svEvt, SUPERVISION_EVT_GYRO, 10);
+        //assert(evtMask == SUPERVISION_EVT_GYRO);
 
-        ret = MPU6050_SensorsRead(&mpu6050.xAccel, &mpu6050.xGyro);
+        ret = MPU6050_SensorsRead(&mpu6050.accel, &mpu6050.gyro);
         if (ret == true)
         {
             ret = OS_QUEUE_Put(&gyroQ, &mpu6050, sizeof(mpu6050));
             if (ret != 0)
             {
-                Journal_vWriteError(JOB_QUEUE_FULL);
+                //Journal_vWriteError(JOB_QUEUE_FULL);
             }
         }
     }
