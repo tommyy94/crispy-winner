@@ -5,22 +5,22 @@
 #include <stdbool.h>
 
 
-#define assert(x)   Journal_vAssert(x, __FILE__, __LINE__)
+#define assert(x)   Journal_assert(x, __FUNCTION__, __LINE__)
 
 
 typedef enum
 {
-    SPI_ERROR           = (1u <<  0),
-    SPI_SELFTEST_FAIL   = (1u <<  1),
-    RTC_SETTIME_ERROR   = (1u <<  2),
-    DMA_ERROR           = (1u <<  3),
-    RTOS_ERROR          = (1u <<  4),
-    RF_ERROR            = (1u <<  5),
-    RF_BAD_JOB          = (1u <<  6),
-    JOB_QUEUE_FULL      = (1u <<  7),
-    THROTTLE_TIMEOUT    = (1u <<  8),
-    I2C_ERROR           = (1u <<  9),
-    MPU6050_ERROR       = (1u << 10),
+    SPI_ERROR = 0,
+    SPI_SELFTEST_FAIL,
+    RTC_SETTIME_ERROR,
+    DMA_ERROR,
+    RTOS_ERROR,
+    RF_ERROR,
+    RF_BAD_JOB,
+    JOB_QUEUE_FULL,
+    THROTTLE_TIMEOUT,
+    I2C_ERROR,
+    MPU6050_ERROR,
     ERROR_COUNT
 } Error_t;
 
@@ -36,7 +36,7 @@ typedef struct Diagnostics
 
 void Journal_vErrorTask(void *arg);
 void Journal_vWriteError(Error_t ulError);
-void Journal_vAssert(bool bEval, char *pucFile, uint32_t ulLine);
+void Journal_assert(bool eval, const char *func, uint32_t line);
 
 
 #endif /* LOGWRITER_H_ */

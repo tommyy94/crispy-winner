@@ -19,7 +19,29 @@ extern OS_TASK journalTCB;
  */
 static void logError(uint32_t id)
 {
-    printf("Error mask: %#08x\r\n", id);
+    char *enumTbl[ERROR_COUNT] =
+    {
+        "SPI_ERROR",
+        "SPI_SELFTEST_FAIL",
+        "RTC_SETTIME_ERROR",
+        "DMA_ERROR",
+        "RTOS_ERROR",
+        "RF_ERROR",
+        "RF_BAD_JOB",
+        "JOB_QUEUE_FULL",
+        "THROTTLE_TIMEOUT",
+        "I2C_ERROR",
+        "MPU6050_ERROR"
+    };
+
+    for (uint32_t i = 0; i < ERROR_COUNT; i++)
+    {
+        if (id & (1 << i))
+        {
+            puts(enumTbl[i]);
+            puts("\n\r");
+        }
+    }
 }
 
 
@@ -53,25 +75,33 @@ void Journal_vErrorTask(void *arg)
 void Journal_vWriteError(Error_t ulError)
 {
     assert(ulError < ERROR_COUNT);
-    OS_TASKEVENT_Set(&journalTCB, ulError);
+    OS_TASKEVENT_Set(&journalTCB, 1 << ulError);
 }
 
 
 /*
  * @brief   Assert.
  *
- * @param   bEval   Statement.
+ * @param   eval    Statement.
  *
- * @param   pucFile File pointer where assert occurred.
+ * @param   func    Function name (string) where assert occurred.
  *
- * @param   ulLine  Line where assert occurred.
+ * @param   line    Line where assert occurred.
  *
  * @return  None.
  */
-void Journal_vAssert(bool bEval, char *pucFile, uint32_t ulLine)
+void Journal_assert(bool           eval,
+                    const char    *func,
+                    uint32_t       line)
 {
-    if (bEval == false)
+    if (eval == false)
     {
-        printf("Assert failed:\nFile: %s\nLine: %ul\r\n", pucFile, ulLine);
+        printf(
+            "Assert:\n\r"
+            "    Function: %s()\n\r"
+            "    Line: %u\n\r",
+            func,
+            line
+        );
     }
 }
