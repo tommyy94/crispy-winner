@@ -16,8 +16,9 @@ static IRQn_Type      IO_Pio2NVICn(Pio *pio);
 static uint32_t       piodFirstIrqN           = 0;
 static uint32_t       piodLastIrqN            = 0;
 
+void PIOD_IRQHandler(void);
 
-void PIOD_Handler(void)
+void PIOD_IRQHandler(void)
 {
     uint32_t      status;
     IO_Callback  pioCb;
@@ -133,6 +134,8 @@ IRQn_Type IO_ConfigureIRQ(Pio         *pio,
         default:
             break;
     }
+
+    pio->PIO_IER |= mask;
     
     irqn = IO_Pio2NVICn(pio);
 
