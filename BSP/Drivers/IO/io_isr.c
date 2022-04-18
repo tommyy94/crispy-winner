@@ -21,14 +21,14 @@ void PIOD_IRQHandler(void);
 void PIOD_IRQHandler(void)
 {
     uint32_t      status;
-    IO_Callback  pioCb;
-    Pio          *piod = PIOD;
+    IO_Callback   pioCb;
 
     OS_INT_Enter();
 
-    status = piod->PIO_ISR;
+    status  = PIOD->PIO_ISR;
+    status &= PIOD->PIO_IMR;
 
-    for (uint32_t i = piodFirstIrqN; i < piodLastIrqN; i++)
+    for (uint32_t i = piodFirstIrqN; i <= piodLastIrqN; i++)
     {
         if ((status & (1u << i)) != 0)
         {
@@ -64,7 +64,7 @@ void IO_InstallIrqHandler(uint32_t const   line,
         piodFirstIrqN = line;
     }
 
-    if (line <= piodLastIrqN)
+    if (line >= piodLastIrqN)
     {
         piodLastIrqN = line;
     }
@@ -88,46 +88,33 @@ IRQn_Type IO_ConfigureIRQ(Pio         *pio,
 {
     IRQn_Type irqn;
 
-    assert((pio == PIOA) || (pio == PIOB) || (pio == PIOC) || (pio == PIOD) || (pio == PIOE));
+    assert(PORT_IS_PIO(pio));
     assert(sense < IO_SENSE_COUNT);
 
     switch (sense)
     {
-        case IO_SENSE_NONE:
-            pio->PIO_ESR    &= ~mask;
-            pio->PIO_LSR    &= ~mask;
-            pio->PIO_REHLSR &= ~mask;
-            pio->PIO_FELLSR &= ~mask;
-            break;
         case IO_SENSE_RISE:
-            pio->PIO_ESR    |=  mask;
-            pio->PIO_LSR    &= ~mask;
-            pio->PIO_REHLSR |=  mask;
-            pio->PIO_FELLSR &= ~mask;
+            pio->PIO_AIMER  = mask;
+            pio->PIO_ESR    = mask;
+            pio->PIO_REHLSR = mask;
             break;
         case IO_SENSE_FALL:
-            pio->PIO_ESR    |=  mask;
-            pio->PIO_LSR    &= ~mask;
-            pio->PIO_FELLSR |=  mask;
-            pio->PIO_REHLSR &= ~mask;
+            pio->PIO_AIMER  = mask;
+            pio->PIO_ESR    = mask;
+            pio->PIO_FELLSR = mask;
             break;
         case IO_SENSE_HIGH:
-            pio->PIO_LSR    |=  mask;
-            pio->PIO_ESR    &= ~mask;
-            pio->PIO_REHLSR |=  mask;
-            pio->PIO_FELLSR &= ~mask;
-            break;
-        case IO_SENSE_BOTH:
-            pio->PIO_LSR    |=  mask;
-            pio->PIO_ESR    &= ~mask;
-            pio->PIO_REHLSR |=  mask;
-            pio->PIO_FELLSR |=  mask;
+            pio->PIO_AIMER  = mask;
+            pio->PIO_LSR    = mask;
+            pio->PIO_REHLSR = mask;
             break;
         case IO_SENSE_LOW:
-            pio->PIO_LSR    |=  mask;
-            pio->PIO_ESR    &= ~mask;
-            pio->PIO_FELLSR |=  mask;
-            pio->PIO_REHLSR &= ~mask;
+            pio->PIO_AIMER  = mask;
+            pio->PIO_LSR    = mask;
+            pio->PIO_FELLSR = mask;
+            break;
+        case IO_SENSE_RISE_FALL:
+            pio->PIO_AIMDR  = mask;
             break;
         case IO_SENSE_COUNT:
             /* Should not get here */
@@ -156,7 +143,7 @@ IRQn_Type IO_ConfigureIRQ(Pio         *pio,
  */
 static IRQn_Type IO_Pio2NVICn(Pio *pio)
 {
-    assert((pio == PIOA) || (pio == PIOB) || (pio == PIOC) || (pio == PIOD) || (pio == PIOE));
+    assert(PORT_IS_PIO(pio));
     
     IRQn_Type const irqnTbl[PIO_INST_COUNT] =
     {
@@ -193,7 +180,7 @@ static IRQn_Type IO_Pio2NVICn(Pio *pio)
  */
 void IO_EnableIRQ(Pio *pio, uint32_t mask)
 {
-    assert((pio == PIOA) || (pio == PIOB) || (pio == PIOC) || (pio == PIOD) || (pio == PIOE));
+    assert(PORT_IS_PIO(pio));
     pio->PIO_IER = mask;
 }
 
@@ -209,6 +196,6 @@ void IO_EnableIRQ(Pio *pio, uint32_t mask)
  */
 void IO_DisableIRQ(Pio *pio, uint32_t mask)
 {
-    assert((pio == PIOA) || (pio == PIOB) || (pio == PIOC) || (pio == PIOD) || (pio == PIOE));
+    assert(PORT_IS_PIO(pio));
     pio->PIO_IDR = mask;
 }

@@ -19,12 +19,11 @@ typedef enum
 
 typedef enum
 {
-    IO_SENSE_NONE = 0,
-    IO_SENSE_RISE,
+    IO_SENSE_RISE = 0,
     IO_SENSE_FALL,
-    IO_SENSE_BOTH,
     IO_SENSE_HIGH,
     IO_SENSE_LOW,
+    IO_SENSE_RISE_FALL,
     IO_SENSE_COUNT
 } IO_Sense_t;
 
