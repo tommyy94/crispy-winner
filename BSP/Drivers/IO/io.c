@@ -39,7 +39,7 @@ void IO_ConfigurePull(Pio          *pio,
                       uint32_t      mask,
                       IO_PullType   pull)
 {
-    assert((pio == PIOA) || (pio == PIOB) || (pio == PIOC) || (pio == PIOD) || (pio == PIOE));
+    assert(PORT_IS_PIO(pio));
     assert((pull == IO_PULLUP) || pull == IO_PULLDOWN);
 
     if (pull == IO_PULLUP)
@@ -82,12 +82,15 @@ void IO_ConfigurePull(Pio          *pio,
  */
 void IO_SetPeripheralFunction(Pio                *pio,
                               const uint32_t      mask,
-                              const IO_PeriphFunc xFunc)
+                              const IO_PeriphFunc func)
 {
-    assert((pio == PIOA) || (pio == PIOB) || (pio == PIOC) || (pio == PIOD)|| (pio == PIOE));
-    assert((xFunc == IO_PERIPH_A) || (xFunc == IO_PERIPH_B) || (xFunc == IO_PERIPH_C) || (xFunc == IO_PERIPH_D));
+    assert(PORT_IS_PIO(pio));
+    assert((func == IO_PERIPH_A)
+        || (func == IO_PERIPH_B)
+        || (func == IO_PERIPH_C)
+        || (func == IO_PERIPH_D));
 
-    switch (xFunc)
+    switch (func)
     {
         case IO_PERIPH_A:
             pio->PIO_ABCDSR[0] &= ~mask;
@@ -128,7 +131,7 @@ void IO_ConfigureOutput(Pio   *const      pio,
                         const  uint32_t   pinMask,
                         const  uint32_t   driveMask)
 {
-    assert((pio == PIOA) || (pio == PIOB) || (pio == PIOC) || (pio == PIOD)|| (pio == PIOE));
+    assert(PORT_IS_PIO(pio));
 
     pio->PIO_PER     = pinMask;
     pio->PIO_OER     = pinMask;
@@ -179,7 +182,7 @@ void IO_ConfigureInput(Pio   *const      pio,      /* Port pointer     */
  */
 void IO_SetOutput(Pio *pio, const uint32_t mask)
 {
-    assert((pio == PIOA) || (pio == PIOB) || (pio == PIOC) || (pio == PIOD)|| (pio == PIOE));
+    assert(PORT_IS_PIO(pio));
     pio->PIO_SODR = mask;
 }
 
@@ -195,6 +198,6 @@ void IO_SetOutput(Pio *pio, const uint32_t mask)
  */
 void IO_ClearOutput(Pio *pio, const uint32_t mask)
 {
-    assert((pio == PIOA) || (pio == PIOB) || (pio == PIOC) || (pio == PIOD)|| (pio == PIOE));
+    assert(PORT_IS_PIO(pio));
     pio->PIO_CODR = mask;
 }
