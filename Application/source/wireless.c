@@ -248,46 +248,67 @@ static void wifi_cb(uint8_t u8MsgType, void *pvMsg)
  */
 static void socket_cb(SOCKET sock, uint8_t u8Msg, void *pvMsg)
 {
-    tstrSocketConnectMsg *pstrConnect;
-    tstrSocketRecvMsg    *pstrRecv;
+    tstrSocketBindMsg   *pstrBind;
+    tstrSocketListenMsg *pstrListen;
+    tstrSocketAcceptMsg *pstrAccept;
+    int                  ret =-1;
 
-    (void)sock;
-
-    switch (u8Msg)
+    switch(u8Msg)
     {
-        case SOCKET_MSG_CONNECT:
-            pstrConnect = (tstrSocketConnectMsg *)pvMsg ;
-            if (pstrConnect && pstrConnect->s8Error >= 0)
+        case SOCKET_MSG_BIND:
+            pstrBind = (tstrSocketBindMsg *)pvMsg;
+            if (pstrBind != NULL)
             {
-                puts("socket_cb: connect success!\r\n");
-                send(tcp_client_socket, &appPayload, sizeof(payloadFormat_t), 0);
-            }
-            else
-            {
-                puts("socket_cb: connect error!\r\n") ;
-                close(tcp_client_socket) ;
-                tcp_client_socket = -1 ;
-            }
-            break ;
-        case SOCKET_MSG_SEND:
-            puts("socket_cb: send success!\r\n") ;
-            recv(tcp_client_socket, socketBuffer, sizeof(socketBuffer), 0) ;
-            break;
-        /* Message receive */
-        case SOCKET_MSG_RECV:
-            pstrRecv = (tstrSocketRecvMsg *)pvMsg ;
-            if (pstrRecv && pstrRecv->s16BufferSize > 0)
+                if (pstrBind->status == 0)
                 {
-                puts("socket_cb: recv success!\r\n") ;
-                puts("TCP Client Test Complete!\r\n") ;
+                    ret = listen(sock, 0);
+                    if(ret < 0)
+                    {
+                        printf("Listen failure! Error = %d\n", ret);
+                    }
+                }
+                else
+                {
+                    M2M_ERR("bind Failure!\n");
+                    close(sock);
+                }
+            }
+            break;
+        case SOCKET_MSG_LISTEN:
+            pstrListen = (tstrSocketListenMsg *)pvMsg;
+            if (pstrListen != NULL)
+            {
+                if (pstrListen->status == 0)
+                {
+                    ret = accept(sock, NULL, 0);
+                    assert(ret == SOCK_ERR_NO_ERROR);
+                }
+                else
+                {
+                    M2M_ERR("listen Failure!\n");
+                    close(sock);
+                }
+            }
+            break;
+        case SOCKET_MSG_ACCEPT:
+            pstrAccept = (tstrSocketAcceptMsg *)pvMsg;
+            if (pstrAccept->sock < 0)
+            {
+                M2M_ERR("accept failure\n");
+                close(pstrAccept->sock);
             }
             else
             {
-                puts("socket_cb: recv error!\r\n") ;
-                close(tcp_client_socket) ;
-                tcp_client_socket = -1 ;
+                ret = OS_MAILBOX_Put1(&socketMboxTbl[sock],
+                                      (char *)&pstrAccept->sock);
+                assert(ret == 0);
             }
             break;
+        case SOCKET_MSG_RECV:
+            puts("recv ok\r\n");
+            break;
+        case SOCKET_MSG_SEND:
+            puts("send ok\r\n");
         default:
             break;
     }
