@@ -3,5 +3,6 @@
 
 
 void Wireless_Task(void *pvArg);
+void Sensor_Task(void *arg);
 
 #endif /* WIRELESS_H */

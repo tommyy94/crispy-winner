@@ -34,7 +34,7 @@
 #define APP_BUFFER_SIZE		1134
 
 
-/** Message format definitions. */
+extern OS_MAILBOX   socketMboxTbl[MAX_SOCKET];
 typedef struct PayloadFormat_t
 {
     uint8_t wifiStation;
@@ -42,8 +42,8 @@ typedef struct PayloadFormat_t
     uint8_t data[APP_BUFFER_SIZE];
 } payloadFormat_t; 
 
-static payloadFormat_t  appPayload;
-
+static SOCKET       sensorListenSocket = -1;
+static uint8_t      wifiConnected;
 /** Receive buffer definition */
 static uint8_t socketBuffer[MAIN_WIFI_M2M_BUFFER_SIZE];
 
@@ -91,24 +91,64 @@ void Wireless_Task(void *pvArg)
                     continue;
                 }
 
-                // Connect server
-                ret = connect(tcp_client_socket, (struct sockaddr *)&addr, sizeof(struct sockaddr_in));
-                if (ret < 0)
+
+uint8_t sendBuf[3] = { 'X', 'Y', 'Z' };
+uint8_t recvBuf[3];
+void Sensor_Task(void *arg)
+{
+    struct sockaddr_in  addr;
+    int32_t             ret;
+    SOCKET              sensorSocket = -1;
+    (void)arg;
+
+    addr.sin_family       = AF_INET;
+    addr.sin_port         = _htons(MAIN_WIFI_M2M_SERVER_PORT);
+    addr.sin_addr.s_addr  = _htonl(MAIN_WIFI_M2M_SERVER_IP);
+    
+    /* ~$ nc -l 6666 */
+    
+    while(1)
+    {
+        if (wifiConnected == M2M_WIFI_CONNECTED)
+        {
+            if (sensorListenSocket < 0)
+            {
+                sensorListenSocket = socket(AF_INET, SOCK_STREAM, 0);
+                if (sensorListenSocket >= 0)
                 {
-                    close(tcp_client_socket);
-                    tcp_client_socket = -1;
-                }
-                else
-                {
-                    ret = send(tcp_client_socket, appPayload.data, APP_BUFFER_SIZE, NULL);
-                    if (ret == SOCK_ERR_BUFFER_FULL)
+                    ret = bind(sensorListenSocket,
+                               (struct sockaddr *)&addr,
+                               sizeof(struct sockaddr_in));
+                    if (ret == SOCK_ERR_NO_ERROR)
                     {
-                        puts("main: Buffer full!\r\n");
+                        /* SOCKET type is signed, but we can receive
+                         * only sensorSocket > 0 from the mailbox.
+                         */
+                        OS_MAILBOX_GetBlocked1(&socketMboxTbl[sensorListenSocket],
+                                               (char *)&sensorSocket);
+                        assert(sensorSocket <= MAX_SOCKET);
+                    }
+                    else
+                    {
+                        close(sensorListenSocket);
+                        sensorListenSocket = -1;
+                        puts("Sensor_Task: Failed to bind socket!\r\n");
                     }
                 }
             }
-        }
 
+            if (sensorSocket >= 0)
+            {
+                ret = send(sensorSocket, sendBuf, sizeof(sendBuf), 0);
+                if (ret != SOCK_ERR_NO_ERROR)
+                {
+                    close(sensorSocket);
+                    sensorSocket = -1;
+                    puts("Sensor_Task: Failed to send!\r\n");
+                }
+            }
+        }
+    
         OS_TASK_Delay(1000);
     }
 }
