@@ -14,6 +14,7 @@
 
 /* User includes */
 #include "wireless.h"
+#include "logWriter.h"
 
 
 /** Wi-Fi Settings */
@@ -23,7 +24,7 @@
 #define MAIN_WIFI_M2M_SERVER_PORT         (6666)	// Port must be the same between TCP Client and Server
 #define MAIN_WIFI_M2M_REPORT_INTERVAL     (1000)
 
-#define MAIN_WIFI_M2M_BUFFER_SIZE          1460
+//#define MAIN_WIFI_M2M_BUFFER_SIZE          1460
 
 /** UDP MAX packet count */
 #define MAIN_WIFI_M2M_PACKET_COUNT         10
@@ -35,25 +36,14 @@
 
 
 extern OS_MAILBOX   socketMboxTbl[MAX_SOCKET];
-typedef struct PayloadFormat_t
-{
-    uint8_t wifiStation;
-    uint8_t seqNumber;
-    uint8_t data[APP_BUFFER_SIZE];
-} payloadFormat_t; 
 
 static SOCKET       sensorListenSocket = -1;
 static uint8_t      wifiConnected;
-/** Receive buffer definition */
-static uint8_t socketBuffer[MAIN_WIFI_M2M_BUFFER_SIZE];
-
-static SOCKET   tcp_client_socket = -1;
-static uint8_t  wifi_connected;
 
 
 static void wifi_cb(uint8_t u8MsgType, void *pvMsg);
 static void socket_cb(SOCKET sock, uint8_t u8Msg, void *pvMsg);
-static void Wireless_Init(struct sockaddr_in *pAddr);
+static void Wireless_Init(void);
 void WiFi_Ping(char *dstIPaddr);
 
 
@@ -65,21 +55,21 @@ void WiFi_Ping(char *dstIPaddr);
  *
  * @return  None.
  */
-void Wireless_Task(void *pvArg)
+void Wireless_Task(void *arg)
 {
     int8_t ret;
-    struct sockaddr_in addr;
-    (void)pvArg;
+    (void)arg;
 
-    Wireless_Init(&addr);
+    Wireless_Init();
 
     while (1)
     {
-        m2m_wifi_handle_events(NULL);
+        ret = m2m_wifi_handle_events(NULL);
+        assert(ret == M2M_SUCCESS);
 
-        if (wifi_connected == M2M_WIFI_CONNECTED)
-        {
-            //WiFi_Ping("192.168.1.1");
+        OS_TASK_Delay(1000);
+    }
+}
 
             // Create socket
             /* ~$ nc -l 6666 */
@@ -88,8 +78,6 @@ void Wireless_Task(void *pvArg)
                 if ((tcp_client_socket = socket(AF_INET, SOCK_STREAM, 0)) < 0)
                 {
                     puts("main : failed to create TCP client socket error!\r\n");
-                    continue;
-                }
 
 
 uint8_t sendBuf[3] = { 'X', 'Y', 'Z' };
@@ -154,16 +142,12 @@ void Sensor_Task(void *arg)
 }
 
 
-static void Wireless_Init(struct sockaddr_in *pAddr)
+static void Wireless_Init(void)
 {
     tstrWifiInitParam param;
-    int8_t ret;
+    int8_t            ret;
 
     puts("Configuring ATWINC3400...\n");
-
-    pAddr->sin_family = AF_INET;
-    pAddr->sin_port = _htons(MAIN_WIFI_M2M_SERVER_PORT);
-    pAddr->sin_addr.s_addr = _htonl(MAIN_WIFI_M2M_SERVER_IP);
 
     /* Initialize Wi-Fi parameters structure. */
     memset((uint8_t *)&param, 0, sizeof(tstrWifiInitParam));
@@ -173,29 +157,20 @@ static void Wireless_Init(struct sockaddr_in *pAddr)
     ret = m2m_wifi_init(&param);
     if (M2M_SUCCESS != ret)
     {
-            printf("main: m2m_wifi_init call error!(%d)\r\n", ret);
-            OS_TASK_Terminate(NULL);
+        printf("main: m2m_wifi_init call error!(%d)\r\n", ret);
+        OS_TASK_Terminate(NULL);
     }
   
-    // Init socket Module
-    socketInit() ;
+    /* Init socket module */
+    socketInit();
     registerSocketCallback(socket_cb, NULL) ;
 
-    // Connect to router
+    /* Connect to router */
     m2m_wifi_connect((char *)MAIN_WLAN_SSID,
                      sizeof(MAIN_WLAN_SSID),
                      MAIN_WLAN_AUTH,
                      (char *)MAIN_WLAN_PSK,
                      M2M_WIFI_CH_ALL);
-
-
-    // Fill the application buffer
-    appPayload.wifiStation = APP_WIFI_STATION ;
-    appPayload.seqNumber = 0 ;
-    for (uint16_t i = 0; i < APP_BUFFER_SIZE; i++)
-    {
-            appPayload.data[i] = 'B' ;//i & 0xFF ;
-    }
 }
 
 
@@ -222,20 +197,28 @@ static void wifi_cb(uint8_t u8MsgType, void *pvMsg)
             pstrWifiState = (tstrM2mWifiStateChanged *)pvMsg;
             if (pstrWifiState->u8CurrState == M2M_WIFI_CONNECTED)
             {
-                    puts("wifi_cb: M2M_WIFI_RESP_CON_STATE_CHANGED: CONNECTED\r\n");
-                    m2m_wifi_request_dhcp_client();
+                puts("wifi_cb: M2M_WIFI_RESP_CON_STATE_CHANGED: CONNECTED\r\n");
+                m2m_wifi_request_dhcp_client();
             }
             else if (pstrWifiState->u8CurrState == M2M_WIFI_DISCONNECTED)
             {
-                    puts("wifi_cb: M2M_WIFI_RESP_CON_STATE_CHANGED: DISCONNECTED\r\n");
-                    wifi_connected = M2M_WIFI_DISCONNECTED;
-                    m2m_wifi_connect((char *)MAIN_WLAN_SSID, sizeof(MAIN_WLAN_SSID), MAIN_WLAN_AUTH, (char *)MAIN_WLAN_PSK, M2M_WIFI_CH_ALL);
+                puts("wifi_cb: M2M_WIFI_RESP_CON_STATE_CHANGED: DISCONNECTED\r\n");
+                wifiConnected = M2M_WIFI_DISCONNECTED;
+                m2m_wifi_connect((char *)MAIN_WLAN_SSID,
+                                 sizeof(MAIN_WLAN_SSID),
+                                 MAIN_WLAN_AUTH,
+                                 (char *)MAIN_WLAN_PSK,
+                                 M2M_WIFI_CH_ALL);
             }
             break;
         case M2M_WIFI_REQ_DHCP_CONF:
             pu8IPAddress = (uint8_t *)pvMsg;
-            wifi_connected = M2M_WIFI_CONNECTED;
-            printf("wifi_cb: M2M_WIFI_REQ_DHCP_CONF : IP is %u.%u.%u.%u\r\n", pu8IPAddress[0], pu8IPAddress[1], pu8IPAddress[2], pu8IPAddress[3]);
+            wifiConnected = M2M_WIFI_CONNECTED;
+            printf("wifi_cb: M2M_WIFI_REQ_DHCP_CONF: IP is %u.%u.%u.%u\r\n",
+                   pu8IPAddress[0],
+                   pu8IPAddress[1],
+                   pu8IPAddress[2], 
+                   pu8IPAddress[3]);
             break;
         default:
             break;
@@ -328,6 +311,8 @@ void ping_cb(uint32 u32IPAddr, uint32 u32RTT, uint8 u8ErrorCode)
         puts("ping_cb: PING_ERR_TIMEOUT\r\n");
     }
 }
+
+
 void WiFi_Ping(char *dstIPaddr)
 {
     /*Ping request */
