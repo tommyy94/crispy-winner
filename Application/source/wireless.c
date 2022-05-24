@@ -18,27 +18,23 @@
 
 
 /** Wi-Fi Settings */
+#define MAIN_WLAN_SSID                    "NETGEAR38" //"TP-Link_9446" /**< Destination SSID */
 #define MAIN_WLAN_AUTH                    M2M_WIFI_SEC_WPA_PSK /**< Security manner */
+#define MAIN_WLAN_PSK                     "cleverbug651" //"84250018" /**< Password for Destination SSID */
 #define MAIN_WIFI_M2M_PRODUCT_NAME        "NMCTemp"
-#define MAIN_WIFI_M2M_SERVER_IP           0xc0a80108 //Provide the TCP Server IP Address in HEX. e.g.: 0xc0=192, 0xa8=168, 0xbc=188, 0x14=20 //0xFFFFFFFF /* 255.255.255.255 */
+#define MAIN_WIFI_M2M_SERVER_IP           0xc0a80107 //Provide the TCP Server IP Address in HEX. e.g.: 0xc0=192, 0xa8=168, 0xbc=188, 0x14=20 //0xFFFFFFFF /* 255.255.255.255 */
+#define MAIN_WIFI_M2M_CLIENT_IP           0xc0a8010a //
 #define MAIN_WIFI_M2M_SERVER_PORT         (6666)	// Port must be the same between TCP Client and Server
 #define MAIN_WIFI_M2M_REPORT_INTERVAL     (1000)
 
-//#define MAIN_WIFI_M2M_BUFFER_SIZE          1460
+#define MAIN_WIFI_M2M_BUFFER_SIZE          1460
 
 /** UDP MAX packet count */
 #define MAIN_WIFI_M2M_PACKET_COUNT         10
 
-/** Application settings **/
-#define APP_WIFI_STATION	1		// 1..5
-#define APP_PACKET_COUNT	33		// 33 UDP packets of 1136 bytes each
-#define APP_BUFFER_SIZE		1134
-
-
-extern OS_MAILBOX   socketMboxTbl[MAX_SOCKET];
-
-static SOCKET       sensorListenSocket = -1;
 static uint8_t      wifiConnected;
+static uint8_t      packetCnt = 0;
+static uint8_t      sensorRecv[MAIN_WIFI_M2M_BUFFER_SIZE] = {0};
 
 
 static void wifi_cb(uint8_t u8MsgType, void *pvMsg);
@@ -71,27 +67,24 @@ void Wireless_Task(void *arg)
     }
 }
 
-            // Create socket
-            /* ~$ nc -l 6666 */
-            if (tcp_client_socket < 0)
-            {
-                if ((tcp_client_socket = socket(AF_INET, SOCK_STREAM, 0)) < 0)
-                {
-                    puts("main : failed to create TCP client socket error!\r\n");
 
-
-uint8_t sendBuf[3] = { 'X', 'Y', 'Z' };
-uint8_t recvBuf[3];
 void Sensor_Task(void *arg)
 {
-    struct sockaddr_in  addr;
-    int32_t             ret;
+    struct sockaddr_in  servAddr;
+    struct sockaddr_in  cliAddr;
     SOCKET              sensorSocket = -1;
     (void)arg;
 
-    addr.sin_family       = AF_INET;
-    addr.sin_port         = _htons(MAIN_WIFI_M2M_SERVER_PORT);
-    addr.sin_addr.s_addr  = _htonl(MAIN_WIFI_M2M_SERVER_IP);
+    memset(&servAddr, 0, sizeof(servAddr));
+    memset(&cliAddr, 0, sizeof(cliAddr));
+
+    servAddr.sin_family       = AF_INET;
+    servAddr.sin_port         = _htons(MAIN_WIFI_M2M_SERVER_PORT);
+    servAddr.sin_addr.s_addr  = _htonl(MAIN_WIFI_M2M_SERVER_IP);
+
+    cliAddr.sin_family       = AF_INET;
+    cliAddr.sin_port         = _htons(MAIN_WIFI_M2M_SERVER_PORT);
+    cliAddr.sin_addr.s_addr  = _htonl(MAIN_WIFI_M2M_CLIENT_IP);
     
     /* ~$ nc -l 6666 */
     
@@ -99,40 +92,14 @@ void Sensor_Task(void *arg)
     {
         if (wifiConnected == M2M_WIFI_CONNECTED)
         {
-            if (sensorListenSocket < 0)
+            if (sensorSocket < 0)
             {
-                sensorListenSocket = socket(AF_INET, SOCK_STREAM, 0);
-                if (sensorListenSocket >= 0)
+                sensorSocket = socket(AF_INET, SOCK_DGRAM, 0);
+                if (sensorSocket >= 0)
                 {
-                    ret = bind(sensorListenSocket,
-                               (struct sockaddr *)&addr,
-                               sizeof(struct sockaddr_in));
-                    if (ret == SOCK_ERR_NO_ERROR)
-                    {
-                        /* SOCKET type is signed, but we can receive
-                         * only sensorSocket > 0 from the mailbox.
-                         */
-                        OS_MAILBOX_GetBlocked1(&socketMboxTbl[sensorListenSocket],
-                                               (char *)&sensorSocket);
-                        assert(sensorSocket <= MAX_SOCKET);
-                    }
-                    else
-                    {
-                        close(sensorListenSocket);
-                        sensorListenSocket = -1;
-                        puts("Sensor_Task: Failed to bind socket!\r\n");
-                    }
-                }
-            }
-
-            if (sensorSocket >= 0)
-            {
-                ret = send(sensorSocket, sendBuf, sizeof(sendBuf), 0);
-                if (ret != SOCK_ERR_NO_ERROR)
-                {
-                    close(sensorSocket);
-                    sensorSocket = -1;
-                    puts("Sensor_Task: Failed to send!\r\n");
+                    bind(sensorSocket,
+                         (struct sockaddr *)&servAddr,
+                         sizeof(struct sockaddr_in));
                 }
             }
         }
@@ -248,68 +215,58 @@ static void wifi_cb(uint8_t u8MsgType, void *pvMsg)
  */
 static void socket_cb(SOCKET sock, uint8_t u8Msg, void *pvMsg)
 {
-    tstrSocketBindMsg   *pstrBind;
-    tstrSocketListenMsg *pstrListen;
-    tstrSocketAcceptMsg *pstrAccept;
-    int                  ret =-1;
+    tstrSocketBindMsg *pstrBind;
+    tstrSocketRecvMsg *pstrRx;
 
     switch(u8Msg)
     {
         case SOCKET_MSG_BIND:
             pstrBind = (tstrSocketBindMsg *)pvMsg;
-            if (pstrBind != NULL)
+            if (pstrBind && pstrBind->status == 0)
             {
-                if (pstrBind->status == 0)
-                {
-                    ret = listen(sock, 0);
-                    if(ret < 0)
-                    {
-                        printf("Listen failure! Error = %d\n", ret);
-                    }
-                }
-                else
-                {
-                    M2M_ERR("bind Failure!\n");
-                    close(sock);
-                }
-            }
-            break;
-        case SOCKET_MSG_LISTEN:
-            pstrListen = (tstrSocketListenMsg *)pvMsg;
-            if (pstrListen != NULL)
-            {
-                if (pstrListen->status == 0)
-                {
-                    ret = accept(sock, NULL, 0);
-                    assert(ret == SOCK_ERR_NO_ERROR);
-                }
-                else
-                {
-                    M2M_ERR("listen Failure!\n");
-                    close(sock);
-                }
-            }
-            break;
-        case SOCKET_MSG_ACCEPT:
-            pstrAccept = (tstrSocketAcceptMsg *)pvMsg;
-            if (pstrAccept->sock < 0)
-            {
-                M2M_ERR("accept failure\n");
-                close(pstrAccept->sock);
+                /* Prepare next buffer reception. */
+                puts("socket_cb: bind success!\r\n");
+                recvfrom(sock,
+                         sensorRecv,
+                         MAIN_WIFI_M2M_BUFFER_SIZE,
+                         0);
             }
             else
             {
-                ret = OS_MAILBOX_Put1(&socketMboxTbl[sock],
-                                      (char *)&pstrAccept->sock);
-                assert(ret == 0);
+                puts("socket_cb: bind error!\r\n");
             }
             break;
-        case SOCKET_MSG_RECV:
-            puts("recv ok\r\n");
+        case SOCKET_MSG_RECVFROM:
+            pstrRx = (tstrSocketRecvMsg *)pvMsg;
+            if (packetCnt >= MAIN_WIFI_M2M_PACKET_COUNT)
+            {
+                return;
+            }
+
+            if (pstrRx->pu8Buffer && pstrRx->s16BufferSize)
+            {
+                packetCnt++;
+                printf("socket_cb: received app message.(%u)\r\n", packetCnt);
+                /* Prepare next buffer reception. */
+                recvfrom(sock,
+                         sensorRecv,
+                         MAIN_WIFI_M2M_BUFFER_SIZE,
+                         0);
+            }
+            else
+            {
+                if (pstrRx->s16BufferSize == SOCK_ERR_TIMEOUT)
+                {
+                    /* Prepare next buffer reception. */
+                    recvfrom(sock,
+                             sensorRecv,
+                             MAIN_WIFI_M2M_BUFFER_SIZE,
+                             0);
+                }
+            }
             break;
-        case SOCKET_MSG_SEND:
-            puts("send ok\r\n");
         default:
+            assert(false);
             break;
     }
 }

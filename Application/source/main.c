@@ -45,7 +45,6 @@ OS_QUEUE          throttleQ;
 OS_QUEUE          gyroQ;
 OS_QUEUE          tsQ;
 OS_MAILBOX        twiMbox;
-OS_MAILBOX        socketMboxTbl[MAX_SOCKET];
 OS_SEMAPHORE      twiSema;
 OS_EVENT          dmaEvt;
 OS_EVENT          svEvt;
@@ -55,7 +54,6 @@ char              _twiMemBuffer[sizeof(TWI_Msg *)];
 char              _tsMemBuffer[32 + OS_Q_SIZEOF_HEADER];
 char              _gyroMemBuffer[32 + OS_Q_SIZEOF_HEADER];
 char              _throttleMemBuffer[32 + OS_Q_SIZEOF_HEADER];
-char              _socketMeBuffer[sizeof(SOCKET) * MAX_SOCKET];
 
 
 extern void Wireless_Task(void *arg);
@@ -126,10 +124,6 @@ static void OS_InitServices(void)
     OS_QUEUE_Create(&tsQ, &_tsMemBuffer, sizeof(_tsMemBuffer));
 
     OS_MAILBOX_Create(&twiMbox, sizeof(TWI_Msg *), 1, &_twiMemBuffer);
-    for (uint32_t i = 0; i < USED_SOCKETS; i++)
-    {
-        OS_MAILBOX_Create(&socketMboxTbl[i], sizeof(SOCKET), 1, &_socketMeBuffer);
-    }
 
     OS_SEMAPHORE_Create(&twiSema, 0);
 }
