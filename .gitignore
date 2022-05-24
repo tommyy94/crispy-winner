@@ -16,3 +16,5 @@ SEGGER/SYS
 SEGGER/Syscalls
 
 *.swp
+
+*.save
