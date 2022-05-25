@@ -82,9 +82,16 @@ void Sensor_Task(void *arg)
     servAddr.sin_port         = _htons(MAIN_WIFI_M2M_SERVER_PORT);
     servAddr.sin_addr.s_addr  = _htonl(MAIN_WIFI_M2M_SERVER_IP);
 
-    cliAddr.sin_family       = AF_INET;
-    cliAddr.sin_port         = _htons(MAIN_WIFI_M2M_SERVER_PORT);
-    cliAddr.sin_addr.s_addr  = _htonl(MAIN_WIFI_M2M_CLIENT_IP);
+void Control_Task(void *arg)
+{
+    struct sockaddr_in  addr;
+    (void)arg;
+
+    memset(&addr, 0, sizeof(addr));
+
+    addr.sin_family       = AF_INET;
+    addr.sin_port         = _htons(MAIN_WIFI_M2M_SERVER_PORT);
+    addr.sin_addr.s_addr  = _htonl(MAIN_WIFI_M2M_SERVER_IP);
     
     /* ~$ nc -l 6666 */
     
@@ -92,15 +99,17 @@ void Sensor_Task(void *arg)
     {
         if (wifiConnected == M2M_WIFI_CONNECTED)
         {
-            if (sensorSocket < 0)
+            if (controlSocket < 0)
             {
-                sensorSocket = socket(AF_INET, SOCK_DGRAM, 0);
-                if (sensorSocket >= 0)
+                OS_MUTEX_LockBlocked(&wlessMutex);
+                controlSocket = socket(AF_INET, SOCK_DGRAM, 0);
+                if (controlSocket >= 0)
                 {
-                    bind(sensorSocket,
-                         (struct sockaddr *)&servAddr,
+                    bind(controlSocket,
+                         (struct sockaddr *)&addr,
                          sizeof(struct sockaddr_in));
                 }
+                OS_MUTEX_Unlock(&wlessMutex);
             }
         }
     

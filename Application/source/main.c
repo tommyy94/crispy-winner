@@ -16,12 +16,11 @@
 /* Driver includes */
 #include "twi.h"
 
-
-#define USED_SOCKETS                            (3u)
-
-#define TASK_STARTUP_PRIORITY                   (60u)
-#define TASK_WIRELESS_PRIORITY                  (55u)
+/* High number = high priority */
+#define TASK_STARTUP_PRIORITY                   (63u)
+#define TASK_WIRELESS_PRIORITY                  (62u)
 #define TASK_SENSOR_PRIORITY                    (61u)
+#define TASK_CONTROL_PRIORITY                   (60u)
 #define TASK_JOURNAL_PRIORITY                   (57u)
 #define TASK_RTC_PRIORITY                       (58u)
 #define TASK_THROTTLE_PRIORITY                  (59u)
@@ -36,6 +35,8 @@ static OS_STACKPTR int stackWireless[2048]  __attribute__((aligned(8)));
 static OS_TASK         wirelessTCB;
 static OS_STACKPTR int stackSensor[512]     __attribute__((aligned(8)));
 static OS_TASK         sensorTCB;
+static OS_STACKPTR int stackControl[512]     __attribute__((aligned(8)));
+static OS_TASK         controlTCB;
 static OS_STACKPTR int stackThrottle[512]   __attribute__((aligned(8)));
 static OS_TASK         throttleTCB;
 static OS_STACKPTR int stackGyro[512]       __attribute__((aligned(8)));
@@ -48,6 +49,7 @@ OS_MAILBOX        twiMbox;
 OS_SEMAPHORE      twiSema;
 OS_EVENT          dmaEvt;
 OS_EVENT          svEvt;
+OS_MUTEX          wlessMutex;
 
 
 char              _twiMemBuffer[sizeof(TWI_Msg *)];
@@ -58,6 +60,7 @@ char              _throttleMemBuffer[32 + OS_Q_SIZEOF_HEADER];
 
 extern void Wireless_Task(void *arg);
 extern void Sensor_Task(void *arg);
+extern void Control_Task(void *arg);
 extern void Journal_vErrorTask(void *arg);
 extern void RTC_vTask(void *arg);
 extern void throttle_vTask(void *arg);
@@ -100,6 +103,7 @@ static void OS_InitTasks(void)
 {
     OS_TASK_CREATEEX(&wirelessTCB, "Wireless", TASK_WIRELESS_PRIORITY, Wireless_Task, stackWireless, NULL);
     OS_TASK_CREATEEX(&sensorTCB, "Sensor", TASK_SENSOR_PRIORITY, Sensor_Task, stackSensor, NULL);
+    OS_TASK_CREATEEX(&controlTCB, "Control", TASK_CONTROL_PRIORITY, Control_Task, stackControl, NULL);
     OS_TASK_CREATEEX(&rtcTCB, "RTC", TASK_RTC_PRIORITY, RTC_vTask, stackRtc, NULL);
     OS_TASK_CREATEEX(&journalTCB, "Journal",  TASK_JOURNAL_PRIORITY, Journal_vErrorTask, stackJournal, NULL);
     OS_TASK_CREATEEX(&gyroTCB, "Gyro", TASK_GYRO_PRIORITY, gyro_vTask, stackGyro, NULL);
@@ -126,4 +130,6 @@ static void OS_InitServices(void)
     OS_MAILBOX_Create(&twiMbox, sizeof(TWI_Msg *), 1, &_twiMemBuffer);
 
     OS_SEMAPHORE_Create(&twiSema, 0);
+
+    OS_MUTEX_Create(&wlessMutex);
 }
