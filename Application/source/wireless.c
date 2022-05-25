@@ -38,9 +38,10 @@ typedef struct s_msg_wifi_product
     uint8_t name[9];
 } t_msg_wifi_product;
 
+char cp[500] = "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Donec at odio arcu. Morbi eu rhoncus nisl. Duis mattis metus nunc, ac blandit lectus lacinia et. Duis nec mollis justo. Class aptent taciti sociosqu ad litora torquent per conubia nostra, per inceptos himenaeos. Nunc cursus mi eu orci vestibulum, sit amet tristique felis ullamcorper. Praesent porta ultricies est sit amet pretium. In hac habitasse platea dictumst. Duis nisl erat, pharetra a nunc id, tincidunt sagittis tellus. Vivamus velit.";
 typedef struct s_msg_wifi_product_main
 {
-    uint8_t name[9];
+    char name[500];
 } t_msg_wifi_product_main;
 
 /** Message format declarations. */
@@ -112,6 +113,8 @@ void Sensor_Task(void *arg)
     addr.sin_port         = _htons(MAIN_WIFI_M2M_SERVER_PORT);
     addr.sin_addr.s_addr  = _htonl(MAIN_WIFI_M2M_CLIENT_IP);
     
+    memmove(&msg_wifi_product_main, &cp, 500);
+
     while(1)
     {
         if (wifiConnected == M2M_WIFI_CONNECTED)
@@ -130,15 +133,6 @@ void Sensor_Task(void *arg)
             }
 
             OS_MUTEX_LockBlocked(&wlessMutex);
-
-            /* Send client discovery frame. */
-            sendto(sensorSocket,
-                   &msg_wifi_product,
-                   sizeof(t_msg_wifi_product),
-                   0,
-                   (struct sockaddr *)&addr,
-                   sizeof(addr));
-
             ret = sendto(sensorSocket,
                          &msg_wifi_product_main,
                          sizeof(t_msg_wifi_product_main),
@@ -157,7 +151,7 @@ void Sensor_Task(void *arg)
             }
         }
     
-        OS_TASK_Delay(1000);
+        OS_TASK_Delay(200);
     }
 }
 
