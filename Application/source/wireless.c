@@ -32,14 +32,44 @@
 /** UDP MAX packet count */
 #define MAIN_WIFI_M2M_PACKET_COUNT         10
 
-static uint8_t      wifiConnected;
-static uint8_t      packetCnt = 0;
+/** Message format definitions. */
+typedef struct s_msg_wifi_product
+{
+    uint8_t name[9];
+} t_msg_wifi_product;
+
+typedef struct s_msg_wifi_product_main
+{
+    uint8_t name[9];
+} t_msg_wifi_product_main;
+
+/** Message format declarations. */
+static t_msg_wifi_product msg_wifi_product =
+{
+    .name = MAIN_WIFI_M2M_PRODUCT_NAME
+};
+
+static t_msg_wifi_product_main msg_wifi_product_main =
+{
+    .name = MAIN_WIFI_M2M_PRODUCT_NAME
+};
+
+static uint8_t      wifiConnected = M2M_WIFI_DISCONNECTED;
 static uint8_t      sensorRecv[MAIN_WIFI_M2M_BUFFER_SIZE] = {0};
+
+static SOCKET       controlSocket = -1;
+static SOCKET       sensorSocket = -1;
+
+extern OS_MUTEX     wlessMutex;
 
 
 static void wifi_cb(uint8_t u8MsgType, void *pvMsg);
 static void socket_cb(SOCKET sock, uint8_t u8Msg, void *pvMsg);
 static void Wireless_Init(void);
+
+static void ControlSocketCb(uint8_t u8Msg, void *pvMsg);
+static void SensorSocketCb(uint8_t u8Msg, void *pvMsg);
+
 void WiFi_Ping(char *dstIPaddr);
 
 
@@ -60,8 +90,10 @@ void Wireless_Task(void *arg)
 
     while (1)
     {
+        OS_MUTEX_LockBlocked(&wlessMutex);
         ret = m2m_wifi_handle_events(NULL);
         assert(ret == M2M_SUCCESS);
+        OS_MUTEX_Unlock(&wlessMutex);
 
         OS_TASK_Delay(1000);
     }
@@ -70,17 +102,65 @@ void Wireless_Task(void *arg)
 
 void Sensor_Task(void *arg)
 {
-    struct sockaddr_in  servAddr;
-    struct sockaddr_in  cliAddr;
-    SOCKET              sensorSocket = -1;
+    struct sockaddr_in  addr;
+    int32_t ret;
     (void)arg;
 
-    memset(&servAddr, 0, sizeof(servAddr));
-    memset(&cliAddr, 0, sizeof(cliAddr));
+    memset(&addr, 0, sizeof(addr));
 
-    servAddr.sin_family       = AF_INET;
-    servAddr.sin_port         = _htons(MAIN_WIFI_M2M_SERVER_PORT);
-    servAddr.sin_addr.s_addr  = _htonl(MAIN_WIFI_M2M_SERVER_IP);
+    addr.sin_family       = AF_INET;
+    addr.sin_port         = _htons(MAIN_WIFI_M2M_SERVER_PORT);
+    addr.sin_addr.s_addr  = _htonl(MAIN_WIFI_M2M_CLIENT_IP);
+    
+    while(1)
+    {
+        if (wifiConnected == M2M_WIFI_CONNECTED)
+        {
+            /* Create socket for Tx UDP */
+            if (sensorSocket < 0)
+            {
+                OS_MUTEX_LockBlocked(&wlessMutex);
+                sensorSocket = socket(AF_INET, SOCK_DGRAM, 0);
+                OS_MUTEX_Unlock(&wlessMutex);
+                if (sensorSocket < 0)
+                {
+                    puts("Sensor_Task: failed to create TX UDP client socket error!\r\n");
+                    continue;
+                }
+            }
+
+            OS_MUTEX_LockBlocked(&wlessMutex);
+
+            /* Send client discovery frame. */
+            sendto(sensorSocket,
+                   &msg_wifi_product,
+                   sizeof(t_msg_wifi_product),
+                   0,
+                   (struct sockaddr *)&addr,
+                   sizeof(addr));
+
+            ret = sendto(sensorSocket,
+                         &msg_wifi_product_main,
+                         sizeof(t_msg_wifi_product_main),
+                         0,
+                         (struct sockaddr *)&addr,
+                         sizeof(addr));
+            OS_MUTEX_Unlock(&wlessMutex);
+
+            if (ret == M2M_SUCCESS) 
+            {
+                puts("Sensor_Task: message sent\r\n");
+            }
+            else
+            {
+                puts("Sensor_Task: failed to send status report error!\r\n");
+            }
+        }
+    
+        OS_TASK_Delay(1000);
+    }
+}
+
 
 void Control_Task(void *arg)
 {
@@ -127,6 +207,8 @@ static void Wireless_Init(void)
 
     /* Initialize Wi-Fi parameters structure. */
     memset((uint8_t *)&param, 0, sizeof(tstrWifiInitParam));
+    
+    OS_MUTEX_LockBlocked(&wlessMutex);
 
     /* Initialize Wi-Fi driver with data and status callbacks. */
     param.pfAppWifiCb = wifi_cb;
@@ -147,6 +229,8 @@ static void Wireless_Init(void)
                      MAIN_WLAN_AUTH,
                      (char *)MAIN_WLAN_PSK,
                      M2M_WIFI_CH_ALL);
+
+    OS_MUTEX_Unlock(&wlessMutex);
 }
 
 
@@ -224,8 +308,27 @@ static void wifi_cb(uint8_t u8MsgType, void *pvMsg)
  */
 static void socket_cb(SOCKET sock, uint8_t u8Msg, void *pvMsg)
 {
+    if (sock == controlSocket)
+    {
+        ControlSocketCb(u8Msg, pvMsg);
+    }
+    else if (sock == sensorSocket)
+    {
+       SensorSocketCb(u8Msg, pvMsg);
+    }
+    else
+    {
+        puts("socket_cb(): Unknown socket!\r\n");
+    }
+}
+
+static void ControlSocketCb(uint8_t u8Msg, void *pvMsg)
+{
     tstrSocketBindMsg *pstrBind;
     tstrSocketRecvMsg *pstrRx;
+    SOCKET sock = controlSocket;
+
+    OS_MUTEX_LockBlocked(&wlessMutex);
 
     switch(u8Msg)
     {
@@ -234,7 +337,7 @@ static void socket_cb(SOCKET sock, uint8_t u8Msg, void *pvMsg)
             if (pstrBind && pstrBind->status == 0)
             {
                 /* Prepare next buffer reception. */
-                puts("socket_cb: bind success!\r\n");
+                puts("ControlSocketCb: bind success!\r\n");
                 recvfrom(sock,
                          sensorRecv,
                          MAIN_WIFI_M2M_BUFFER_SIZE,
@@ -242,21 +345,16 @@ static void socket_cb(SOCKET sock, uint8_t u8Msg, void *pvMsg)
             }
             else
             {
-                puts("socket_cb: bind error!\r\n");
+                puts("ControlSocketCb: bind error!\r\n");
             }
             break;
         case SOCKET_MSG_RECVFROM:
             pstrRx = (tstrSocketRecvMsg *)pvMsg;
-            if (packetCnt >= MAIN_WIFI_M2M_PACKET_COUNT)
-            {
-                return;
-            }
 
+            printf("Received '%c'\r\n", (char)pstrRx->pu8Buffer[0]);
             if (pstrRx->pu8Buffer && pstrRx->s16BufferSize)
             {
-                packetCnt++;
-                printf("socket_cb: received app message.(%u)\r\n", packetCnt);
-                /* Prepare next buffer reception. */
+                /* Prepare next buffer reception */
                 recvfrom(sock,
                          sensorRecv,
                          MAIN_WIFI_M2M_BUFFER_SIZE,
@@ -266,7 +364,7 @@ static void socket_cb(SOCKET sock, uint8_t u8Msg, void *pvMsg)
             {
                 if (pstrRx->s16BufferSize == SOCK_ERR_TIMEOUT)
                 {
-                    /* Prepare next buffer reception. */
+                    /* Prepare next buffer reception */
                     recvfrom(sock,
                              sensorRecv,
                              MAIN_WIFI_M2M_BUFFER_SIZE,
@@ -278,8 +376,15 @@ static void socket_cb(SOCKET sock, uint8_t u8Msg, void *pvMsg)
             assert(false);
             break;
     }
+
+    OS_MUTEX_Unlock(&wlessMutex);
 }
 
+static void SensorSocketCb(uint8_t u8Msg, void *pvMsg)
+{
+    (void)u8Msg;
+    (void)pvMsg;
+}
 
 void ping_cb(uint32 u32IPAddr, uint32 u32RTT, uint8 u8ErrorCode);
 void ping_cb(uint32 u32IPAddr, uint32 u32RTT, uint8 u8ErrorCode)
