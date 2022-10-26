@@ -8,14 +8,15 @@
       Target="ATSAME70Q21"
       arm_architecture="v7EM"
       arm_assembler_variant="gcc"
+      arm_compiler_variant="SEGGER"
       arm_core_type="Cortex-M7"
       arm_endian="Little"
       arm_fp_abi="SoftFP"
       arm_fpu_type="FPv5-D16"
       arm_linker_allow_multiple_definition="No"
       arm_linker_heap_size="32768"
-      arm_linker_process_stack_size="8192"
-      arm_linker_stack_size="8192"
+      arm_linker_process_stack_size="16384"
+      arm_linker_stack_size="16384"
       arm_linker_variant="SEGGER"
       arm_target_device_name="ATSAME70Q21"
       arm_target_interface_type="SWD"
@@ -191,21 +192,12 @@
         <file file_name="../../../OS/Inc/RTOS.h" />
       </folder>
       <folder Name="Lib">
-        <file file_name="../../../OS/Lib/libos_v7m_t_vfpv4_le_dp.a">
-          <configuration Name="Release" build_exclude_from_build="Yes" />
-          <configuration
-            Name="Release_SystemView"
-            build_exclude_from_build="Yes" />
-        </file>
-        <file file_name="../../../OS/Lib/libos_v7m_t_vfpv4_le_r.a">
+        <file file_name="../../../OS/Lib/libos_v7m_t_vfpv4_le_dp_837070.a" />
+        <file file_name="../../../OS/Lib/libos_v7m_t_vfpv4_le_r_837070.a">
           <configuration Name="Debug" build_exclude_from_build="Yes" />
-          <configuration
-            Name="Release_SystemView"
-            build_exclude_from_build="Yes" />
         </file>
-        <file file_name="../../../OS/Lib/libos_v7m_t_vfpv4_le_sp.a">
+        <file file_name="../../../OS/Lib/libos_v7m_t_vfpv4_le_sp_837070.a">
           <configuration Name="Debug" build_exclude_from_build="Yes" />
-          <configuration Name="Release" build_exclude_from_build="Yes" />
         </file>
       </folder>
       <folder Name="Setup">
@@ -406,6 +398,7 @@
           <configuration
             Name="Release_SystemView"
             build_exclude_from_build="Yes" />
+          <configuration Name="Debug" build_exclude_from_build="No" />
         </file>
         <file file_name="../../../SEGGER/Lib/libSEGGER_v7m_t_vfpv4_le_r.a">
           <configuration Name="Debug" build_exclude_from_build="Yes" />
@@ -444,7 +437,9 @@
         <file file_name="../../../SEGGER/SYS/SEGGER_SYS_IO_RTT.c" />
       </folder>
       <folder Name="Syscalls">
-        <file file_name="../../../SEGGER/Syscalls/SEGGER_RTT_Syscalls_SES.c" />
+        <file file_name="../../../SEGGER/Syscalls/SEGGER_RTT_Syscalls_SES.c">
+          <configuration Name="Debug" build_exclude_from_build="Yes" />
+        </file>
       </folder>
       <folder Name="SystemView">
         <file file_name="../../../SEGGER/SystemView/SEGGER_SYSVIEW.c" />
@@ -516,11 +511,25 @@
       </folder>
     </folder>
     <configuration
+      LIBRARY_IO_TYPE="RTT"
       Name="Debug"
+      WARNING_LEVEL="4 (All)"
+      arm_library_architecture="v7EM"
       arm_linker_heap_size="32768"
       arm_linker_process_stack_size="32768"
       arm_linker_stack_size="32768"
-      gcc_optimization_level="Level 0" />
+      arm_linker_variant="SEGGER"
+      compiler_color_diagnostics="Yes"
+      gcc_debugging_level="Level 3"
+      gcc_main_return_type="Yes"
+      gcc_main_warning="Yes"
+      gcc_optimization_level="Level 0"
+      gcc_sign_compare_warning="Yes"
+      gcc_strict_prototypes_warning="Yes"
+      gcc_uninitialized_variables_warning="Yes"
+      gcc_unused_variable_warning="Yes"
+      linker_printf_fp_enabled="No"
+      linker_scanf_fp_enabled="No" />
     <folder Name="Middleware">
       <folder Name="winc3400">
         <folder Name="ble">

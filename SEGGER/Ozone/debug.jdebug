@@ -22,18 +22,24 @@ void OnProjectLoad (void) {
   //
   // Dialog-generated settings
   //
-  Project.AddPathSubstitute ("/home/tommy/Documents/SEGGER Embedded Studio for ARM Projects/Device_SAME70/SEGGER/Ozone", "$(ProjectDir)");
-  Project.AddPathSubstitute ("/home/tommy/documents/segger embedded studio for arm projects/device_same70/segger/ozone", "$(ProjectDir)");
-  Project.SetDevice ("ATSAME70Q21");
-  Project.SetHostIF ("USB", "260107991");
+  Project.SetTraceSource ("Trace Pins");
+  Project.SetTracePortWidth (2);
+  Project.SetDevice ("ATSAME70Q21A");
+  Project.SetHostIF ("IP", "192.168.10.5");
   Project.SetTargetIF ("SWD");
-  Project.SetTIFSpeed ("4 MHz");
+  Project.SetTIFSpeed ("50 MHz");
+  Project.AddPathSubstitute ("/home/tommy/device_same70/SEGGER/Ozone", "$(ProjectDir)");
+  Project.AddPathSubstitute ("/home/tommy/device_same70/segger/ozone", "$(ProjectDir)");
   Project.AddSvdFile ("$(InstallDir)/Config/CPU/Cortex-M7F.svd");
-  Project.AddSvdFile ("$(InstallDir)/Config/Peripherals/ATSAME70Q21.svd");
+  Project.AddSvdFile ("$(InstallDir)/Config/Peripherals/ATSAME70Q21B.svd");
   //
   // User settings
   //
-  File.Open ("/home/tommy/Documents/SEGGER Embedded Studio for ARM Projects/Device_SAME70/BSP/Microchip/SAME70Q21_SAME70_XPlained/Output/Debug/Start_SAME70_XPlained.elf");
+  Edit.Preference (PREF_TIMESTAMP_FORMAT, TIMESTAMP_FORMAT_INST_CNT);
+  Edit.SysVar (VAR_TRACE_MAX_INST_CNT, 1000000000);
+  Edit.SysVar (VAR_TRACE_CORE_CLOCK, 300000000);
+  Project.SetOSPlugin ("embOSPlugin");
+  File.Open ("/home/tommy/device_same70/BSP/Microchip/SAME70Q21_SAME70_XPlained/Output/Debug/Start_SAME70_XPlained.elf");
 }
 
 /*********************************************************************
@@ -150,8 +156,9 @@ void AfterTargetReset (void) {
 *
 **********************************************************************
 */
-//void BeforeTargetConnect (void) {
-//}
+void BeforeTargetConnect (void) {
+Project.SetJLinkScript("/home/tommy/device_same70/SEGGER/Ozone/JLinkScript.pex"); 
+ }
 
 /*********************************************************************
 *

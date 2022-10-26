@@ -89,6 +89,8 @@ void throttle_vTask(void *pvArg)
             xAxis.usY = (param[3] << 8) | param[2];
 
             vThrottle(xAxis);
+
+            OS_QUEUE_Purge(&throttleQ);
         }
         else
         {

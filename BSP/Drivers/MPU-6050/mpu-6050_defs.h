@@ -2,7 +2,7 @@
 #define MPU_6050_DEFS_H
 
 
-#define MPU6050_TIMEOUT                   (10u)
+#define MPU6050_TIMEOUT                   (1000u)
 
 /* Memory Map */
 #define MPU6050_SELF_TEST_X               (0x0D) /* Read Only   */

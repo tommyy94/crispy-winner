@@ -18,3 +18,4 @@ SEGGER/Syscalls
 *.swp
 
 *.save
+BSP/Microchip/SAME70Q21_SAME70_XPlained/Output/

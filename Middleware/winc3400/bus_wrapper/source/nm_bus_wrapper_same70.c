@@ -49,6 +49,7 @@
 #include "bus_wrapper/include/nm_bus_wrapper.h"
 #include "conf_winc.h"
 #include "spi_driver.h"
+#include "logWriter.h"
 
 #define NM_BUS_MAX_TRX_SZ	256
 
@@ -73,6 +74,7 @@ static sint8 spi_rw(uint8* pu8Mosi, uint8* pu8Miso, uint16 u16Sz)
     ret = SPI0_DMA_TransmitMessage(pu8Mosi, pu8Miso, u16Sz);
     if (ret == true)
     {
+        //Journal_vWriteError(DMA_ERROR);
         status = M2M_SUCCESS;
     }
     return status;
@@ -94,7 +96,6 @@ sint8 nm_bus_init(uint8 *pvinit, uint32 req_serial_number)
     if (bus_init_done == false)
     {
         SPI0_Init();
-        SPI0_DMA_Init();
         bus_init_done = true;
     }
     return M2M_SUCCESS;

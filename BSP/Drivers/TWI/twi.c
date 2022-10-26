@@ -114,6 +114,7 @@ uint32_t TWI_Xfer(TWI_Adapter      *pAdap,
         || (pAdap->pInst == TWIHS2));
  
     OS_TIMER_CreateEx(&twiTmr, (void *)TWI_TimeoutCallback, timeoutMs, &status);
+    OS_TIMER_StartEx(&twiTmr);
 
     for (uint32_t i = 0; i < count; i++)
     {
@@ -303,7 +304,7 @@ static void TWI_Write(
     for (uint32_t i = 0; i < pMsg->len; i++)
     {
         TWI_WriteTHR(pTwi, &pMsg->buf[i], pStatus);
-        if (*pStatus == TWI_SUCCESS)
+        if (*pStatus == TWI_TIMEOUT)
         {
             break;
         }
@@ -366,7 +367,7 @@ static void TWI_Read(
                 TWI_WriteCR(pTwi, TWIHS_CR_STOP);
             }
             TWI_ReadRHR(pTwi, &pMsg->buf[i], pStatus);
-            if (*pStatus != TWI_SUCCESS)
+            if (*pStatus != TWI_TIMEOUT)
             {
                 break;        
             }

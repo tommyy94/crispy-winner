@@ -14,9 +14,6 @@
 #include "io.h"
 #include "mpu.h"
 
-/* ATWINC3400 */
-#include "common/include/nm_common.h"
-
 
 void BSP_Init(void)
 {
@@ -30,10 +27,8 @@ void BSP_Init(void)
     TWI0_Init();
 
     /* Initialize motor control */
-    //PWM_Init();
+    PWM_Init();
 
     /* Start RTC last so it won't notify non-existent task */
     RTC_vInit();
-
-    nm_bsp_init();
 }

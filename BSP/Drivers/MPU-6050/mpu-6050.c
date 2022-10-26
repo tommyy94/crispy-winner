@@ -49,7 +49,7 @@ static bool     MPU6050_ValidateSelfTest(const uint8_t ft,
  */
 bool MPU6050_Init(void)
 {
-    uint8_t id;
+    uint8_t id = 0xFF;
     bool    status;
 
     /* Bus test */

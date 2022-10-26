@@ -52,6 +52,9 @@ Revision: $Rev: 12298 $
 
 #define USE_RTT_ASM                               (0)     // Use assembler version of SEGGER_RTT.c when 1 
 
+#define SEGGER_RTT_SECTION                        (".RTT_Buffers")
+#define SEGGER_RTT_BUFFER_SECTION                 (".RTT_Buffers")
+
 /*********************************************************************
 *
 *       RTT memcpy configuration

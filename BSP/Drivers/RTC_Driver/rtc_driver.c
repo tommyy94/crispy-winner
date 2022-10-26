@@ -365,6 +365,8 @@ void RTC_vTask(void *pvArg)
             //RTC->RTC_IDR = RTC_IDR_SECDIS;
             //RTC_bSetTime(&xCal);
             //RTC->RTC_IER = RTC_IER_SECEN;
+
+            //OS_QUEUE_Purge(&tsQ);
         }
         if (ulEvent == RTC_RETURN_TIME)
         {

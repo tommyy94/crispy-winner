@@ -16,6 +16,8 @@
 /* Driver includes */
 #include "twi.h"
 
+#define MESSAGE_ALIGNMENT                       (4u)
+
 /* High number = high priority */
 #define TASK_STARTUP_PRIORITY                   (63u)
 #define TASK_WIRELESS_PRIORITY                  (62u)
@@ -41,21 +43,23 @@ static OS_STACKPTR int stackThrottle[512]   __attribute__((aligned(8)));
 static OS_TASK         throttleTCB;
 static OS_STACKPTR int stackGyro[512]       __attribute__((aligned(8)));
 static OS_TASK         gyroTCB;
+static OS_STACKPTR int stackStartup[512]    __attribute__((aligned(8)));
+static OS_TASK         startupTCB;
 
 OS_QUEUE          throttleQ;
 OS_QUEUE          gyroQ;
 OS_QUEUE          tsQ;
-OS_MAILBOX        twiMbox;
-OS_SEMAPHORE      twiSema;
 OS_EVENT          dmaEvt;
 OS_EVENT          svEvt;
+OS_EVENT          wlessEvt;
 OS_MUTEX          wlessMutex;
 
-
-char              _twiMemBuffer[sizeof(TWI_Msg *)];
-char              _tsMemBuffer[32 + OS_Q_SIZEOF_HEADER];
-char              _gyroMemBuffer[32 + OS_Q_SIZEOF_HEADER];
-char              _throttleMemBuffer[32 + OS_Q_SIZEOF_HEADER];
+#define Q_MSG_SIZE  (1u)
+#define Q_MSG_CNT   (32u)
+#define Q_SIZE      (Q_MSG_CNT * (Q_MSG_SIZE + OS_Q_SIZEOF_HEADER) + MESSAGE_ALIGNMENT)
+char              _tsMemBuffer[Q_SIZE];
+char              _gyroMemBuffer[Q_SIZE];
+char              _throttleMemBuffer[Q_SIZE];
 
 
 extern void Wireless_Task(void *arg);
@@ -65,6 +69,7 @@ extern void Journal_vErrorTask(void *arg);
 extern void RTC_vTask(void *arg);
 extern void throttle_vTask(void *arg);
 extern void gyro_vTask(void *arg);
+static void StartupTask(void *arg);
 
 static void OS_InitTasks(void);
 static void OS_InitServices(void);
@@ -79,15 +84,9 @@ static void OS_InitServices(void);
  */
 int main(void)
 {
-    SystemCoreClockUpdate();
-    
     OS_Init();
-    OS_InitServices();
     OS_InitHW();
     OS_InitTasks();
-
-    BSP_Init();
-
     OS_Start();
 }
 
@@ -101,6 +100,7 @@ int main(void)
  */
 static void OS_InitTasks(void)
 {
+    OS_TASK_CREATEEX(&startupTCB, "Startup", TASK_STARTUP_PRIORITY, StartupTask, stackStartup, NULL);
     OS_TASK_CREATEEX(&wirelessTCB, "Wireless", TASK_WIRELESS_PRIORITY, Wireless_Task, stackWireless, NULL);
     OS_TASK_CREATEEX(&sensorTCB, "Sensor", TASK_SENSOR_PRIORITY, Sensor_Task, stackSensor, NULL);
     OS_TASK_CREATEEX(&controlTCB, "Control", TASK_CONTROL_PRIORITY, Control_Task, stackControl, NULL);
@@ -120,16 +120,26 @@ static void OS_InitTasks(void)
  */
 static void OS_InitServices(void)
 {
-    OS_EVENT_Create(&dmaEvt);
+    OS_EVENT_CreateEx(&dmaEvt, OS_EVENT_MASK_MODE_AND_LOGIC);
     OS_EVENT_Create(&svEvt);
+    OS_EVENT_Create(&wlessEvt);
 
     OS_QUEUE_Create(&throttleQ, &_throttleMemBuffer, sizeof(_throttleMemBuffer));
+    
     OS_QUEUE_Create(&gyroQ, &_gyroMemBuffer, sizeof(_gyroMemBuffer));
     OS_QUEUE_Create(&tsQ, &_tsMemBuffer, sizeof(_tsMemBuffer));
-
-    OS_MAILBOX_Create(&twiMbox, sizeof(TWI_Msg *), 1, &_twiMemBuffer);
-
-    OS_SEMAPHORE_Create(&twiSema, 0);
+    
 
     OS_MUTEX_Create(&wlessMutex);
+}
+
+
+static void StartupTask(void *arg)
+{
+    (void)arg;
+    OS_InitServices();
+
+    BSP_Init();
+
+    OS_TASK_Terminate(NULL);
 }

@@ -200,6 +200,7 @@ void OS_InitHW(void)
   {                                       /* Setup SysTick Timer for 1 msec interrupts                          */
     while (1);                            /* Handle Error                                                       */
   }
+  //OS_TICK_Config(SystemCoreClock, 300000000);
 
   /* Initialize NVIC vector base address. Might be necessary for RAM targets or application not running from 0 */
   NVIC_VTOR = (OS_U32)&__Vectors;

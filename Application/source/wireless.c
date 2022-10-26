@@ -32,36 +32,32 @@
 /** UDP MAX packet count */
 #define MAIN_WIFI_M2M_PACKET_COUNT         10
 
-/** Message format definitions. */
-typedef struct s_msg_wifi_product
-{
-    uint8_t name[9];
-} t_msg_wifi_product;
 
-char cp[500] = "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Donec at odio arcu. Morbi eu rhoncus nisl. Duis mattis metus nunc, ac blandit lectus lacinia et. Duis nec mollis justo. Class aptent taciti sociosqu ad litora torquent per conubia nostra, per inceptos himenaeos. Nunc cursus mi eu orci vestibulum, sit amet tristique felis ullamcorper. Praesent porta ultricies est sit amet pretium. In hac habitasse platea dictumst. Duis nisl erat, pharetra a nunc id, tincidunt sagittis tellus. Vivamus velit.";
+#define WLESS_EVT_SENSOR                  (1u << 0)
+#define WLESS_EVT_VIDEO                   (1u << 0)
+
+
+/** Message format definitions. */
+//char cp[1400] = "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Donec at odio arcu. Morbi eu rhoncus nisl. Duis mattis metus nunc, ac blandit lectus lacinia et. Duis nec mollis justo. Class aptent taciti sociosqu ad litora torquent per conubia nostra, per inceptos himenaeos. Nunc cursus mi eu orci vestibulum, sit amet tristique felis ullamcorper. Praesent porta ultricies est sit amet pretium. In hac habitasse platea dictumst. Duis nisl erat, pharetra a nunc id, tincidunt sagittis tellus. Vivamus velit.";
 typedef struct s_msg_wifi_product_main
 {
-    char name[500];
+    char name[1400];
 } t_msg_wifi_product_main;
 
 /** Message format declarations. */
-static t_msg_wifi_product msg_wifi_product =
-{
-    .name = MAIN_WIFI_M2M_PRODUCT_NAME
-};
-
 static t_msg_wifi_product_main msg_wifi_product_main =
 {
     .name = MAIN_WIFI_M2M_PRODUCT_NAME
 };
 
 static uint8_t      wifiConnected = M2M_WIFI_DISCONNECTED;
-static uint8_t      sensorRecv[MAIN_WIFI_M2M_BUFFER_SIZE] = {0};
+static uint8_t      ctrlRecv[MAIN_WIFI_M2M_BUFFER_SIZE] = {0};
 
 static SOCKET       controlSocket = -1;
 static SOCKET       sensorSocket = -1;
 
 extern OS_MUTEX     wlessMutex;
+extern OS_EVENT     wlessEvt;
 
 
 static void wifi_cb(uint8_t u8MsgType, void *pvMsg);
@@ -96,15 +92,17 @@ void Wireless_Task(void *arg)
         assert(ret == M2M_SUCCESS);
         OS_MUTEX_Unlock(&wlessMutex);
 
-        OS_TASK_Delay(1000);
+        OS_TASK_Delay(10);
     }
 }
 
 
+uint8_t g_recv[1400];
 void Sensor_Task(void *arg)
 {
     struct sockaddr_in  addr;
     int32_t ret;
+    OS_TASKEVENT evtMask;
     (void)arg;
 
     memset(&addr, 0, sizeof(addr));
@@ -113,7 +111,8 @@ void Sensor_Task(void *arg)
     addr.sin_port         = _htons(MAIN_WIFI_M2M_SERVER_PORT);
     addr.sin_addr.s_addr  = _htonl(MAIN_WIFI_M2M_CLIENT_IP);
     
-    memmove(&msg_wifi_product_main, &cp, 500);
+    //memmove(&msg_wifi_product_main, &cp, 1400);
+    memset(&msg_wifi_product_main, 'a', 1400);
 
     while(1)
     {
@@ -139,11 +138,15 @@ void Sensor_Task(void *arg)
                          0,
                          (struct sockaddr *)&addr,
                          sizeof(addr));
+            recvfrom(sensorSocket, g_recv, sizeof(g_recv), 0);
             OS_MUTEX_Unlock(&wlessMutex);
 
-            if (ret == M2M_SUCCESS) 
+            if (ret == M2M_SUCCESS)
             {
                 puts("Sensor_Task: message sent\r\n");
+                //evtMask = OS_EVENT_GetMaskTimed(&wlessEvt, WLESS_EVT_SENSOR, 300);
+                evtMask = OS_EVENT_GetMaskBlocked(&wlessEvt, WLESS_EVT_SENSOR);
+                assert((evtMask & WLESS_EVT_SENSOR));
             }
             else
             {
@@ -151,7 +154,7 @@ void Sensor_Task(void *arg)
             }
         }
     
-        OS_TASK_Delay(200);
+        OS_TASK_Delay(1000);
     }
 }
 
@@ -171,6 +174,7 @@ void Control_Task(void *arg)
     
     while(1)
     {
+        /*
         if (wifiConnected == M2M_WIFI_CONNECTED)
         {
             if (controlSocket < 0)
@@ -186,18 +190,32 @@ void Control_Task(void *arg)
                 OS_MUTEX_Unlock(&wlessMutex);
             }
         }
+        */
     
         OS_TASK_Delay(1000);
     }
 }
 
+#include "dma.h"
+static uint8_t tx[8] = { 0 }, rx[8] = { 0 };
 
 static void Wireless_Init(void)
 {
     tstrWifiInitParam param;
     int8_t            ret;
+    uint32_t          i;
 
     puts("Configuring ATWINC3400...\n");
+
+    /*
+    for (i = 0; i < 8; i++)
+    {
+      tx[i] = 'A' + i;
+    }
+    DMA_memcpy(rx, tx, i);
+    */
+    
+    nm_bsp_init();
 
     /* Initialize Wi-Fi parameters structure. */
     memset((uint8_t *)&param, 0, sizeof(tstrWifiInitParam));
@@ -333,7 +351,7 @@ static void ControlSocketCb(uint8_t u8Msg, void *pvMsg)
                 /* Prepare next buffer reception. */
                 puts("ControlSocketCb: bind success!\r\n");
                 recvfrom(sock,
-                         sensorRecv,
+                         ctrlRecv,
                          MAIN_WIFI_M2M_BUFFER_SIZE,
                          0);
             }
@@ -350,7 +368,7 @@ static void ControlSocketCb(uint8_t u8Msg, void *pvMsg)
             {
                 /* Prepare next buffer reception */
                 recvfrom(sock,
-                         sensorRecv,
+                         ctrlRecv,
                          MAIN_WIFI_M2M_BUFFER_SIZE,
                          0);
             }
@@ -360,7 +378,7 @@ static void ControlSocketCb(uint8_t u8Msg, void *pvMsg)
                 {
                     /* Prepare next buffer reception */
                     recvfrom(sock,
-                             sensorRecv,
+                             ctrlRecv,
                              MAIN_WIFI_M2M_BUFFER_SIZE,
                              0);
                 }
@@ -378,6 +396,7 @@ static void SensorSocketCb(uint8_t u8Msg, void *pvMsg)
 {
     (void)u8Msg;
     (void)pvMsg;
+    OS_EVENT_SetMask(&wlessEvt, WLESS_EVT_SENSOR);
 }
 
 void ping_cb(uint32 u32IPAddr, uint32 u32RTT, uint8 u8ErrorCode);
