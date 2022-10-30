@@ -24,11 +24,11 @@ void BSP_Init(void)
 
     /* Initialize communications */
     DMA_Init();
-    TWI0_Init();
+    //TWI0_Init();
 
     /* Initialize motor control */
-    PWM_Init();
+    //PWM_Init();
 
     /* Start RTC last so it won't notify non-existent task */
-    RTC_vInit();
+    //RTC_vInit();
 }
