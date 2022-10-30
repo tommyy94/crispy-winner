@@ -19,9 +19,10 @@
 #define MESSAGE_ALIGNMENT                       (4u)
 
 /* High number = high priority */
-#define TASK_STARTUP_PRIORITY                   (63u)
-#define TASK_WIRELESS_PRIORITY                  (62u)
+#define TASK_STARTUP_PRIORITY                   (70u)
+#define TASK_WIRELESS_PRIORITY                  (69u)
 #define TASK_SENSOR_PRIORITY                    (61u)
+#define TASK_VIDEO_PRIORITY                     (62u)
 #define TASK_CONTROL_PRIORITY                   (60u)
 #define TASK_JOURNAL_PRIORITY                   (57u)
 #define TASK_RTC_PRIORITY                       (58u)
@@ -37,14 +38,17 @@ static OS_STACKPTR int stackWireless[2048]  __attribute__((aligned(8)));
 static OS_TASK         wirelessTCB;
 static OS_STACKPTR int stackSensor[512]     __attribute__((aligned(8)));
 static OS_TASK         sensorTCB;
-static OS_STACKPTR int stackControl[512]     __attribute__((aligned(8)));
+static OS_STACKPTR int stackControl[512]    __attribute__((aligned(8)));
 static OS_TASK         controlTCB;
+static OS_STACKPTR int stackVideo[512]      __attribute__((aligned(8)));
+static OS_TASK         videoTCB;
 static OS_STACKPTR int stackThrottle[512]   __attribute__((aligned(8)));
 static OS_TASK         throttleTCB;
 static OS_STACKPTR int stackGyro[512]       __attribute__((aligned(8)));
 static OS_TASK         gyroTCB;
 static OS_STACKPTR int stackStartup[512]    __attribute__((aligned(8)));
 static OS_TASK         startupTCB;
+
 
 OS_QUEUE          throttleQ;
 OS_QUEUE          gyroQ;
@@ -65,6 +69,7 @@ char              _throttleMemBuffer[Q_SIZE];
 extern void Wireless_Task(void *arg);
 extern void Sensor_Task(void *arg);
 extern void Control_Task(void *arg);
+extern void Video_Task(void *arg);
 extern void Journal_vErrorTask(void *arg);
 extern void RTC_vTask(void *arg);
 extern void throttle_vTask(void *arg);
@@ -103,11 +108,12 @@ static void OS_InitTasks(void)
     OS_TASK_CREATEEX(&startupTCB, "Startup", TASK_STARTUP_PRIORITY, StartupTask, stackStartup, NULL);
     OS_TASK_CREATEEX(&wirelessTCB, "Wireless", TASK_WIRELESS_PRIORITY, Wireless_Task, stackWireless, NULL);
     OS_TASK_CREATEEX(&sensorTCB, "Sensor", TASK_SENSOR_PRIORITY, Sensor_Task, stackSensor, NULL);
-    OS_TASK_CREATEEX(&controlTCB, "Control", TASK_CONTROL_PRIORITY, Control_Task, stackControl, NULL);
-    OS_TASK_CREATEEX(&rtcTCB, "RTC", TASK_RTC_PRIORITY, RTC_vTask, stackRtc, NULL);
+    //OS_TASK_CREATEEX(&controlTCB, "Control", TASK_CONTROL_PRIORITY, Control_Task, stackControl, NULL);
+    OS_TASK_CREATEEX(&videoTCB, "Video", TASK_VIDEO_PRIORITY, Video_Task, stackVideo, NULL);
+    //OS_TASK_CREATEEX(&rtcTCB, "RTC", TASK_RTC_PRIORITY, RTC_vTask, stackRtc, NULL);
     OS_TASK_CREATEEX(&journalTCB, "Journal",  TASK_JOURNAL_PRIORITY, Journal_vErrorTask, stackJournal, NULL);
-    OS_TASK_CREATEEX(&gyroTCB, "Gyro", TASK_GYRO_PRIORITY, gyro_vTask, stackGyro, NULL);
-    OS_TASK_CREATEEX(&throttleTCB, "Throttle", TASK_THROTTLE_PRIORITY, throttle_vTask, stackThrottle, NULL);
+    //OS_TASK_CREATEEX(&gyroTCB, "Gyro", TASK_GYRO_PRIORITY, gyro_vTask, stackGyro, NULL);
+    //OS_TASK_CREATEEX(&throttleTCB, "Throttle", TASK_THROTTLE_PRIORITY, throttle_vTask, stackThrottle, NULL);
 }
 
 
@@ -121,8 +127,8 @@ static void OS_InitTasks(void)
 static void OS_InitServices(void)
 {
     OS_EVENT_CreateEx(&dmaEvt, OS_EVENT_MASK_MODE_AND_LOGIC);
-    OS_EVENT_Create(&svEvt);
-    OS_EVENT_Create(&wlessEvt);
+    OS_EVENT_CreateEx(&svEvt, OS_EVENT_MASK_MODE_OR_LOGIC);
+    OS_EVENT_CreateEx(&wlessEvt, OS_EVENT_MASK_MODE_OR_LOGIC);
 
     OS_QUEUE_Create(&throttleQ, &_throttleMemBuffer, sizeof(_throttleMemBuffer));
     
