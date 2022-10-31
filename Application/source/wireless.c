@@ -20,6 +20,7 @@
 
 #define WLESS_EVT_SENSOR                  (1u << 0)
 #define WLESS_EVT_VIDEO                   (1u << 1)
+#define WLESS_EVT_INVALID                 (0xFFFFFFFFU)
 
 
 /** Message format definitions. */
