@@ -44,12 +44,13 @@ extern char         jpgData[5447];
 
 static void         wifi_cb(uint8_t u8MsgType, void *pvMsg);
 static void         socket_cb(SOCKET sock, uint8_t u8Msg, void *pvMsg);
-static void         Wireless_Init(void);
-
 static void         ControlSocketCb(uint8_t u8Msg, void *pvMsg);
 static void         SensorSocketCb(uint8_t u8Msg, void *pvMsg);
 static void         VideoSocketCb(uint8_t u8Msg, void *pvMsg);
+static void         ping_cb(uint32 u32IPAddr, uint32 u32RTT, uint8 u8ErrorCode);
+
 static OS_TASKEVENT Wireless_Sock2Evt(SOCKET sock);
+static void         Wireless_Init(void);
 
 void WiFi_Ping(char *dstIPaddr);
 
@@ -142,7 +143,6 @@ static bool Wireless_TransmitUnit(
     recvfrom(sock, empty, sizeof(empty), 0);
     OS_MUTEX_Unlock(&wlessMutex);
     
-    //assert(ret == M2M_SUCCESS);
     if (ret == M2M_SUCCESS)
     {
         evtBit = Wireless_Sock2Evt(sock);
@@ -152,7 +152,6 @@ static bool Wireless_TransmitUnit(
 
     return ret == M2M_SUCCESS;
 }
-
 
 
 /**
@@ -210,6 +209,13 @@ static bool Wireless_Transmit(
 }
 
 
+/**
+ * @brief   Transmit video stream via UDP.
+ *
+ * @param   arg     Pointer to arguments.
+ *
+ * @retval  None.
+ */
 void Video_Task(void *arg)
 {
     struct sockaddr_in  addr;
@@ -258,7 +264,13 @@ void Video_Task(void *arg)
 }
 
 
-
+/**
+ * @brief   Transmit sensor data via UDP.
+ *
+ * @param   arg     Pointer to arguments.
+ *
+ * @retval  None.
+ */
 void Sensor_Task(void *arg)
 {
     struct sockaddr_in  addr;
@@ -309,6 +321,13 @@ void Sensor_Task(void *arg)
 }
 
 
+/**
+ * @brief   Receive control data via TCP.
+ *
+ * @param   arg     Pointer to arguments.
+ *
+ * @retval  None.
+ */
 void Control_Task(void *arg)
 {
     struct sockaddr_in  addr;
@@ -347,6 +366,13 @@ void Control_Task(void *arg)
 }
 
 
+/**
+ * @brief   Initialize wireless module WINC3400.
+ *
+ * @param   None.
+ *
+ * @retval  None.
+ */
 static void Wireless_Init(void)
 {
     tstrWifiInitParam param;
@@ -458,10 +484,10 @@ static void wifi_cb(uint8_t u8MsgType, void *pvMsg)
 
 
 /**
- * \brief Callback to get the Data from socket.
+ * @brief Callback to get the Data from socket.
  *
- * \param[in] sock socket handler.
- * \param[in] u8Msg socket event type. Possible values are:
+ * @param[in] sock socket handler.
+ * @param[in] u8Msg socket event type. Possible values are:
  *  - SOCKET_MSG_BIND
  *  - SOCKET_MSG_LISTEN
  *  - SOCKET_MSG_ACCEPT
@@ -470,7 +496,7 @@ static void wifi_cb(uint8_t u8MsgType, void *pvMsg)
  *  - SOCKET_MSG_SEND
  *  - SOCKET_MSG_SENDTO
  *  - SOCKET_MSG_RECVFROM
- * \param[in] pvMsg is a pointer to message structure. Existing types are:
+ * @param[in] pvMsg is a pointer to message structure. Existing types are:
  *  - tstrSocketBindMsg
  *  - tstrSocketListenMsg
  *  - tstrSocketAcceptMsg
@@ -497,6 +523,17 @@ static void socket_cb(SOCKET sock, uint8_t u8Msg, void *pvMsg)
     }
 }
 
+
+/**
+ * @brief   Control socket callback. Bind IP address if
+ *          needed and start new reception.
+ *
+ * @param   u8Msg         Unused.
+ *
+ * @param   pvMsg         Unused.
+ *
+ * @retval  None.
+ */
 static void ControlSocketCb(uint8_t u8Msg, void *pvMsg)
 {
     tstrSocketBindMsg *pstrBind;
@@ -555,6 +592,16 @@ static void ControlSocketCb(uint8_t u8Msg, void *pvMsg)
     OS_MUTEX_Unlock(&wlessMutex);
 }
 
+
+/**
+ * @brief   Sensor socket callback. Signal task socket ok.
+ *
+ * @param   u8Msg         Unused.
+ *
+ * @param   pvMsg         Unused.
+ *
+ * @retval  None.
+ */
 static void SensorSocketCb(uint8_t u8Msg, void *pvMsg)
 {
     (void)u8Msg;
@@ -563,6 +610,15 @@ static void SensorSocketCb(uint8_t u8Msg, void *pvMsg)
 }
 
 
+/**
+ * @brief   Video socket callback. Signal task socket ok.
+ *
+ * @param   u8Msg         Unused.
+ *
+ * @param   pvMsg         Unused.
+ *
+ * @retval  None.
+ */
 static void VideoSocketCb(uint8_t u8Msg, void *pvMsg)
 {
     (void)u8Msg;
@@ -570,8 +626,19 @@ static void VideoSocketCb(uint8_t u8Msg, void *pvMsg)
     OS_EVENT_SetMask(&wlessEvt, WLESS_EVT_VIDEO);
 }
 
-void ping_cb(uint32 u32IPAddr, uint32 u32RTT, uint8 u8ErrorCode);
-void ping_cb(uint32 u32IPAddr, uint32 u32RTT, uint8 u8ErrorCode)
+
+/**
+ * @brief   Ping command callback.
+ *
+ * @param   u32IPAddr     IP address in hexadecimal format.
+ *
+ * @param   u32RTT        Round-Trip Time.
+ *
+ * @param   u8ErrorCode   Possible error code.
+ *
+ * @retval  None.
+ */
+static void ping_cb(uint32 u32IPAddr, uint32 u32RTT, uint8 u8ErrorCode)
 {
     if (!u8ErrorCode)
     {
@@ -589,6 +656,13 @@ void ping_cb(uint32 u32IPAddr, uint32 u32RTT, uint8 u8ErrorCode)
 }
 
 
+/**
+ * @brief   Ping command.
+ *
+ * @param   dstIPaddr   IP address to ping.
+ *
+ * @retval  None.
+ */
 void WiFi_Ping(char *dstIPaddr)
 {
     /*Ping request */
