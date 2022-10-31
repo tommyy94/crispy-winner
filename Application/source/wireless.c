@@ -17,10 +17,6 @@
 #include "logWriter.h"
 
 
-/** UDP MAX packet count */
-#define MAIN_WIFI_M2M_PACKET_COUNT         10
-
-
 #define WLESS_EVT_SENSOR                  (1u << 0)
 #define WLESS_EVT_VIDEO                   (1u << 1)
 
