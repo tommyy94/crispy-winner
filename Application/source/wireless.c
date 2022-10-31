@@ -17,22 +17,6 @@
 #include "logWriter.h"
 
 
-/** Wi-Fi settings */
-#define WLAN2_SSID                "NETGEAR38"              // /**< Destination SSID */
-#define WLAN2_AUTH                M2M_WIFI_SEC_WPA_PSK  // /**< Security manner */
-#define WLAN2_PSK                 "cleverbug651"        // /**< Password for Destination SSID */
-//#define WIFI_M2M_SERVER_IP        0xC0A80132            // 192.168.1.50
-#define WIFI_M2M_SERVER_IP        0xC0A8010A            // 192.168.1.10
-#define WIFI_M2M_CLIENT_IP        0xC0A80133            // 192.168.1.51
-#define WIFI_M2M_VIDEO_PORT       (6666)
-#define WIFI_M2M_SENSOR_PORT      (6667)
-#define WIFI_M2M_CONTROL_PORT     (6668)
-
-#define WIFI_M2M_REPORT_INTERVAL  (1000)
-#define WIFI_M2M_BUFFER_SIZE      1460
-
-
-
 /** UDP MAX packet count */
 #define MAIN_WIFI_M2M_PACKET_COUNT         10
 
