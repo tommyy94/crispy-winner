@@ -79,21 +79,147 @@ void Wireless_Task(void *arg)
 }
 
 
+/**
+ * @brief   Map socket to an event
+ *
+ * @param   sock    Network socket.
+ *
+ * @retval  return  Event bit.
+ */
+static OS_TASKEVENT Wireless_Sock2Evt(SOCKET sock)
+{
+
+    if (sock == sensorSocket)
+    {
+        return WLESS_EVT_SENSOR;
+    }
+    else if (sock == videoSocket)
+    {
+        return WLESS_EVT_VIDEO;
+    }
+    else
+    {
+        return WLESS_EVT_INVALID;
+    }
+}
+
+
+/**
+ * @brief   Transmit single buffer where maximum size is MTU.
+ *
+ * @param   sock    UDP socket.
+ *
+ * @param   addr    Address struct.
+ *
+ * @param   buf     Buffer to transmit.
+ *
+ * @param   len     Transmission length.
+ *
+ * @retval  ret     Transmission succeeded.
+ */
+    uint8_t             empty[WIFI_M2M_BUFFER_SIZE];
+static bool Wireless_TransmitUnit(
+    SOCKET              sock,
+    struct sockaddr_in *addr,
+    char                buf[],
+    uint32_t            len)
+{
+    int32_t             ret;
+    OS_TASKEVENT        evtMask;
+    OS_TASKEVENT        evtBit;
+
+    assert(len <= WIFI_M2M_BUFFER_SIZE);
+
+    OS_MUTEX_LockBlocked(&wlessMutex);
+    ret = sendto(sock,
+                 buf,
+                 len,
+                 0,
+                 (struct sockaddr *)addr,
+                 sizeof(addr));
+    recvfrom(sock, empty, sizeof(empty), 0);
+    OS_MUTEX_Unlock(&wlessMutex);
+    
+    //assert(ret == M2M_SUCCESS);
+    if (ret == M2M_SUCCESS)
+    {
+        evtBit = Wireless_Sock2Evt(sock);
+        evtMask = OS_EVENT_GetMaskBlocked(&wlessEvt, evtBit);
+        assert((evtMask & evtBit));
+    }
+
+    return ret == M2M_SUCCESS;
+}
+
+
+
+/**
+ * @brief   Transmit UDP message.
+ *
+ * @param   sock    UDP socket.
+ *
+ * @param   addr    Address struct.
+ *
+ * @param   buf     Buffer to transmit.
+ *
+ * @param   len     Transmission length.
+ *
+ * @retval  ret     Transmission succeeded.
+ */
+static bool Wireless_Transmit(
+    SOCKET              sock,
+    struct sockaddr_in *addr,
+    char                buf[],
+    uint32_t            len)
+{
+    bool                ret;
+    uint32_t            mul = 0;
+
+    assert(sock >= 0);
+
+    do
+    {
+        if (len > WIFI_M2M_BUFFER_SIZE)
+        {
+            len -= WIFI_M2M_BUFFER_SIZE;
+            ret = Wireless_TransmitUnit(sock,
+                                        addr,
+                                        &buf[WIFI_M2M_BUFFER_SIZE * mul],
+                                        WIFI_M2M_BUFFER_SIZE);
+        }
+        else
+        {
+            ret = Wireless_TransmitUnit(sock,
+                                        addr,
+                                        &buf[WIFI_M2M_BUFFER_SIZE * mul],
+                                        len);
+            len = 0;
+        }
+
+        mul++;
+
+        if (ret == false)
+        {
+            break;
+        }
+    } while (len > 0);
+
+    return ret;
+}
+
+
 void Video_Task(void *arg)
 {
     struct sockaddr_in  addr;
-    int32_t ret;
-    OS_TASKEVENT evtMask;
+    bool                ret;;
+
     (void)arg;
-    char test[8] = "video\r\n\0";
 
     memset(&addr, 0, sizeof(addr));
-
     addr.sin_family       = AF_INET;
     addr.sin_port         = _htons(WIFI_M2M_VIDEO_PORT);
     addr.sin_addr.s_addr  = _htonl(WIFI_M2M_SERVER_IP);
     
-
     while(1)
     {
         if (wifiConnected == M2M_WIFI_CONNECTED)
@@ -111,25 +237,17 @@ void Video_Task(void *arg)
                 }
             }
 
-            OS_MUTEX_LockBlocked(&wlessMutex);
-            ret = sendto(videoSocket,
-                         &test,
-                         7,
-                         0,
-                         (struct sockaddr *)&addr,
-                         sizeof(addr));
-            recvfrom(videoSocket, g_recv, sizeof(g_recv), 0);
-            OS_MUTEX_Unlock(&wlessMutex);
-
-            if (ret == M2M_SUCCESS)
+            if (videoSocket >= 0)
             {
-                puts("Video_Task: message sent\r\n");
-                evtMask = OS_EVENT_GetMaskBlocked(&wlessEvt, WLESS_EVT_VIDEO);
-                assert((evtMask & WLESS_EVT_VIDEO));
-            }
-            else
-            {
-                puts("Video_Task: failed to send status report error!\r\n");
+                ret = Wireless_Transmit(videoSocket, &addr, jpgData, 5447);
+                if (ret == true)
+                {
+                    puts("Video_Task: message sent\r\n");
+                }
+                else
+                {
+                    puts("Video_Task: failed to send status report error!\r\n");
+                }
             }
         }
     
@@ -142,10 +260,9 @@ void Video_Task(void *arg)
 void Sensor_Task(void *arg)
 {
     struct sockaddr_in  addr;
-    int32_t ret;
-    OS_TASKEVENT evtMask;
-    (void)arg;
+    bool ret;
     char test[9] = "sensor\r\n\0";
+    (void)arg;
 
     memset(&addr, 0, sizeof(addr));
 
@@ -171,25 +288,17 @@ void Sensor_Task(void *arg)
                 }
             }
 
-            OS_MUTEX_LockBlocked(&wlessMutex);
-            ret = sendto(sensorSocket,
-                         &test,
-                         9,
-                         0,
-                         (struct sockaddr *)&addr,
-                         sizeof(addr));
-            recvfrom(sensorSocket, g_recv, sizeof(g_recv), 0);
-            OS_MUTEX_Unlock(&wlessMutex);
-
-            if (ret == M2M_SUCCESS)
+            if (sensorSocket >= 0)
             {
-                puts("Sensor_Task: message sent\r\n");
-                evtMask = OS_EVENT_GetMaskBlocked(&wlessEvt, WLESS_EVT_SENSOR);
-                assert((evtMask & WLESS_EVT_SENSOR));
-            }
-            else
-            {
-                puts("Sensor_Task: failed to send status report error!\r\n");
+                ret = Wireless_Transmit(sensorSocket, &addr, test, 9);
+                if (ret == true)
+                {
+                    puts("Sensor_Task: message sent\r\n");
+                }
+                else
+                {
+                    puts("Sensor_Task: failed to send status report error!\r\n");
+                }
             }
         }
     
