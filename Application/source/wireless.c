@@ -25,7 +25,7 @@
 
 /** Message format definitions. */
 //char cp[1400] = "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Donec at odio arcu. Morbi eu rhoncus nisl. Duis mattis metus nunc, ac blandit lectus lacinia et. Duis nec mollis justo. Class aptent taciti sociosqu ad litora torquent per conubia nostra, per inceptos himenaeos. Nunc cursus mi eu orci vestibulum, sit amet tristique felis ullamcorper. Praesent porta ultricies est sit amet pretium. In hac habitasse platea dictumst. Duis nisl erat, pharetra a nunc id, tincidunt sagittis tellus. Vivamus velit.";
-uint8_t g_recv[1400];
+uint8_t g_recv[WIFI_M2M_BUFFER_SIZE];
 
 
 static uint8_t      wifiConnected = M2M_WIFI_DISCONNECTED;
