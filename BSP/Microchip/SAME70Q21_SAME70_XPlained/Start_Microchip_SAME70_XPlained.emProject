@@ -64,9 +64,7 @@
         </file>
         <file file_name="../../../Application/source/wireless.c" />
         <file file_name="../../../Application/source/main.c" />
-        <file file_name="jpg.c">
-          <configuration Name="Debug" build_exclude_from_build="Yes" />
-        </file>
+        <file file_name="../../../Application/source/jpg.c" />
       </folder>
     </folder>
     <folder Name="COMPRESS">

@@ -38,7 +38,7 @@ static SOCKET       videoSocket   = -1;
 extern OS_MUTEX     wlessMutex;
 extern OS_EVENT     wlessEvt;
 
-extern char jpgData[];
+extern char         jpgData[5447];
 
 
 static void wifi_cb(uint8_t u8MsgType, void *pvMsg);
