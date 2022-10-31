@@ -42,13 +42,14 @@ extern OS_EVENT     wlessEvt;
 extern char         jpgData[5447];
 
 
-static void wifi_cb(uint8_t u8MsgType, void *pvMsg);
-static void socket_cb(SOCKET sock, uint8_t u8Msg, void *pvMsg);
-static void Wireless_Init(void);
+static void         wifi_cb(uint8_t u8MsgType, void *pvMsg);
+static void         socket_cb(SOCKET sock, uint8_t u8Msg, void *pvMsg);
+static void         Wireless_Init(void);
 
-static void ControlSocketCb(uint8_t u8Msg, void *pvMsg);
-static void SensorSocketCb(uint8_t u8Msg, void *pvMsg);
-static void VideoSocketCb(uint8_t u8Msg, void *pvMsg);
+static void         ControlSocketCb(uint8_t u8Msg, void *pvMsg);
+static void         SensorSocketCb(uint8_t u8Msg, void *pvMsg);
+static void         VideoSocketCb(uint8_t u8Msg, void *pvMsg);
+static OS_TASKEVENT Wireless_Sock2Evt(SOCKET sock);
 
 void WiFi_Ping(char *dstIPaddr);
 
