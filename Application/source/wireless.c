@@ -13,6 +13,7 @@
 #include "same70.h"
 
 /* User includes */
+#include "wifi_conf.h"
 #include "wireless.h"
 #include "logWriter.h"
 
