@@ -67,6 +67,7 @@
         <file file_name="../../../Application/source/main.c" />
         <file file_name="../../../Application/source/jpg.c" />
         <file file_name="../../../Application/source/jpgInv.c" />
+        <file file_name="../../../Application/source/radio_frame.c" />
       </folder>
     </folder>
     <folder Name="COMPRESS">

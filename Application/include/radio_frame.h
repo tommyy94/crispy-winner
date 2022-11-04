@@ -1,7 +1,8 @@
 #ifndef RADIO_FRAME_H
 #define RADIO_FRAME_H
 
-#include "wifi_con.h"
+#include <stdint.h>
+#include "wifi_conf.h"
 
 
 #define RADIO_FRAME_HEADER_SIZE   (6)
@@ -17,6 +18,13 @@ typedef struct
     /* Payload */
     char      data[RADIO_FRAME_PAYLOAD_SIZE];
 } RadioFrame_t;
+
+
+void BuildRadioFrame(
+    RadioFrame_t  *frame,
+    char          *data,
+    uint32_t       len,
+    uint8_t        sequenceId);
 
 
 #endif /* RADIO_FRAME_H */
