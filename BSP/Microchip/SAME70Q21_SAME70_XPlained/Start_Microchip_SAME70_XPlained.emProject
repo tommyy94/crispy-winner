@@ -51,6 +51,7 @@
         <file file_name="../../../Application/include/wireless.h" />
         <file file_name="../../../Application/include/wifi_conf_default.h" />
         <file file_name="../../../Application/include/wifi_conf.h" />
+        <file file_name="../../../Application/include/radio_frame.h" />
       </folder>
       <folder Name="source">
         <file file_name="../../../Application/source/gyro.c">
