@@ -39,7 +39,8 @@ static SOCKET       videoSocket   = -1;
 extern OS_MUTEX     wlessMutex;
 extern OS_EVENT     wlessEvt;
 
-extern char         jpgData[5447];
+extern char         jpgData[4954];
+extern char         jpgDataInv[4954];
 
 
 static void         wifi_cb(uint8_t u8MsgType, void *pvMsg);
@@ -219,7 +220,8 @@ static bool Wireless_Transmit(
 void Video_Task(void *arg)
 {
     struct sockaddr_in  addr;
-    bool                ret;;
+    bool                ret;
+    bool                toggle = false;
 
     (void)arg;
 
@@ -247,7 +249,15 @@ void Video_Task(void *arg)
 
             if (videoSocket >= 0)
             {
-                ret = Wireless_Transmit(videoSocket, &addr, jpgData, 5447);
+                if (toggle == false)
+                {
+                    ret = Wireless_Transmit(videoSocket, &addr, jpgDataInv, 4954);
+                }
+                else
+                {
+                    ret = Wireless_Transmit(videoSocket, &addr, jpgData, 5447);
+                }
+
                 if (ret == true)
                 {
                     puts("Video_Task: message sent");
@@ -258,6 +268,8 @@ void Video_Task(void *arg)
                 }
             }
         }
+
+        toggle = !toggle;
     
         OS_TASK_Delay(1000);
     }
