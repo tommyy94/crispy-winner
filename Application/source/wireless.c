@@ -240,7 +240,7 @@ void Video_Task(void *arg)
                 OS_MUTEX_Unlock(&wlessMutex);
                 if (videoSocket < 0)
                 {
-                    puts("Video_Task: failed to create TX UDP client socket error!\r\n");
+                    puts("Video_Task: failed to create TX UDP client socket error!");
                     continue;
                 }
             }
@@ -250,11 +250,11 @@ void Video_Task(void *arg)
                 ret = Wireless_Transmit(videoSocket, &addr, jpgData, 5447);
                 if (ret == true)
                 {
-                    puts("Video_Task: message sent\r\n");
+                    puts("Video_Task: message sent");
                 }
                 else
                 {
-                    puts("Video_Task: failed to send status report error!\r\n");
+                    puts("Video_Task: failed to send status report error!");
                 }
             }
         }
@@ -297,7 +297,7 @@ void Sensor_Task(void *arg)
                 OS_MUTEX_Unlock(&wlessMutex);
                 if (sensorSocket < 0)
                 {
-                    puts("Sensor_Task: failed to create TX UDP client socket error!\r\n");
+                    puts("Sensor_Task: failed to create TX UDP client socket error!");
                     continue;
                 }
             }
@@ -307,11 +307,11 @@ void Sensor_Task(void *arg)
                 ret = Wireless_Transmit(sensorSocket, &addr, test, 9);
                 if (ret == true)
                 {
-                    puts("Sensor_Task: message sent\r\n");
+                    puts("Sensor_Task: message sent");
                 }
                 else
                 {
-                    puts("Sensor_Task: failed to send status report error!\r\n");
+                    puts("Sensor_Task: failed to send status report error!");
                 }
             }
         }
