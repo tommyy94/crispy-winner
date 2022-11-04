@@ -66,6 +66,7 @@
         <file file_name="../../../Application/source/wireless.c" />
         <file file_name="../../../Application/source/main.c" />
         <file file_name="../../../Application/source/jpg.c" />
+        <file file_name="../../../Application/source/jpgInv.c" />
       </folder>
     </folder>
     <folder Name="COMPRESS">
