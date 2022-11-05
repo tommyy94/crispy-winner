@@ -180,26 +180,33 @@ static bool Wireless_Transmit(
     bool                ret;
     uint32_t            mul = 0;
 
+    /* Serialize the struct we build */
+    char               *frameHdrPtr = (char *)&frame;
+
     assert(sock >= 0);
+    assert(addr != NULL);
 
     do
     {
-        BuildRadioFrame(&frame, buf, len, seqId);
+        BuildRadioFrame(&frame,
+                        &buf[RADIO_FRAME_PAYLOAD_SIZE * mul],
+                        RADIO_FRAME_PAYLOAD_SIZE,
+                        seqId);
 
-        if (len > RADIO_FRAME_PAYLOAD_SIZE)
+        if (len >= WIFI_M2M_BUFFER_SIZE)
         {
-            len -= RADIO_FRAME_PAYLOAD_SIZE;
             ret = Wireless_TransmitUnit(sock,
                                         addr,
-                                        &frame.data[RADIO_FRAME_PAYLOAD_SIZE * mul],
-                                        RADIO_FRAME_PAYLOAD_SIZE);
+                                        frameHdrPtr,
+                                        WIFI_M2M_BUFFER_SIZE);
+            len -= RADIO_FRAME_PAYLOAD_SIZE;
         }
         else
         {
             ret = Wireless_TransmitUnit(sock,
                                         addr,
-                                        &frame.data[RADIO_FRAME_PAYLOAD_SIZE * mul],
-                                        len);
+                                        frameHdrPtr,
+                                        len + RADIO_FRAME_HEADER_SIZE);
             len = 0;
         }
 
@@ -272,11 +279,12 @@ void Video_Task(void *arg)
                 {
                     puts("Video_Task: failed to send status report error!");
                 }
+
+                seqId++;
             }
         }
 
         toggle = !toggle;
-        seqId++;
     
         OS_TASK_Delay(1000);
     }
