@@ -212,6 +212,12 @@ static bool Wireless_Transmit(
 
         mul++;
 
+        seqId++;
+        /* 1392B x 255 = 354960B (~346KB) should be enough,
+         * but add assert to test if it overflows.
+         */
+        assert(seqId < UINT8_MAX);
+
         if (ret == false)
         {
             break;
