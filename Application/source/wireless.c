@@ -281,7 +281,7 @@ void Video_Task(void *arg)
             }
         }
     
-        OS_TASK_Delay(1000);
+        OS_TASK_Delay(100);
     }
 }
 
