@@ -175,7 +175,7 @@ static bool Wireless_Transmit(
     char                buf[],
     uint32_t            len)
 {
-    RadioPacket_t        packet;
+    RadioPacket_t       packet;
     bool                ret;
     uint8_t             seqId = 0;
     uint32_t            mul   = 0;
