@@ -233,7 +233,6 @@ void Video_Task(void *arg)
 {
     struct sockaddr_in  addr;
     bool                ret;
-    bool                toggle = false;
     uint8_t             seqId  = 0;
 
     (void)arg;
@@ -262,15 +261,7 @@ void Video_Task(void *arg)
 
             if (videoSocket >= 0)
             {
-                if (toggle == false)
-                {
-                    ret = Wireless_Transmit(videoSocket, &addr, jpgDataInv, 4954, seqId);
-                }
-                else
-                {
-                    ret = Wireless_Transmit(videoSocket, &addr, jpgData, 5447, seqId);
-                }
-
+                ret = Wireless_Transmit(videoSocket, &addr, jpgData, 5447, seqId);
                 if (ret == true)
                 {
                     puts("Video_Task: message sent");
@@ -283,8 +274,6 @@ void Video_Task(void *arg)
                 seqId++;
             }
         }
-
-        toggle = !toggle;
     
         OS_TASK_Delay(1000);
     }
