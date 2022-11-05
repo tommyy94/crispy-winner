@@ -173,12 +173,12 @@ static bool Wireless_Transmit(
     SOCKET              sock,
     struct sockaddr_in *addr,
     char                buf[],
-    uint32_t            len,
-    uint8_t             seqId)
+    uint32_t            len)
 {
     RadioFrame_t        frame;
     bool                ret;
-    uint32_t            mul = 0;
+    uint8_t             seqId = 0;
+    uint32_t            mul   = 0;
 
     /* Serialize the struct we build */
     char               *frameHdrPtr = (char *)&frame;
@@ -239,7 +239,6 @@ void Video_Task(void *arg)
 {
     struct sockaddr_in  addr;
     bool                ret;
-    uint8_t             seqId  = 0;
 
     (void)arg;
 
@@ -267,7 +266,7 @@ void Video_Task(void *arg)
 
             if (videoSocket >= 0)
             {
-                ret = Wireless_Transmit(videoSocket, &addr, jpgData, 5447, seqId);
+                ret = Wireless_Transmit(videoSocket, &addr, jpgData, 5447);
                 if (ret == true)
                 {
                     puts("Video_Task: message sent");
@@ -276,8 +275,6 @@ void Video_Task(void *arg)
                 {
                     puts("Video_Task: failed to send status report error!");
                 }
-
-                seqId++;
             }
         }
     
@@ -298,7 +295,6 @@ void Sensor_Task(void *arg)
     struct sockaddr_in  addr;
     bool                ret;
     char                test[9] = "sensor\r\n\0";
-    uint8_t             seqId   = 0;
     (void)arg;
 
     memset(&addr, 0, sizeof(addr));
@@ -327,7 +323,7 @@ void Sensor_Task(void *arg)
 
             if (sensorSocket >= 0)
             {
-                ret = Wireless_Transmit(sensorSocket, &addr, test, 9, seqId);
+                ret = Wireless_Transmit(sensorSocket, &addr, test, 9);
                 if (ret == true)
                 {
                     puts("Sensor_Task: message sent");
@@ -337,8 +333,6 @@ void Sensor_Task(void *arg)
                     puts("Sensor_Task: failed to send status report error!");
                 }
             }
-
-            seqId++;
         }
     
         OS_TASK_Delay(1000);
