@@ -36,11 +36,14 @@ static OS_STACKPTR int stackRtc[512]        __attribute__((aligned(8)));
        OS_TASK         rtcTCB;
 static OS_STACKPTR int stackWireless[2048]  __attribute__((aligned(8)));
 static OS_TASK         wirelessTCB;
-static OS_STACKPTR int stackSensor[512]     __attribute__((aligned(8)));
+
+/* TODO: Temporarily increased sensor task stack size !!! */
+static OS_STACKPTR int stackSensor[1024]     __attribute__((aligned(8)));
 static OS_TASK         sensorTCB;
+
 static OS_STACKPTR int stackControl[512]    __attribute__((aligned(8)));
 static OS_TASK         controlTCB;
-static OS_STACKPTR int stackVideo[512]      __attribute__((aligned(8)));
+static OS_STACKPTR int stackVideo[1024]      __attribute__((aligned(8)));
 static OS_TASK         videoTCB;
 static OS_STACKPTR int stackThrottle[512]   __attribute__((aligned(8)));
 static OS_TASK         throttleTCB;

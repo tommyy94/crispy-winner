@@ -16,6 +16,7 @@
 #include "wifi_conf.h"
 #include "wireless.h"
 #include "logWriter.h"
+#include "radiopacket.h"
 
 
 #define WLESS_EVT_SENSOR                  (1u << 0)
@@ -174,31 +175,48 @@ static bool Wireless_Transmit(
     char                buf[],
     uint32_t            len)
 {
+    RadioPacket_t       packet;
     bool                ret;
-    uint32_t            mul = 0;
+    uint8_t             seqId = 0;
+    uint32_t            mul   = 0;
+
+    /* Serialize the struct we build */
+    char               *packetHdrPtr = (char *)&packet;
 
     assert(sock >= 0);
+    assert(addr != NULL);
 
     do
     {
-        if (len > WIFI_M2M_BUFFER_SIZE)
+        BuildRadioPacket(&packet,
+                         &buf[RADIOPACKET_PAYLOAD_SIZE * mul],
+                         RADIOPACKET_PAYLOAD_SIZE,
+                         seqId);
+
+        if (len >= WIFI_M2M_BUFFER_SIZE)
         {
-            len -= WIFI_M2M_BUFFER_SIZE;
             ret = Wireless_TransmitUnit(sock,
                                         addr,
-                                        &buf[WIFI_M2M_BUFFER_SIZE * mul],
+                                        packetHdrPtr,
                                         WIFI_M2M_BUFFER_SIZE);
+            len -= RADIOPACKET_PAYLOAD_SIZE;
         }
         else
         {
             ret = Wireless_TransmitUnit(sock,
                                         addr,
-                                        &buf[WIFI_M2M_BUFFER_SIZE * mul],
-                                        len);
+                                        packetHdrPtr,
+                                        len + RADIOPACKET_HEADER_SIZE);
             len = 0;
         }
 
         mul++;
+
+        seqId++;
+        /* 1392B x 255 = 354960B (~346KB) should be enough,
+         * but add assert to test if it overflows.
+         */
+        assert(seqId < UINT8_MAX);
 
         if (ret == false)
         {
@@ -221,7 +239,6 @@ void Video_Task(void *arg)
 {
     struct sockaddr_in  addr;
     bool                ret;
-    bool                toggle = false;
 
     (void)arg;
 
@@ -249,15 +266,7 @@ void Video_Task(void *arg)
 
             if (videoSocket >= 0)
             {
-                if (toggle == false)
-                {
-                    ret = Wireless_Transmit(videoSocket, &addr, jpgDataInv, 4954);
-                }
-                else
-                {
-                    ret = Wireless_Transmit(videoSocket, &addr, jpgData, 5447);
-                }
-
+                ret = Wireless_Transmit(videoSocket, &addr, jpgData, 5447);
                 if (ret == true)
                 {
                     puts("Video_Task: message sent");
@@ -268,10 +277,8 @@ void Video_Task(void *arg)
                 }
             }
         }
-
-        toggle = !toggle;
     
-        OS_TASK_Delay(1000);
+        OS_TASK_Delay(100);
     }
 }
 
@@ -286,8 +293,8 @@ void Video_Task(void *arg)
 void Sensor_Task(void *arg)
 {
     struct sockaddr_in  addr;
-    bool ret;
-    char test[9] = "sensor\r\n\0";
+    bool                ret;
+    char                test[9] = "sensor\r\n\0";
     (void)arg;
 
     memset(&addr, 0, sizeof(addr));

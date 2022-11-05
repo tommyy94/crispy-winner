@@ -23,7 +23,7 @@ void OnProjectLoad (void) {
   // Dialog-generated settings
   //
   Project.SetTraceSource ("Trace Pins");
-  Project.SetTracePortWidth (2);
+  Project.SetTracePortWidth (1);
   Project.SetDevice ("ATSAME70Q21A");
   Project.SetHostIF ("IP", "192.168.10.5");
   Project.SetTargetIF ("SWD");
