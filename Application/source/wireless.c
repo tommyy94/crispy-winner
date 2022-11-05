@@ -16,7 +16,7 @@
 #include "wifi_conf.h"
 #include "wireless.h"
 #include "logWriter.h"
-#include "radio_frame.h"
+#include "radiopacket.h"
 
 
 #define WLESS_EVT_SENSOR                  (1u << 0)
@@ -175,38 +175,38 @@ static bool Wireless_Transmit(
     char                buf[],
     uint32_t            len)
 {
-    RadioFrame_t        frame;
+    RadioPacket_t        packet;
     bool                ret;
     uint8_t             seqId = 0;
     uint32_t            mul   = 0;
 
     /* Serialize the struct we build */
-    char               *frameHdrPtr = (char *)&frame;
+    char               *packetHdrPtr = (char *)&packet;
 
     assert(sock >= 0);
     assert(addr != NULL);
 
     do
     {
-        BuildRadioFrame(&frame,
-                        &buf[RADIO_FRAME_PAYLOAD_SIZE * mul],
-                        RADIO_FRAME_PAYLOAD_SIZE,
-                        seqId);
+        BuildRadioPacket(&packet,
+                         &buf[RADIOPACKET_PAYLOAD_SIZE * mul],
+                         RADIOPACKET_PAYLOAD_SIZE,
+                         seqId);
 
         if (len >= WIFI_M2M_BUFFER_SIZE)
         {
             ret = Wireless_TransmitUnit(sock,
                                         addr,
-                                        frameHdrPtr,
+                                        packetHdrPtr,
                                         WIFI_M2M_BUFFER_SIZE);
-            len -= RADIO_FRAME_PAYLOAD_SIZE;
+            len -= RADIOPACKET_PAYLOAD_SIZE;
         }
         else
         {
             ret = Wireless_TransmitUnit(sock,
                                         addr,
-                                        frameHdrPtr,
-                                        len + RADIO_FRAME_HEADER_SIZE);
+                                        packetHdrPtr,
+                                        len + RADIOPACKET_HEADER_SIZE);
             len = 0;
         }
 
