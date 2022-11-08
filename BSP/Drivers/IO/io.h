@@ -42,6 +42,12 @@ typedef enum
     IO_PERIPH_D,
 } IO_PeriphFunc;
 
+typedef enum
+{
+    IO_IRQ_SOURCE_FALL_LOW = 0,
+    IO_IRQ_SOURCE_RISE_HIGH
+} IO_IrqSource_t; 
+
 
 #define IO_MASK(pin)     (1u << pin)
 #define IOn              (31u)
@@ -52,22 +58,29 @@ typedef enum
 #define IO_PULLUP        (1u)
 
 
-void      IO_Init(void);
-void      IO_DisableIRQ(Pio *pio, uint32_t pin);
-void      IO_EnableIRQ(Pio *pio, uint32_t pin);
-void      IO_ConfigurePull(Pio *pio, uint32_t mask, IO_PullType pull);
-IRQn_Type IO_ConfigureIRQ(Pio *pio, IO_Sense_t sense, uint32_t mask);
-void      IO_SetPeripheralFunction(Pio *pio,const uint32_t mask, const IO_PeriphFunc xFunc);
-void      IO_ConfigureOutput(Pio   *const         pio,
-                             const uint32_t       pinMask,
-                             const uint32_t       driveMask);
-void      IO_ConfigureInput(Pio   *const          pio,
-                            const uint32_t        pinMask,
-                            const uint32_t        pullMask,
-                            const uint32_t        pullDir);
-void      IO_SetOutput(Pio *pio, const uint32_t   mask);
-void      IO_ClearOutput(Pio *pio, const uint32_t mask);
-void      IO_InstallIrqHandler(uint32_t const     pin,
-                               void              *pfIsr);
+void IO_Init(void);
+void IO_DisableIRQ(Pio *pio, uint32_t pin);
+void IO_EnableIRQ(Pio *pio, uint32_t pin);
+void IO_ConfigurePull(Pio *pio,
+    uint32_t mask,
+    IO_PullType pull);
+IRQn_Type IO_ConfigureIRQ(Pio *pio,
+    IO_Sense_t sense,
+    uint32_t mask);
+void IO_SetPeripheralFunction(Pio *pio,
+    const uint32_t mask,
+    const IO_PeriphFunc xFunc);
+void IO_ConfigureOutput(Pio *const pio,
+    const uint32_t pinMask,
+    const uint32_t driveMask);
+void IO_ConfigureInput(Pio *const pio,
+    const uint32_t pinMask,
+    const uint32_t pullMask,
+    const uint32_t pullDir);
+void IO_SetOutput(Pio *pio, const uint32_t mask);
+void IO_ClearOutput(Pio *pio, const uint32_t mask);
+void IO_InstallIrqHandler(uint32_t const pin,
+    void *pfIsr);
+IO_IrqSource_t IO_GetIrqSource(Pio *pio, uint32_t pin);
 
- #endif /* PORT_H */
+#endif /* PORT_H */

@@ -199,3 +199,27 @@ void IO_DisableIRQ(Pio *pio, uint32_t mask)
     assert(PORT_IS_PIO(pio));
     pio->PIO_IDR = mask;
 }
+
+
+/*
+ * @brief   Get IRQ source.
+ *
+ * @param   pio   Pointer to PIO instance.
+ *
+ * @param   mask  IO mask to disable.
+ *
+ * @return  None.
+ */
+IO_IrqSource_t IO_GetIrqSource(Pio *pio, uint32_t pin)
+{
+    assert(PORT_IS_PIO(pio));
+    
+    if (pio->PIO_FRLHSR & (1 << pin))
+    {
+        return IO_IRQ_SOURCE_RISE_HIGH;
+    }
+    else
+    {
+        return IO_IRQ_SOURCE_FALL_LOW;
+    }
+}
