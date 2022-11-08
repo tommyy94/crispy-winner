@@ -8,6 +8,7 @@
 #include "throttle.h"
 #include "gyro.h"
 #include "wireless.h"
+#include "distance.h"
 
 /* RTOS includes */
 #include "RTOS.h"
@@ -21,13 +22,14 @@
 /* High number = high priority */
 #define TASK_STARTUP_PRIORITY                   (70u)
 #define TASK_WIRELESS_PRIORITY                  (69u)
-#define TASK_SENSOR_PRIORITY                    (61u)
-#define TASK_VIDEO_PRIORITY                     (62u)
-#define TASK_CONTROL_PRIORITY                   (60u)
+#define TASK_SENSOR_PRIORITY                    (62u)
+#define TASK_VIDEO_PRIORITY                     (63u)
+#define TASK_CONTROL_PRIORITY                   (61u)
 #define TASK_JOURNAL_PRIORITY                   (57u)
 #define TASK_RTC_PRIORITY                       (58u)
 #define TASK_THROTTLE_PRIORITY                  (59u)
 #define TASK_GYRO_PRIORITY                      (56u)
+#define TASK_DISTANCE_PRIORITY                  (60u)
 
 
 static OS_STACKPTR int stackJournal[512]    __attribute__((aligned(8)));
@@ -51,6 +53,8 @@ static OS_STACKPTR int stackGyro[512]       __attribute__((aligned(8)));
 static OS_TASK         gyroTCB;
 static OS_STACKPTR int stackStartup[512]    __attribute__((aligned(8)));
 static OS_TASK         startupTCB;
+static OS_STACKPTR int stackDistance[128]   __attribute__((aligned(8)));
+static OS_TASK         distanceTCB;
 
 
 OS_QUEUE          throttleQ;
@@ -60,6 +64,7 @@ OS_EVENT          dmaEvt;
 OS_EVENT          svEvt;
 OS_EVENT          wlessEvt;
 OS_MUTEX          wlessMutex;
+OS_MAILBOX        distanceMbox;
 
 #define Q_MSG_SIZE  (1u)
 #define Q_MSG_CNT   (32u)
@@ -67,6 +72,7 @@ OS_MUTEX          wlessMutex;
 char              _tsMemBuffer[Q_SIZE];
 char              _gyroMemBuffer[Q_SIZE];
 char              _throttleMemBuffer[Q_SIZE];
+uint32_t          _distanceMboxBuffer[1];
 
 
 extern void Wireless_Task(void *arg);
@@ -77,6 +83,7 @@ extern void Journal_vErrorTask(void *arg);
 extern void RTC_vTask(void *arg);
 extern void throttle_vTask(void *arg);
 extern void gyro_vTask(void *arg);
+extern void Distance_Task(void *arg);
 static void StartupTask(void *arg);
 
 static void OS_InitTasks(void);
@@ -117,6 +124,7 @@ static void OS_InitTasks(void)
     OS_TASK_CREATEEX(&journalTCB, "Journal",  TASK_JOURNAL_PRIORITY, Journal_vErrorTask, stackJournal, NULL);
     //OS_TASK_CREATEEX(&gyroTCB, "Gyro", TASK_GYRO_PRIORITY, gyro_vTask, stackGyro, NULL);
     //OS_TASK_CREATEEX(&throttleTCB, "Throttle", TASK_THROTTLE_PRIORITY, throttle_vTask, stackThrottle, NULL);
+    OS_TASK_CREATEEX(&distanceTCB, "Distance", TASK_DISTANCE_PRIORITY, Distance_Task, stackDistance, NULL);
 }
 
 
@@ -140,6 +148,8 @@ static void OS_InitServices(void)
     
 
     OS_MUTEX_Create(&wlessMutex);
+
+    OS_MAILBOX_Create(&distanceMbox, 1, sizeof(distanceMbox), &_distanceMboxBuffer);
 }
 
 

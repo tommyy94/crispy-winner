@@ -52,6 +52,7 @@
         <file file_name="../../../Application/include/wifi_conf_default.h" />
         <file file_name="../../../Application/include/wifi_conf.h" />
         <file file_name="../../../Application/include/radiopacket.h" />
+        <file file_name="../../../Application/include/distance.h" />
       </folder>
       <folder Name="source">
         <file file_name="../../../Application/source/gyro.c">
@@ -67,6 +68,7 @@
         <file file_name="../../../Application/source/main.c" />
         <file file_name="../../../Application/source/jpg.c" />
         <file file_name="../../../Application/source/radiopacket.c" />
+        <file file_name="../../../Application/source/distance.c" />
       </folder>
     </folder>
     <folder Name="COMPRESS">

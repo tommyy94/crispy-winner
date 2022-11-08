@@ -21,6 +21,7 @@ typedef enum
     THROTTLE_TIMEOUT,
     I2C_ERROR,
     MPU6050_ERROR,
+    SRF05_ERROR,
     ERROR_COUNT
 } Error_t;
 
