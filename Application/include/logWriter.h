@@ -22,6 +22,7 @@ typedef enum
     I2C_ERROR,
     MPU6050_ERROR,
     SRF05_ERROR,
+    TC_ERROR,
     ERROR_COUNT
 } Error_t;
 
