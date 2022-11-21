@@ -26,7 +26,6 @@ void PIOD_IRQHandler(void)
     OS_INT_Enter();
 
     status  = PIOD->PIO_ISR;
-    status &= PIOD->PIO_IMR;
 
     for (uint32_t i = piodFirstIrqN; i <= piodLastIrqN; i++)
     {
