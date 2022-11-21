@@ -114,11 +114,9 @@ IRQn_Type IO_ConfigureIRQ(Pio         *pio,
             break;
         case IO_SENSE_RISE_FALL:
             pio->PIO_AIMDR  = mask;
-            pio->PIO_ESR    = mask;
             break;
-        case IO_SENSE_COUNT:
-            /* Should not get here */
         default:
+            /* Should not get here */
             break;
     }
 
