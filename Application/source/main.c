@@ -127,7 +127,7 @@ static void OS_InitTasks(void)
 
 
 /**
- * @brief   Create RTOS events, queues, mutexes, sempahores, etc.
+ * @brief   Create RTOS events, queues, mutexes, semaphores, etc.
  *
  * @param   None
  *
