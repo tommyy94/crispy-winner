@@ -6,10 +6,11 @@
 #include "distance.h"
 
 
-#define SRF05_PORT          (PIOD)
-#define SRF05_ECHO_PIN      (18u)
-#define SRF05_TRIGGER_PIN   (19u)
-#define SRF05_TIMEOUT_MS    (30u)
+#define SRF05_PORT                (PIOD)
+#define SRF05_ECHO_PIN            (15u)
+#define SRF05_TRIGGER_PIN         (16u)
+#define SRF05_PULSE_US            (10u)
+#define SRF05_TIMEOUT_MS          (30u)
 
 #define SOUND_VELOCITY_MS   (343u)
 #define SRF05_FORMULA(time) ((time) * SOUND_VELOCITY_MS / 100 / 2)
