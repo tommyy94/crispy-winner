@@ -22,7 +22,7 @@
 
 
 
-extern OS_MAILBOX distanceMbox;
+extern OS_TASK    distanceTCB;
 
 
 static void SRF05_Handler(void);
@@ -59,7 +59,7 @@ bool SRF05_MeasureDistance(uint32_t *pDistanceCm)
 
     SRF05_PulseOutput();
 
-    if (OS_MAILBOX_GetTimed(&distanceMbox, &time, SRF05_TIMEOUT_MS) == 0)
+    if (OS_TASKEVENT_GetSingleTimed(mask, SRF05_TIMEOUT_MS) == 0)
     {
         /* Avoid divide by zero */
         if (time > 0)
@@ -109,6 +109,7 @@ static void SRF05_Handler(void)
         /* Start measuring */
 
         /* Start timer */
+        OS_TASKEVENT_Set(&distanceTCB, SRF05_EVT_MEAS_FINISHED);
     }
     else /* if (src == IO_IRQ_SOURCE_FALL_LOW) */
     {

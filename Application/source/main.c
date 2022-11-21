@@ -54,7 +54,7 @@ static OS_TASK         gyroTCB;
 static OS_STACKPTR int stackStartup[512]    __attribute__((aligned(8)));
 static OS_TASK         startupTCB;
 static OS_STACKPTR int stackDistance[128]   __attribute__((aligned(8)));
-static OS_TASK         distanceTCB;
+       OS_TASK         distanceTCB;
 
 
 OS_QUEUE          throttleQ;
@@ -64,7 +64,6 @@ OS_EVENT          dmaEvt;
 OS_EVENT          svEvt;
 OS_EVENT          wlessEvt;
 OS_MUTEX          wlessMutex;
-OS_MAILBOX        distanceMbox;
 
 #define Q_MSG_SIZE  (1u)
 #define Q_MSG_CNT   (32u)
@@ -72,7 +71,6 @@ OS_MAILBOX        distanceMbox;
 char              _tsMemBuffer[Q_SIZE];
 char              _gyroMemBuffer[Q_SIZE];
 char              _throttleMemBuffer[Q_SIZE];
-uint32_t          _distanceMboxBuffer[1];
 
 
 extern void Wireless_Task(void *arg);
@@ -145,11 +143,8 @@ static void OS_InitServices(void)
     
     OS_QUEUE_Create(&gyroQ, &_gyroMemBuffer, sizeof(_gyroMemBuffer));
     OS_QUEUE_Create(&tsQ, &_tsMemBuffer, sizeof(_tsMemBuffer));
-    
 
     OS_MUTEX_Create(&wlessMutex);
-
-    OS_MAILBOX_Create(&distanceMbox, 1, sizeof(distanceMbox), &_distanceMboxBuffer);
 }
 
 
