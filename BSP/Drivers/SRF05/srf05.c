@@ -74,6 +74,32 @@ bool SRF05_MeasureDistance(uint32_t *pDistanceCm)
 
 
 /**
+ * @brief   Stop SRF05 measurement.
+ *
+ * @param   None.
+ *
+ * @retval  None.
+ */
+void SRF05_StartMeasuring(void)
+{
+    TC_Start(TC0, TC_CHANNEL_0);
+}
+
+
+/**
+ * @brief   Start SRF05 measurement.
+ *
+ * @param   None.
+ *
+ * @retval  None.
+ */
+void SRF05_StopMeasuring(void)
+{
+    TC_Stop(TC0, TC_CHANNEL_0);
+}
+
+
+/**
  * @brief   Pulse trigger pin HIGH for atleast 10us.
  *
  * @param   pDistanceCm   Pointer where distance in CM is stored.
