@@ -58,18 +58,21 @@ void SRF05_Init(void)
 bool SRF05_MeasureDistance(uint32_t *pDistanceCm)
 {
     uint32_t  time;
+    uint32_t  mask    = 0;
     bool      status  = false;
 
     SRF05_PulseOutput();
 
     if (OS_TASKEVENT_GetSingleTimed(mask, SRF05_TIMEOUT_MS) == 0)
     {
+        time = TC_ReadCounter(TC0, TC_CHANNEL_0);
+
         /* Avoid divide by zero */
         if (time > 0)
         {
             *pDistanceCm = SRF05_FORMULA(time);
+            status = true;
         }
-        status = true;
     }
 
     return status;
