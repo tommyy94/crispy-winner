@@ -211,16 +211,16 @@ void IO_DisableIRQ(Pio *pio, uint32_t mask)
  *
  * @return  None.
  */
-IO_IrqSource_t IO_GetIrqSource(Pio *pio, uint32_t pin)
+IO_PinLevel_t IO_GetPinLevel(Pio *pio, uint32_t pin)
 {
     assert(PORT_IS_PIO(pio));
     
-    if (pio->PIO_FRLHSR & (1 << pin))
+    if (pio->PIO_PDSR & IO_MASK(pin))
     {
-        return IO_IRQ_SOURCE_RISE_HIGH;
+        return IO_PIN_HIGH;
     }
     else
     {
-        return IO_IRQ_SOURCE_FALL_LOW;
+        return IO_PIN_LOW;
     }
 }

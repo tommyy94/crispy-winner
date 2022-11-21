@@ -44,9 +44,9 @@ typedef enum
 
 typedef enum
 {
-    IO_IRQ_SOURCE_FALL_LOW = 0,
-    IO_IRQ_SOURCE_RISE_HIGH
-} IO_IrqSource_t; 
+    IO_PIN_LOW = 0,
+    IO_PIN_HIGH
+} IO_PinLevel_t; 
 
 
 #define IO_MASK(pin)     (1u << pin)
@@ -81,6 +81,6 @@ void IO_SetOutput(Pio *pio, const uint32_t mask);
 void IO_ClearOutput(Pio *pio, const uint32_t mask);
 void IO_InstallIrqHandler(uint32_t const pin,
     void *pfIsr);
-IO_IrqSource_t IO_GetIrqSource(Pio *pio, uint32_t pin);
+IO_PinLevel_t IO_GetPinLevel(Pio *pio, uint32_t pin);
 
 #endif /* PORT_H */
