@@ -39,10 +39,12 @@ static void SRF05_PulseHandler(void);
  */
 void SRF05_Init(void)
 {
-    IO_ConfigureOutput(SRF05_PORT, 1 << SRF05_TRIGGER_PIN, 1 << SRF05_TRIGGER_PIN);
+    IO_ConfigureOutput(SRF05_PORT, IO_MASK(SRF05_TRIGGER_PIN), IO_MASK(SRF05_TRIGGER_PIN));
+    IO_ClearOutput(SRF05_PORT, IO_MASK(SRF05_TRIGGER_PIN));
 
-    (void)IO_ConfigureIRQ(SRF05_PORT, IO_SENSE_RISE_FALL, 1 << SRF05_TRIGGER_PIN);
-    IO_InstallIrqHandler(SRF05_ECHO_PIN, SRF05_Handler);
+    (void)IO_ConfigureIRQ(SRF05_PORT, IO_SENSE_RISE_FALL, IO_MASK(SRF05_ECHO_PIN));
+    IO_InstallIrqHandler(SRF05_ECHO_PIN, SRF05_EchoHandler);
+    IO_ConfigurePull(SRF05_PORT, IO_MASK(SRF05_ECHO_PIN), IO_PULLDOWN);
 }
 
 
@@ -109,11 +111,11 @@ void SRF05_StopMeasuring(void)
  */
 static void SRF05_PulseOutput(void)
 {
-    IO_SetOutput(SRF05_PORT, SRF05_TRIGGER_PIN);
+    IO_SetOutput(SRF05_PORT, IO_MASK(SRF05_TRIGGER_PIN));
 
-    /* 10us delay here */
+    TC_Delay(TC0, TC_CHANNEL_0, SRF05_PULSE_US);
 
-    IO_ClearOutput(SRF05_PORT, SRF05_TRIGGER_PIN);
+    IO_ClearOutput(SRF05_PORT, IO_MASK(SRF05_TRIGGER_PIN));
 }
 
 
