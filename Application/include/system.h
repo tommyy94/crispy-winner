@@ -15,9 +15,10 @@
 
 #define RTC_IRQ_PRIO            (2u + EMBOS_IRQ_PRIO)
 #define SPI0_IRQ_PRIO           (3u + EMBOS_IRQ_PRIO)
-#define XDMAC_IRQ_PRIO          (0u + EMBOS_IRQ_PRIO)
-#define IO_IRQ_PRIO             (1u + EMBOS_IRQ_PRIO)
+#define XDMAC_IRQ_PRIO          (1u + EMBOS_IRQ_PRIO)
+#define IO_IRQ_PRIO             (0u + EMBOS_IRQ_PRIO)
 #define TWIHS0_IRQ_PRIO         (3u + EMBOS_IRQ_PRIO)
+#define TC0_CH0_IRQ_PRIO        (3u + EMBOS_IRQ_PRIO)
 
 
 void sys_vInit(void);
