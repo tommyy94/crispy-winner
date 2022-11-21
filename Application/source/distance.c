@@ -4,9 +4,16 @@
 #include "logWriter.h"
 
 
-#define DISTANCE_MEAS_PERIOD_MS   (50)
+#define DISTANCE_MEAS_PERIOD_MS   (100)
 
 
+/**
+ * @brief   Measure distance with Ultrasonic Range Finder.
+ *
+ * @param   arg     Unused.
+ *
+ * @retval  None.
+ */
 void Distance_Task(void *arg)
 {
     (void)arg;
@@ -20,6 +27,7 @@ void Distance_Task(void *arg)
         status = SRF05_MeasureDistance(&distanceCm);
         if (status == false)
         {
+            SRF05_StopMeasuring();
             Journal_vWriteError(SRF05_ERROR);
         }
 
