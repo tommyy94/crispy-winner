@@ -25,8 +25,9 @@
 extern OS_TASK    distanceTCB;
 
 
-static void SRF05_Handler(void);
 static void SRF05_PulseOutput(void);
+static void SRF05_EchoHandler(void);
+static void SRF05_PulseHandler(void);
 
 
 /**
@@ -123,28 +124,33 @@ static void SRF05_PulseOutput(void)
  *
  * @retval  None.
  */
-static void SRF05_Handler(void)
+static void SRF05_EchoHandler(void)
 {
-    IO_IrqSource_t  src;
-    uint32_t        time;
-    bool            status;
+    IO_PinLevel_t   lvl;
 
-    src = IO_GetIrqSource(SRF05_PORT, 1 << SRF05_TRIGGER_PIN);
-    if (src == IO_IRQ_SOURCE_RISE_HIGH)
+    lvl = IO_GetPinLevel(SRF05_PORT, SRF05_ECHO_PIN);
+    if (lvl == IO_PIN_HIGH)
     {
-        /* Start measuring */
+        SRF05_StartMeasuring();
+    }
+    else /* if (lvl == IO_PIN_LOW) */
+    {
+        SRF05_StopMeasuring();
 
-        /* Start timer */
+        /* Signal task */        
         OS_TASKEVENT_Set(&distanceTCB, SRF05_EVT_MEAS_FINISHED);
     }
-    else /* if (src == IO_IRQ_SOURCE_FALL_LOW) */
-    {
-        /* Stop measuring */
+}
 
 
-        /* Report the measurement */
-        time = 0;
-        status = OS_MAILBOX_Put(&distanceMbox, &time);
-        assert(status == true);
-    }
+/**
+ * @brief   SRF05 10us pulse end handler.
+ *
+ * @param   None.
+ *
+ * @retval  None.
+ */
+static void SRF05_PulseHandler(void)
+{
+    OS_TASKEVENT_Set(&distanceTCB, SRF05_EVT_PULSE);
 }
