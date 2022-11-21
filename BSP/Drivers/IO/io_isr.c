@@ -13,7 +13,7 @@ typedef void (*IO_Callback)(void);
 
 static IO_Callback   *handlerTbl[IOn];
 static IRQn_Type      IO_Pio2NVICn(Pio *pio);
-static uint32_t       piodFirstIrqN           = 0;
+static uint32_t       piodFirstIrqN           = 31;
 static uint32_t       piodLastIrqN            = 0;
 
 void PIOD_IRQHandler(void);
@@ -58,7 +58,7 @@ void IO_InstallIrqHandler(uint32_t const   line,
 
     handlerTbl[line] = pfIsr;
 
-    if (line >= piodFirstIrqN)
+    if (line <= piodFirstIrqN)
     {
         piodFirstIrqN = line;
     }
