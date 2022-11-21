@@ -2,6 +2,8 @@
 #include "io.h"
 #include "RTOS.h"
 #include "logWriter.h"
+#include "tc_driver.h"
+#include "distance.h"
 
 
 #define SRF05_PORT          (PIOD)
