@@ -13,6 +13,7 @@
 #include "twi.h"
 #include "io.h"
 #include "mpu.h"
+#include "tc_driver.h"
 
 
 void BSP_Init(void)
@@ -28,6 +29,9 @@ void BSP_Init(void)
 
     /* Initialize motor control */
     //PWM_Init();
+
+    /* Initialize timer */
+    TC0_Ch0_Init();
 
     /* Start RTC last so it won't notify non-existent task */
     //RTC_vInit();
