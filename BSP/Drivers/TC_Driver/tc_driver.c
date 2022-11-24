@@ -12,8 +12,7 @@
                            ((x) == TC2) || \
                            ((x) == TC3))
 
-
-#define US_TO_TICKS(us)   ((us) / 0.853)
+#define US_TO_TICKS(us)   (FPA_UI32(us, 9660UL, 9))
 
 
 typedef void (*TC_Callback)(void);
