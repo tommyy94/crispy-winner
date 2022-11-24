@@ -34,21 +34,22 @@ void TC0_Ch0_Init(void)
 
     /*
      * 150 MHz MCK
+     * Select 32 prescaler
      *
-     * Select 128 prescaler
-     * 150MHz / 128 = 1 171 875 Hz
-     * period = 1 / 1 171 875 Hz = 0.000000853s = 0.853us
+     * f_slck = 150MHz / 8
+     *                = 18.75MHz
      *
-     * 0.853us * 12 = 10.236us
-     */
-    TC0[TC_CHANNEL_0].TC_CHANNEL->TC_CMR = TC_CMR_TCCLKS_TIMER_CLOCK4;
-    
-    /* Enable overflow interrupt */
-    //TC0[TC_CHANNEL_0].TC_CHANNEL->TC_IER = TC_IER_COVFS;
+     * period = 1 tick / f_slck
+     *        = 0.053us
 
-    //NVIC_ClearPendingIRQ(TC0_IRQn);
-    //NVIC_SetPriority(TC0_IRQn, TC0_CH0_IRQ_PRIO);
-    //NVIC_EnableIRQ(TC0_IRQn);
+     * Avoid division, multiply instead.
+     * mul = 1 / period = 18.867924528
+     *
+     * Calculate using fixed point arithmetic with s32_9 format
+     * mul_s32_9 = mul * (1 << 9)
+     *           = 9660
+     */
+    TC0[TC_CHANNEL_0].TC_CHANNEL->TC_CMR = TC_CMR_TCCLKS_TIMER_CLOCK2;
 }
 
 
