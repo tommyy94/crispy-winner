@@ -4,6 +4,7 @@
 #include "same70.h"
 #include "RTOS.h"
 #include "logWriter.h"
+#include "fpa.h"
 
 
 #define IS_TC(x)          (((x) == TC0) || \

@@ -4,6 +4,7 @@
 #include "logWriter.h"
 #include "tc_driver.h"
 #include "distance.h"
+#include "fpa.h"
 
 
 #define SRF05_PORT                (PIOD)

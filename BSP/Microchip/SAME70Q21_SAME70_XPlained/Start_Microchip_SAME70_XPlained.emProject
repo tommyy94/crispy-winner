@@ -53,6 +53,7 @@
         <file file_name="../../../Application/include/wifi_conf.h" />
         <file file_name="../../../Application/include/radiopacket.h" />
         <file file_name="../../../Application/include/distance.h" />
+        <file file_name="../../../Application/include/fpa.h" />
       </folder>
       <folder Name="source">
         <file file_name="../../../Application/source/gyro.c">
