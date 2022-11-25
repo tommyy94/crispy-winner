@@ -1,3 +1,5 @@
+/** @file */
+
 #include "srf05.h"
 #include "io.h"
 #include "RTOS.h"
@@ -13,14 +15,24 @@
 #define SRF05_PULSE_US            (10u)
 #define SRF05_TIMEOUT_MS          (30u)
 
-#define SOUND_VELOCITY_MS   (343u)
-#define SRF05_FORMULA(time) ((time) * SOUND_VELOCITY_MS / 100 / 2)
+#define SRF05_EVT_MEAS_FINISHED   (1u << 0)
+#define SRF05_EVT_MEAS_TIMEOUT    (1u << 1)
+#define SRF05_EVT_PULSE           (1u << 2)
 
-/*
- * d = t * 343 / 100 / 2
- *   = (t * (0.02 << 11) >> 11)
- *   = (t * 40.96 >> 11)
- *   = (t * 41 >> 11)
+/**
+ * Convert echo pulse time to distance (cm):
+ * \f{equation}{
+ * c = 343 \ (speed\_of\_sound)  \\
+ * d(t) = t \times c \div 100 \div 2
+ * \f}
+ *
+ * In s32_9 format:
+ * \f{equation}{
+ * mul\_s32_8 = (t \times (1.715 \times (1 << 8)) >> 8) \\
+ *            = (t \times 439) >> 8
+ * \f}
+ *
+ * @param[in] t   Time
  */
 //#define SRF05_FORMULA(time) (((time) * 41) >> 11)
 
