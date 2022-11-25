@@ -19,15 +19,21 @@
  *
  * TC0 f_slck configured to 18.75MHz.
  *
- * period = 1 tick / f_slck
+ * \f{equation}{
+ * period = 1\ tick \div f\_slck
  *        = 0.053us
+ * \f}
  *
- * Avoid division, multiply instead.
- * mul = 1 / period = 18.867924528
+ * Avoid division, multiply instead:
+ * \f{equation}{
+ * mul = 1 \div period = 18.867924528
+ * \f}
  *
- * Calculate using fixed point arithmetic with s32_9 format
- * mul_s32_9 = mul * (1 << 9)
+ * In 32_9 format:
+ * \f{equation}{
+ * mul_s32_9 = mul \times (1 << 9)
  *           = 9660
+ * \f}
  *
  * @param[in]   us
  */
