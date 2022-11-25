@@ -8,7 +8,7 @@
  *
  * Fixed Point Arithmetic macro.
  *
- * @param[in] nNumber to multiply.
+ * @param[in] n   Number to multiply.
  *
  * @param[in] t   Times to multiply.
  *
