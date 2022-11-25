@@ -1,3 +1,5 @@
+/** @file */
+
 #include "tc_driver.h"
 #include "pmc_driver.h"
 #include "system.h"
@@ -12,7 +14,24 @@
                            ((x) == TC2) || \
                            ((x) == TC3))
 
-#define US_TO_TICKS(us)   (FPA_UI32(us, 9660UL, 9))
+/**
+ * Convert microseconds to TC0 channel 0 timer ticks.
+ *
+ * TC0 f_slck configured to 18.75MHz.
+ *
+ * period = 1 tick / f_slck
+ *        = 0.053us
+ *
+ * Avoid division, multiply instead.
+ * mul = 1 / period = 18.867924528
+ *
+ * Calculate using fixed point arithmetic with s32_9 format
+ * mul_s32_9 = mul * (1 << 9)
+ *           = 9660
+ *
+ * @param[in]   us
+ */
+#define US_TO_TICKS(us)   (FPA_MUL_UI32((us), 9660, 9))
 
 
 typedef void (*TC_Callback)(void);
@@ -38,16 +57,6 @@ void TC0_Ch0_Init(void)
      *
      * f_slck = 150MHz / 8
      *                = 18.75MHz
-     *
-     * period = 1 tick / f_slck
-     *        = 0.053us
-
-     * Avoid division, multiply instead.
-     * mul = 1 / period = 18.867924528
-     *
-     * Calculate using fixed point arithmetic with s32_9 format
-     * mul_s32_9 = mul * (1 << 9)
-     *           = 9660
      */
     TC0[TC_CHANNEL_0].TC_CHANNEL->TC_CMR = TC_CMR_TCCLKS_TIMER_CLOCK2;
 }
