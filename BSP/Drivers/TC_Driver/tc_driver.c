@@ -126,7 +126,7 @@ void TC_Delay(
     TC_Start(pTc, ch);
 
     /* Wait until ticks passed */
-    while (pTc->TC_CHANNEL[ch].TC_CV < ticks)
+    while ((pTc->TC_CHANNEL[ch].TC_CV & 0xFFFF) < ticks)
     {
         if (pTc->TC_CHANNEL[ch].TC_SR & TC_SR_COVFS)
         {
@@ -228,5 +228,5 @@ uint32_t TC_ReadCounter(
 {
     assert(IS_TC(pTc));
     assert(ch < TC_CHANNEL_COUNT);
-    return pTc->TC_CHANNEL[ch].TC_CV;
+    return pTc->TC_CHANNEL[ch].TC_CV & 0xFFFF;
 }
