@@ -34,8 +34,7 @@
  *
  * @param[in] t   Time
  */
-//#define SRF05_FORMULA(time) (((time) * 41) >> 11)
-
+#define SRF05_FORMULA(t)          (FPA_MUL_UI32((t), 439, 8))
 
 
 extern OS_TASK    distanceTCB;
