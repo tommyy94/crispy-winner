@@ -11,7 +11,7 @@
 #define TS_QUEUE_TIMEOUT    (100)
 
 
-typedef struct Calendar
+typedef struct
 {
 	struct Date
 	{
@@ -27,11 +27,11 @@ typedef struct Calendar
 		uint8_t  minutes;   /* Range from 0 to 59 */
 		uint8_t  hour;	    /* Range from 0 to 23 */
 	} time;
-} Calendar;
+} Calendar_t;
 
 
-void RTC_vTask(void *pvArg);
-void RTC_vInit(void);
+void RTC_Task(void *pvArg);
+void RTC_Init(void);
 
 
 #endif /* RTC_H_ */

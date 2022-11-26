@@ -78,9 +78,9 @@ extern void Sensor_Task(void *arg);
 extern void Control_Task(void *arg);
 extern void Video_Task(void *arg);
 extern void err_task(void *arg);
-extern void RTC_vTask(void *arg);
+extern void RTC_Task(void *arg);
 extern void throttle_vTask(void *arg);
-extern void gyro_vTask(void *arg);
+extern void gyro_Task(void *arg);
 extern void Distance_Task(void *arg);
 static void StartupTask(void *arg);
 

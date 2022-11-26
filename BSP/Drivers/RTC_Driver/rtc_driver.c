@@ -1,3 +1,5 @@
+/** @file */
+
 /* Device vendor includes */
 #include <same70.h>
 
@@ -10,7 +12,6 @@
 /* Application includes */
 #include "rtc_driver.h"
 #include "system.h"
-//#include "ff.h"
 #include "err.h"
 
 
@@ -53,12 +54,12 @@ extern OS_TASK    rtcTCB;
 extern void RTC_IRQHandler(void);
 
 
-static uint32_t ulDec2Bcd(uint32_t value, uint32_t mask);
-static uint32_t ulBcd2Dec(uint32_t value, uint32_t mask);
-static bool     RTC_bSetTime(Calendar *pxCal);
-static bool     RTC_bGetTime(Calendar *pxCal);
-static void     RTC_vStart(void);
-static void     RTC_vStop(void);
+static uint32_t dec2Bcd(uint32_t value, uint32_t mask);
+static uint32_t bcd2Dec(uint32_t value, uint32_t mask);
+static bool     RTC_SetTime(Calendar_t *pCal);
+static bool     RTC_GetTime(Calendar_t *pCal);
+static void     RTC_Start(void);
+static void     RTC_Stop(void);
 
 
 /**
@@ -72,14 +73,14 @@ static void     RTC_vStop(void);
  *          Reset any correction values and select the
  *          Gregorian calendar with 24-hour mode.
  */
-void RTC_vInit(void)
+void RTC_Init(void)
 {
     /* Disable RTC interrupts */
     RTC->RTC_IDR = RTC_IDR_TDERRDIS | RTC_IDR_CALDIS
                  | RTC_IDR_TIMDIS   | RTC_IDR_ALRDIS
                  | RTC_IDR_ACKDIS;
 
-    RTC_vStop();
+    RTC_Stop();
 
     RTC->RTC_SCCR = RTC_SCCR_TDERRCLR | RTC_SCCR_CALCLR
                   | RTC_SCCR_TIMCLR   | RTC_SCCR_SECCLR
@@ -92,12 +93,12 @@ void RTC_vInit(void)
     /* Enable second periodic interrupt */
     RTC->RTC_IER = RTC_IER_SECEN;
     
-    RTC_vStart();
+    RTC_Start();
 }
 
 
 /**
- * @brief   Send second period signal to RTC_vTask.
+ * @brief   Send second period signal to RTC_Task.
  *
  * @param   None.
  *
@@ -105,21 +106,21 @@ void RTC_vInit(void)
  */
 void RTC_IRQHandler(void)
 {
-    uint32_t ulStatus;
+    uint32_t status;
 
     OS_INT_Enter();
 
     /* Read status register */
-    ulStatus = RTC->RTC_SR;
+    status = RTC->RTC_SR;
 
     /* Process IRQ */
-    if ((ulStatus & RTC_SR_SEC_SECEVENT) != 0)
+    if ((status & RTC_SR_SEC_SECEVENT) != 0)
     {
         OS_TASKEVENT_Set(&rtcTCB, RTC_SEC_PERIOD);
     }
 
     /* Clear all status flags */
-    RTC->RTC_SCCR = ulStatus;
+    RTC->RTC_SCCR = status;
 
     OS_INT_Leave();
 }
@@ -130,111 +131,111 @@ void RTC_IRQHandler(void)
  *          Resulting BCD is shifted to correct
  *          RTC register bit field.
  *
- * @param   ulVal   Value to convert.
+ * @param   val   Value to convert.
  *
- * @retval  ulMask  Century/year/month/day/wday/hour/min/sec.
+ * @retval  mask  Century/year/month/day/wday/hour/min/sec.
  */
-static uint32_t ulDec2Bcd(uint32_t ulVal, uint32_t ulMask)
+static uint32_t dec2Bcd(uint32_t val, uint32_t mask)
 {
-    uint32_t ulBcd;
+    uint32_t bcd;
 
-    switch(ulMask)
+    switch(mask)
     {
         case CAL_CENTURY:
-            ulBcd = ((ulVal / BCD_FACTOR / BCD_FACTOR / BCD_FACTOR)  << (RTC_CALR_CENT_Pos + BCD_SHIFT)
-                |   ((ulVal / BCD_FACTOR / BCD_FACTOR) % BCD_FACTOR) << RTC_CALR_CENT_Pos);
+            bcd = ((val / BCD_FACTOR / BCD_FACTOR / BCD_FACTOR)  << (RTC_CALR_CENT_Pos + BCD_SHIFT)
+                |   ((val / BCD_FACTOR / BCD_FACTOR) % BCD_FACTOR) << RTC_CALR_CENT_Pos);
             break;
         case CAL_YEAR:
-            ulBcd = (((ulVal / BCD_FACTOR) % BCD_FACTOR) << (RTC_CALR_YEAR_Pos + BCD_SHIFT))
-                |   ((ulVal % BCD_FACTOR) << RTC_CALR_YEAR_Pos);
+            bcd = (((val / BCD_FACTOR) % BCD_FACTOR) << (RTC_CALR_YEAR_Pos + BCD_SHIFT))
+                |   ((val % BCD_FACTOR) << RTC_CALR_YEAR_Pos);
             break;
         case CAL_MONTH:
-            ulBcd = ((ulVal / BCD_FACTOR) << (RTC_CALR_MONTH_Pos + BCD_SHIFT))
-                |   ((ulVal % BCD_FACTOR) <<  RTC_CALR_MONTH_Pos);
+            bcd = ((val / BCD_FACTOR) << (RTC_CALR_MONTH_Pos + BCD_SHIFT))
+                |   ((val % BCD_FACTOR) <<  RTC_CALR_MONTH_Pos);
             break;
         case CAL_DAY:
-            ulBcd = ((ulVal / BCD_FACTOR) << (RTC_CALR_DATE_Pos + BCD_SHIFT))
-                |   ((ulVal % BCD_FACTOR) <<  RTC_CALR_DATE_Pos);
+            bcd = ((val / BCD_FACTOR) << (RTC_CALR_DATE_Pos + BCD_SHIFT))
+                |   ((val % BCD_FACTOR) <<  RTC_CALR_DATE_Pos);
             break;
         case CAL_WDAY:
-            ulBcd = ((ulVal / BCD_FACTOR) << (RTC_CALR_DAY_Pos + BCD_SHIFT))
-                |   ((ulVal % BCD_FACTOR) <<  RTC_CALR_DAY_Pos);
+            bcd = ((val / BCD_FACTOR) << (RTC_CALR_DAY_Pos + BCD_SHIFT))
+                |   ((val % BCD_FACTOR) <<  RTC_CALR_DAY_Pos);
             break;
         case CAL_HOUR:
-            ulBcd = ((ulVal / BCD_FACTOR) << (RTC_TIMR_HOUR_Pos + BCD_SHIFT))
-                |   ((ulVal % BCD_FACTOR) <<  RTC_TIMR_HOUR_Pos);
+            bcd = ((val / BCD_FACTOR) << (RTC_TIMR_HOUR_Pos + BCD_SHIFT))
+                |   ((val % BCD_FACTOR) <<  RTC_TIMR_HOUR_Pos);
             break;
         case CAL_MINUTE:
-            ulBcd = ((ulVal / BCD_FACTOR) << (RTC_TIMR_MIN_Pos + BCD_SHIFT))
-                |  ((ulVal % BCD_FACTOR)  <<  RTC_TIMR_MIN_Pos);
+            bcd = ((val / BCD_FACTOR) << (RTC_TIMR_MIN_Pos + BCD_SHIFT))
+                |  ((val % BCD_FACTOR)  <<  RTC_TIMR_MIN_Pos);
             break;
         case CAL_SECOND:
-            ulBcd = ((ulVal / BCD_FACTOR) << (RTC_TIMR_SEC_Pos + BCD_SHIFT))
-                |   ((ulVal % BCD_FACTOR) <<  RTC_TIMR_SEC_Pos);
+            bcd = ((val / BCD_FACTOR) << (RTC_TIMR_SEC_Pos + BCD_SHIFT))
+                |   ((val % BCD_FACTOR) <<  RTC_TIMR_SEC_Pos);
             break;
         default:
-            ulBcd = 0;
+            bcd = 0;
             break;
     }
 
-    return ulBcd;
+    return bcd;
 }
 
 
 /**
  * @brief   Convert BCD calendar value to decimal.
  *
- * @param   ulVal   Value to convert.
+ * @param   val   Value to convert.
  *
- * @retval  ulMask  Century/year/month/day/wday/hour/min/sec.
+ * @retval  mask  Century/year/month/day/wday/hour/min/sec.
  */
-static uint32_t ulBcd2Dec(uint32_t ulVal, uint32_t ulMask)
+static uint32_t bcd2Dec(uint32_t val, uint32_t mask)
 {
-    uint32_t ulDec;
-    uint32_t ulTmp;
+    uint32_t dec;
+    uint32_t tmp;
 
-    switch(ulMask)
+    switch(mask)
     {
         case CAL_CENTURY:
-            ulTmp = (ulVal & RTC_CALR_CENT_Msk) >> RTC_CALR_CENT_Pos;
-            ulDec = (ulTmp >> BCD_SHIFT) * BCD_FACTOR + (ulTmp & BCD_MASK);
+            tmp = (val & RTC_CALR_CENT_Msk) >> RTC_CALR_CENT_Pos;
+            dec = (tmp >> BCD_SHIFT) * BCD_FACTOR + (tmp & BCD_MASK);
             break;
         case CAL_YEAR:
-            ulTmp = (ulVal & RTC_CALR_CENT_Msk) >> RTC_CALR_CENT_Pos;
-            ulDec = (ulTmp >> BCD_SHIFT) * BCD_FACTOR + (ulTmp & BCD_MASK);
-            ulTmp = (ulVal & RTC_CALR_YEAR_Msk) >> RTC_CALR_YEAR_Pos;
-            ulDec = (ulDec * BCD_FACTOR * BCD_FACTOR) + (ulTmp >> BCD_SHIFT) * BCD_FACTOR + (ulTmp & BCD_MASK);
+            tmp = (val & RTC_CALR_CENT_Msk) >> RTC_CALR_CENT_Pos;
+            dec = (tmp >> BCD_SHIFT) * BCD_FACTOR + (tmp & BCD_MASK);
+            tmp = (val & RTC_CALR_YEAR_Msk) >> RTC_CALR_YEAR_Pos;
+            dec = (dec * BCD_FACTOR * BCD_FACTOR) + (tmp >> BCD_SHIFT) * BCD_FACTOR + (tmp & BCD_MASK);
             break;
         case CAL_MONTH:
-            ulTmp = (ulVal & RTC_CALR_MONTH_Msk) >> RTC_CALR_MONTH_Pos;
-            ulDec = (ulTmp >> BCD_SHIFT) * BCD_FACTOR + (ulTmp & BCD_MASK);
+            tmp = (val & RTC_CALR_MONTH_Msk) >> RTC_CALR_MONTH_Pos;
+            dec = (tmp >> BCD_SHIFT) * BCD_FACTOR + (tmp & BCD_MASK);
             break;
         case CAL_DAY:
-            ulTmp = (ulVal & RTC_CALR_DATE_Msk) >> RTC_CALR_DATE_Pos;
-            ulDec = (ulTmp >> BCD_SHIFT) * BCD_FACTOR + (ulTmp & BCD_MASK);
+            tmp = (val & RTC_CALR_DATE_Msk) >> RTC_CALR_DATE_Pos;
+            dec = (tmp >> BCD_SHIFT) * BCD_FACTOR + (tmp & BCD_MASK);
             break;
         case CAL_WDAY:
-            ulTmp = (ulVal & RTC_CALR_DAY_Msk) >> RTC_CALR_DAY_Pos;
-            ulDec = (ulTmp >> BCD_SHIFT) * BCD_FACTOR + (ulTmp & BCD_MASK);
+            tmp = (val & RTC_CALR_DAY_Msk) >> RTC_CALR_DAY_Pos;
+            dec = (tmp >> BCD_SHIFT) * BCD_FACTOR + (tmp & BCD_MASK);
             break;
         case CAL_HOUR:
-            ulTmp = (ulVal & RTC_TIMR_HOUR_Msk) >> RTC_TIMR_HOUR_Pos;
-            ulDec = (ulTmp >> BCD_SHIFT) * BCD_FACTOR + (ulTmp & BCD_MASK);
+            tmp = (val & RTC_TIMR_HOUR_Msk) >> RTC_TIMR_HOUR_Pos;
+            dec = (tmp >> BCD_SHIFT) * BCD_FACTOR + (tmp & BCD_MASK);
             break;
         case CAL_MINUTE:
-            ulTmp = (ulVal & RTC_TIMR_MIN_Msk) >> RTC_TIMR_MIN_Pos;
-            ulDec = (ulTmp >> BCD_SHIFT) * BCD_FACTOR + (ulTmp & BCD_MASK);
+            tmp = (val & RTC_TIMR_MIN_Msk) >> RTC_TIMR_MIN_Pos;
+            dec = (tmp >> BCD_SHIFT) * BCD_FACTOR + (tmp & BCD_MASK);
             break;
         case CAL_SECOND:
-            ulTmp = (ulVal & RTC_TIMR_SEC_Msk) >> RTC_TIMR_SEC_Pos;
-            ulDec = (ulTmp >> BCD_SHIFT) * BCD_FACTOR + (ulTmp & BCD_MASK);
+            tmp = (val & RTC_TIMR_SEC_Msk) >> RTC_TIMR_SEC_Pos;
+            dec = (tmp >> BCD_SHIFT) * BCD_FACTOR + (tmp & BCD_MASK);
             break;
         default:
-            ulDec = 0;
+            dec = 0;
             break;
     }
 
-    return ulDec;
+    return dec;
 }
 
 
@@ -248,55 +249,54 @@ static uint32_t ulBcd2Dec(uint32_t ulVal, uint32_t ulMask)
  * @note    This operation must be atomic if
  *          the scheduler is running.
  */
-static bool RTC_bSetTime(Calendar *pxCal)
+static bool RTC_SetTime(Calendar_t *pCal)
 {
-    uint32_t ulBcdTime;
-    uint32_t ulBcdDate;
-    Rtc     *rtc       = RTC;
-    bool     bStatus   = true;
+    uint32_t bcdTime;
+    uint32_t bcdDate;
+    bool     status   = true;
     
     /* Prepare time/calendar values */
-    ulBcdDate = ulDec2Bcd(pxCal->date.year,    CAL_YEAR)
-              | ulDec2Bcd(pxCal->date.month,   CAL_MONTH)
-              | ulDec2Bcd(pxCal->date.day,     CAL_DAY)
-              | ulDec2Bcd(pxCal->date.weekDay, CAL_WDAY);
+    bcdDate = dec2Bcd(pCal->date.year,    CAL_YEAR)
+            | dec2Bcd(pCal->date.month,   CAL_MONTH)
+            | dec2Bcd(pCal->date.day,     CAL_DAY)
+            | dec2Bcd(pCal->date.weekDay, CAL_WDAY);
 
-    ulBcdTime = ulDec2Bcd(pxCal->time.hour,    CAL_HOUR)
-              | ulDec2Bcd(pxCal->time.minutes, CAL_MINUTE)
-              | ulDec2Bcd(pxCal->time.seconds, CAL_SECOND);
+    bcdTime = dec2Bcd(pCal->time.hour,    CAL_HOUR)
+            | dec2Bcd(pCal->time.minutes, CAL_MINUTE)
+            | dec2Bcd(pCal->time.seconds, CAL_SECOND);
 
     /* Wait for periodic event */
-    while ((rtc->RTC_SR & RTC_SR_SEC_SECEVENT) == RTC_SR_SEC_NO_SECEVENT)
+    while ((RTC->RTC_SR & RTC_SR_SEC_SECEVENT) == RTC_SR_SEC_NO_SECEVENT)
     {
         ;
     }
 
     OS_INT_Disable();
     
-    RTC_vStop();
+    RTC_Stop();
     
     /* Wait until command acknowledged */
-    while ((rtc->RTC_SR & RTC_SR_ACKUPD) == RTC_SR_ACKUPD_FREERUN)
+    while ((RTC->RTC_SR & RTC_SR_ACKUPD) == RTC_SR_ACKUPD_FREERUN)
     {
         ;
     }
-    rtc->RTC_SCCR = RTC_SCCR_ACKCLR;
+    RTC->RTC_SCCR = RTC_SCCR_ACKCLR;
     
     /* Update time/calendar values */
-    rtc->RTC_CALR = ulBcdDate;
-    rtc->RTC_TIMR = ulBcdTime;
+    RTC->RTC_CALR = bcdDate;
+    RTC->RTC_TIMR = bcdTime;
     
-    RTC_vStart();
+    RTC_Start();
 
     OS_INT_Enable();
     
     /* Check for errors */
-    if (rtc->RTC_VER != 0 || ((rtc->RTC_SR & RTC_SR_TDERR_CORRECT) != 0))
+    if (RTC->RTC_VER != 0 || ((RTC->RTC_SR & RTC_SR_TDERR_CORRECT) != 0))
     {
-        bStatus = false;
+        status = false;
     }
     
-    return bStatus;
+    return status;
 }
 
 
@@ -307,7 +307,7 @@ static bool RTC_bSetTime(Calendar *pxCal)
  *
  * @retval  None.
  */
-static void RTC_vStart(void)
+static void RTC_Start(void)
 {
     RTC->RTC_CR &= ~(RTC_CR_UPDCAL | RTC_CR_UPDTIM);
 }
@@ -320,7 +320,7 @@ static void RTC_vStart(void)
  *
  * @retval  None.
  */
-static void RTC_vStop(void)
+static void RTC_Stop(void)
 {
     RTC->RTC_CR = RTC_CR_UPDCAL | RTC_CR_UPDTIM;
 }
@@ -329,48 +329,48 @@ static void RTC_vStop(void)
 /**
  * @brief   Supervision and control for RTC.
  *
- * @param   pvArg   Unused.
+ * @param   pArg   Unused.
  *
  * @retval  None.
  */
-void RTC_vTask(void *pvArg)
+void RTC_Task(void *pArg)
 {
-    (void)pvArg;
-    uint32_t   ret;
-    uint32_t   ulEvent;
-    Calendar   xCal;
+    (void)pArg;
+    //uint32_t   ret;
+    uint32_t   evt;
+    Calendar_t cal;
 
     /* Set time for testing purposes */
-    xCal.date.year    = 2020;
-    xCal.date.month   = 9;
-    xCal.date.day     = 13;
-    xCal.time.hour    = 20;
-    xCal.time.minutes = 25;
-    xCal.time.seconds = 0;
-    //RTC_bSetTime(&xCal);
+    cal.date.year    = 2020;
+    cal.date.month   = 9;
+    cal.date.day     = 13;
+    cal.time.hour    = 20;
+    cal.time.minutes = 25;
+    cal.time.seconds = 0;
+    RTC_SetTime(&cal);
     
     while (1)
     {
-        ulEvent = OS_TASKEVENT_GetBlocked(0xFFFFFFFF);
-        if (ulEvent == RTC_SEC_PERIOD)
+        evt = OS_TASKEVENT_GetBlocked(0xFFFFFFFF);
+        if (evt == RTC_SEC_PERIOD)
         {
-            RTC_bGetTime(&xCal);
+            RTC_GetTime(&cal);
         }
-        if (ulEvent == RTC_SET_TIME)
+        if (evt == RTC_SET_TIME)
         {
-            //ret = OS_QUEUE_GetPtr(&tsQ, (void **)&xCal);
+            //ret = OS_QUEUE_GetPtr(&tsQ, (void **)&cal);
             //assert(ret == 0);
 
             /* Disable RTC second period IRQ to avoid race condition */
             //RTC->RTC_IDR = RTC_IDR_SECDIS;
-            //RTC_bSetTime(&xCal);
+            //RTC_SetTime(&cal);
             //RTC->RTC_IER = RTC_IER_SECEN;
 
             //OS_QUEUE_Purge(&tsQ);
         }
-        if (ulEvent == RTC_RETURN_TIME)
+        if (evt == RTC_RETURN_TIME)
         {
-            //ret = OS_QUEUE_Put(&tsQ, &xCal, sizeof(xCal));
+            //ret = OS_QUEUE_Put(&tsQ, &cal, sizeof(cal));
             //assert(ret == 0);
         }
     }
@@ -384,43 +384,43 @@ void RTC_vTask(void *pvArg)
  *
  * @retval  status    Time ok/not ok.
  */
-static bool RTC_bGetTime(Calendar *pxCal)
+static bool RTC_GetTime(Calendar_t *pCal)
 {
-    bool     bStatus                      = false;
-    uint32_t ulBcdDate[STABLE_READ_COUNT] = { 0 };
-    uint32_t ulBcdTime[STABLE_READ_COUNT] = { 0 };
+    bool     status                      = false;
+    uint32_t bcdDate[STABLE_READ_COUNT] = { 0 };
+    uint32_t bcdTime[STABLE_READ_COUNT] = { 0 };
 
     /* First read */
-    ulBcdDate[0] = RTC->RTC_CALR;
-    ulBcdTime[0] = RTC->RTC_TIMR;
+    bcdDate[0] = RTC->RTC_CALR;
+    bcdTime[0] = RTC->RTC_TIMR;
 
     /* Do up to 2 more reads */
     for (uint32_t i = 1; i < STABLE_READ_COUNT; i++)
     {
-        ulBcdDate[i] = RTC->RTC_CALR;
-        ulBcdTime[i] = RTC->RTC_TIMR;
+        bcdDate[i] = RTC->RTC_CALR;
+        bcdTime[i] = RTC->RTC_TIMR;
 
         /* Compare to previous */
-        if ((ulBcdDate[i] == ulBcdDate[i - 1])
-        &&  (ulBcdTime[i] == ulBcdTime[i - 1]))
+        if ((bcdDate[i] == bcdDate[i - 1])
+        &&  (bcdTime[i] == bcdTime[i - 1]))
         {
             /* Do sanity check */
-            if ((ulBcdDate[i] != 0) || (ulBcdTime[i] != 0))
+            if ((bcdDate[i] != 0) || (bcdTime[i] != 0))
             {
                 /* Convert BCD time to human readable format */
-                pxCal->date.year     = ulBcd2Dec(ulBcdDate[i], CAL_YEAR);
-                pxCal->date.month    = ulBcd2Dec(ulBcdDate[i], CAL_MONTH);
-                pxCal->date.day      = ulBcd2Dec(ulBcdDate[i], CAL_DAY);
-                pxCal->date.weekDay  = ulBcd2Dec(ulBcdDate[i], CAL_WDAY);
-                pxCal->time.hour     = ulBcd2Dec(ulBcdTime[i], CAL_HOUR);
-                pxCal->time.minutes  = ulBcd2Dec(ulBcdTime[i], CAL_MINUTE);
-                pxCal->time.seconds  = ulBcd2Dec(ulBcdTime[i], CAL_SECOND);
-                bStatus = true;
+                pCal->date.year     = bcd2Dec(bcdDate[i], CAL_YEAR);
+                pCal->date.month    = bcd2Dec(bcdDate[i], CAL_MONTH);
+                pCal->date.day      = bcd2Dec(bcdDate[i], CAL_DAY);
+                pCal->date.weekDay  = bcd2Dec(bcdDate[i], CAL_WDAY);
+                pCal->time.hour     = bcd2Dec(bcdTime[i], CAL_HOUR);
+                pCal->time.minutes  = bcd2Dec(bcdTime[i], CAL_MINUTE);
+                pCal->time.seconds  = bcd2Dec(bcdTime[i], CAL_SECOND);
+                status = true;
             }
 
             break;
         }
     }
 
-    return bStatus;
+    return status;
 }
