@@ -143,7 +143,7 @@ uint32_t TWI_Xfer(TWI_Adapter      *pAdap,
         if (status != TWI_SUCCESS)
         {
             TWI_AbortXfer(pAdap);
-            Journal_vWriteError(I2C_ERROR);
+            err_report(I2C_ERROR);
             goto endXfer;
         }
     }
