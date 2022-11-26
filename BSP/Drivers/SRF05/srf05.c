@@ -65,6 +65,7 @@ void SRF05_Init(void)
  */
 bool SRF05_MeasureDistance(float *pDistanceCm)
 {
+    uint32_t  ticks;
     uint32_t  time;
     uint32_t  mask    = 0;
     bool      status  = false;
@@ -73,7 +74,8 @@ bool SRF05_MeasureDistance(float *pDistanceCm)
 
     if (OS_TASKEVENT_GetSingleTimed(mask, SRF05_TIMEOUT_MS) == 0)
     {
-        time = TC_ReadCounter(TC0, TC_CHANNEL_0);
+        ticks = TC_ReadCounter(TC0, TC_CHANNEL_0);
+        time = TC0_CH0_TICKS_TO_US(ticks);
 
         /* Avoid divide by zero */
         if (time > 0)
@@ -122,9 +124,11 @@ void SRF05_StopMeasuring(void)
  */
 static void SRF05_PulseOutput(void)
 {
+    uint32_t ticks = TC0_CH0_US_TO_TICKS(SRF05_PULSE_US);
+
     IO_SetOutput(SRF05_PORT, IO_MASK(SRF05_TRIGGER_PIN));
 
-    TC_Delay(TC0, TC_CHANNEL_0, SRF05_PULSE_US);
+    TC_Delay(TC0, TC_CHANNEL_0, ticks);
 
     IO_ClearOutput(SRF05_PORT, IO_MASK(SRF05_TRIGGER_PIN));
 }
