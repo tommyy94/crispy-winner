@@ -1,8 +1,13 @@
+/** @file */
+
 #ifndef SRF05_H
 #define SRF05_H
 
 #include <stdint.h>
 #include <stdbool.h>
+
+ /** Specified by the specification */
+#define SRF05_MEAS_INTERVAL_LIMIT_MS    (50)
 
 
 void      SRF05_Init(void);

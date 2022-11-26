@@ -4,7 +4,7 @@
 #include "logWriter.h"
 
 
-#define DISTANCE_MEAS_PERIOD_MS   (100)
+#define MEAS_INTERVAL_LIMIT_MS  (SRF05_MEAS_INTERVAL_LIMIT_MS)
 
 
 /**
@@ -33,6 +33,6 @@ void Distance_Task(void *arg)
 
         /* Pass message forward here */
 
-        OS_TASK_Delay(DISTANCE_MEAS_PERIOD_MS);
+        OS_TASK_Delay(MEAS_INTERVAL_LIMIT_MS);
     }
 }
