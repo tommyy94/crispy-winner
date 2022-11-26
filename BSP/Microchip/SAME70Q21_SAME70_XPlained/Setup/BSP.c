@@ -34,5 +34,5 @@ void BSP_Init(void)
     TC0_Ch0_Init();
 
     /* Start RTC last so it won't notify non-existent task */
-    //RTC_vInit();
+    RTC_Init();
 }

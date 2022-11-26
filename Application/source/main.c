@@ -118,7 +118,7 @@ static void OS_InitTasks(void)
     OS_TASK_CREATEEX(&sensorTCB, "Sensor", TASK_SENSOR_PRIORITY, Sensor_Task, stackSensor, NULL);
     //OS_TASK_CREATEEX(&controlTCB, "Control", TASK_CONTROL_PRIORITY, Control_Task, stackControl, NULL);
     OS_TASK_CREATEEX(&videoTCB, "Video", TASK_VIDEO_PRIORITY, Video_Task, stackVideo, NULL);
-    //OS_TASK_CREATEEX(&rtcTCB, "RTC", TASK_RTC_PRIORITY, RTC_vTask, stackRtc, NULL);
+    OS_TASK_CREATEEX(&rtcTCB, "RTC", TASK_RTC_PRIORITY, RTC_Task, stackRtc, NULL);
     OS_TASK_CREATEEX(&errTCB, "Error",  TASK_ERROR_PRIORITY, err_task, stackErr, NULL);
     //OS_TASK_CREATEEX(&gyroTCB, "Gyro", TASK_GYRO_PRIORITY, gyro_vTask, stackGyro, NULL);
     //OS_TASK_CREATEEX(&throttleTCB, "Throttle", TASK_THROTTLE_PRIORITY, throttle_vTask, stackThrottle, NULL);
