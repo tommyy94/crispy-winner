@@ -35,9 +35,9 @@
       linker_additional_options="--gc-sections"
       linker_memory_map_file="$(ProjectDir)/Setup/ATSAME70Q21_MemoryMap.xml"
       linker_printf_fmt_level="long"
-      linker_printf_fp_enabled="Yes"
+      linker_printf_fp_enabled="Float"
       linker_printf_width_precision_supported="Yes"
-      linker_scanf_fp_enabled="Yes"
+      linker_scanf_fp_enabled="No"
       project_directory=""
       project_type="Executable"
       speed="8000"
@@ -544,7 +544,7 @@
       gcc_strict_prototypes_warning="Yes"
       gcc_uninitialized_variables_warning="Yes"
       gcc_unused_variable_warning="Yes"
-      linker_printf_fp_enabled="No"
+      linker_printf_fp_enabled="Float"
       linker_scanf_fp_enabled="No" />
     <folder Name="Middleware">
       <folder Name="winc3400">
