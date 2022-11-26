@@ -102,16 +102,15 @@ void TC_Stop(
  *
  * @param   ch    TC channel.
  *
- * @param   us    Microseconds to delay.
+ * @param   ticks Timer ticks.
  *
  * @retval  None. 
  */
 void TC_Delay(
     Tc              *pTc,
     TC_Channel_t     ch,
-    uint32_t         us)
+    uint32_t         ticks)
 {
-    uint32_t ticks = US_TO_TICKS(us);
 
     TC_Start(pTc, ch);
 
@@ -216,7 +215,12 @@ uint32_t TC_ReadCounter(
     Tc            *pTc,
     TC_Channel_t   ch)
 {
+    uint32_t ticks;
+
     assert(IS_TC(pTc));
     assert(ch < TC_CHANNEL_COUNT);
-    return pTc->TC_CHANNEL[ch].TC_CV & 0xFFFF;
+
+    /* Register is 32-bit, but the counter is 16-bit */
+    ticks = pTc->TC_CHANNEL[ch].TC_CV & 0xFFFF;
+    return ticks;
 }
