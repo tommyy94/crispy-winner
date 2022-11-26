@@ -28,7 +28,7 @@ typedef enum
     THROTTLE_CH_2,
     THROTTLE_CH_3,
     THROTTLE_CH_CNT
-} throttleChannel;
+} ThrottleChannel_t;
 
 
 typedef struct
@@ -55,12 +55,12 @@ extern OS_QUEUE          throttleQ;
 
 static void     Throttle(AxisStruct_t axis);
 static uint32_t Scale(uint16_t axis);
-static void     EnableThrottle(const throttleChannel ch);
-static void     DisableThrottle(const throttleChannel ch);
+static void     EnableThrottle(const ThrottleChannel_t ch);
+static void     DisableThrottle(const ThrottleChannel_t ch);
 static bool     CheckDeadZone(const uint16_t axis);
 static uint32_t SetSteer(const uint32_t throttle,
                          const uint16_t steer);
-static void     SetThrottle(const throttleChannel ch,
+static void     SetThrottle(const ThrottleChannel_t ch,
                              const uint32_t throttle);
 static void     UpdateThrottle(const uint16_t joyPos,
                                const uint16_t rightThrottle,
@@ -94,7 +94,7 @@ void throttle_Task(void *pArg)
         }
         else
         {
-            for (throttleChannel ch = THROTTLE_CH_0; ch < THROTTLE_CH_CNT; ch++)
+            for (ThrottleChannel_t ch = THROTTLE_CH_0; ch < THROTTLE_CH_CNT; ch++)
             {
                 DisableThrottle(ch);
             }
@@ -144,7 +144,7 @@ static void Throttle(AxisStruct_t axis)
     }
     else
     {
-        for (throttleChannel ch = THROTTLE_CH_0; ch < THROTTLE_CH_CNT; ch++)
+        for (ThrottleChannel_t ch = THROTTLE_CH_0; ch < THROTTLE_CH_CNT; ch++)
         {
             DisableThrottle(ch);
         }
@@ -216,7 +216,7 @@ static uint32_t Scale(uint16_t axis)
  *
  * @return  None.
  */
-static void SetThrottle(const throttleChannel ch, const uint32_t throttle)
+static void SetThrottle(const ThrottleChannel_t ch, const uint32_t throttle)
 {
     assert(ch < THROTTLE_CH_CNT);
     assert(throttle  <= DUTY_CYCLE_MAX);
@@ -231,7 +231,7 @@ static void SetThrottle(const throttleChannel ch, const uint32_t throttle)
  *
  * @return None.
  */
-static void EnableThrottle(const throttleChannel ch)
+static void EnableThrottle(const ThrottleChannel_t ch)
 {
     assert(ch < THROTTLE_CH_CNT);
     PWM_Enable(chMap.pPwm[ch], chMap.ch[ch]);
@@ -245,7 +245,7 @@ static void EnableThrottle(const throttleChannel ch)
  *
  * @return  None.
  */
-static void DisableThrottle(const throttleChannel ch)
+static void DisableThrottle(const ThrottleChannel_t ch)
 {
     assert(ch < THROTTLE_CH_CNT);
     PWM_Disable(chMap.pPwm[ch], chMap.ch[ch]);
