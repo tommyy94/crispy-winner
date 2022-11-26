@@ -5,7 +5,7 @@
 #include "spi_driver.h"
 #include "dma.h"
 #include "system.h"
-#include "logWriter.h"
+#include "err.h"
 
 
 #define SPI_DMA_TIMEOUT   (1000u) /* ms */

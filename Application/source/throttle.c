@@ -5,7 +5,7 @@
 /* User includes */
 #include "throttle.h"
 #include "pwm_driver.h"
-#include "logWriter.h"
+#include "err.h"
 
 /* RTOS includes */
 #include "RTOS.h"

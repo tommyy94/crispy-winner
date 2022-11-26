@@ -15,7 +15,7 @@
 /* User includes */
 #include "wifi_conf.h"
 #include "wireless.h"
-#include "logWriter.h"
+#include "err.h"
 #include "radiopacket.h"
 
 

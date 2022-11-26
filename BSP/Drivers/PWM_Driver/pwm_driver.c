@@ -1,7 +1,7 @@
 #include <same70.h>
 #include "pwm_driver.h"
 #include "pio.h"
-#include "logWriter.h"
+#include "err.h"
 #include "pmc_driver.h"
 
 

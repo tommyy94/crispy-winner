@@ -3,7 +3,7 @@
 #include "same70.h"
 #include "RTOS.h"
 #include "system.h"
-#include "logWriter.h"
+#include "err.h"
 
 
 #define PIO_INST_COUNT  (5u)

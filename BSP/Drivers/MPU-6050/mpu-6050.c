@@ -6,7 +6,7 @@
 #include "mpu-6050.h"
 #include "mpu-6050_defs.h"
 #include "mpu-6050_i2c_layer.h"
-#include "logWriter.h"
+#include "err.h"
 
 
 #define SELF_TEST_RESPONSE_MIN            (-14)

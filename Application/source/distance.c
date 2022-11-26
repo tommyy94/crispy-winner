@@ -1,7 +1,7 @@
 #include "distance.h"
 #include "RTOS.h"
 #include "srf05.h"
-#include "logWriter.h"
+#include "err.h"
 #include <stdio.h>
 #include "SEGGER_RTT.h"
 

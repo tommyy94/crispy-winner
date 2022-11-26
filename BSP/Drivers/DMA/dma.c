@@ -2,7 +2,7 @@
 #include <RTOS.h>
 
 #include "dma.h"
-#include "logWriter.h"
+#include "err.h"
 #include "pmc_driver.h"
 #include "system.h"
 

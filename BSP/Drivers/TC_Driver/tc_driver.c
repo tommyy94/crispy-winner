@@ -5,7 +5,7 @@
 #include "system.h"
 #include "same70.h"
 #include "RTOS.h"
-#include "logWriter.h"
+#include "err.h"
 #include "fpa.h"
 
 

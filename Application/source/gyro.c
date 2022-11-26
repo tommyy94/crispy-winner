@@ -1,6 +1,6 @@
 #include "gyro.h"
 #include "mpu-6050.h"
-#include "logWriter.h"
+#include "err.h"
 #include "RTOS.h"
 
 

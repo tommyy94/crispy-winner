@@ -1,6 +1,6 @@
 #include "same70.h"
 #include "pmc_driver.h"
-#include "logWriter.h"
+#include "err.h"
 
 
 /*

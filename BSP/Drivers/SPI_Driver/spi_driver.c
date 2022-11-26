@@ -4,7 +4,7 @@
 #include "spi_driver.h"
 #include "pmc_driver.h"
 #include "system.h"
-#include "logWriter.h"
+#include "err.h"
 #include "io.h"
 
 

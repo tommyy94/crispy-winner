@@ -11,7 +11,7 @@
 #include "rtc_driver.h"
 #include "system.h"
 //#include "ff.h"
-#include "logWriter.h"
+#include "err.h"
 
 
 /* RTC must be read 2-3 times to ensure that two consecutive reads match */

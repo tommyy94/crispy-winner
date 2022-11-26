@@ -45,7 +45,6 @@
     <folder Name="Application">
       <folder Name="include">
         <file file_name="../../../Application/include/gyro.h" />
-        <file file_name="../../../Application/include/logWriter.h" />
         <file file_name="../../../Application/include/system.h" />
         <file file_name="../../../Application/include/throttle.h" />
         <file file_name="../../../Application/include/wireless.h" />
@@ -54,12 +53,10 @@
         <file file_name="../../../Application/include/radiopacket.h" />
         <file file_name="../../../Application/include/distance.h" />
         <file file_name="../../../Application/include/fpa.h" />
+        <file file_name="../../../Application/include/err.h" />
       </folder>
       <folder Name="source">
         <file file_name="../../../Application/source/gyro.c">
-          <configuration Name="Debug" build_exclude_from_build="No" />
-        </file>
-        <file file_name="../../../Application/source/logWriter.c">
           <configuration Name="Debug" build_exclude_from_build="No" />
         </file>
         <file file_name="../../../Application/source/throttle.c">
@@ -70,6 +67,7 @@
         <file file_name="../../../Application/source/jpg.c" />
         <file file_name="../../../Application/source/radiopacket.c" />
         <file file_name="../../../Application/source/distance.c" />
+        <file file_name="../../../Application/source/err.c" />
       </folder>
     </folder>
     <folder Name="COMPRESS">

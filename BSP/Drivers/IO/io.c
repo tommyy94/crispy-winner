@@ -2,7 +2,7 @@
 #include <same70.h>
 #include "RTOS.h"
 #include "io.h"
-#include "logWriter.h"
+#include "err.h"
 #include "system.h"
 #include "pmc_driver.h"
 

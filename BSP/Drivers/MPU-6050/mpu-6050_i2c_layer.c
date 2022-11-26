@@ -2,7 +2,7 @@
 #include "twi.h"
 #include "mpu-6050_i2c_layer.h"
 #include "mpu-6050_defs.h"
-#include "logWriter.h"
+#include "err.h"
 
 
 static TWI_Adapter twiAdap =

@@ -3,7 +3,7 @@
 #include "srf05.h"
 #include "io.h"
 #include "RTOS.h"
-#include "logWriter.h"
+#include "err.h"
 #include "tc_driver.h"
 #include "distance.h"
 #include "fpa.h"

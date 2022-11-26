@@ -49,7 +49,7 @@
 #include "bus_wrapper/include/nm_bus_wrapper.h"
 #include "conf_winc.h"
 #include "spi_driver.h"
-#include "logWriter.h"
+#include "err.h"
 
 #define NM_BUS_MAX_TRX_SZ	256
 

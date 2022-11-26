@@ -4,7 +4,7 @@
 
 /* Application includes */
 #include "system.h"
-#include "logWriter.h"
+#include "err.h"
 #include "throttle.h"
 #include "gyro.h"
 #include "wireless.h"

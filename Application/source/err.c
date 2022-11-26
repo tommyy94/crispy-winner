@@ -3,7 +3,7 @@
 #include "RTOS.h"
 #include "SEGGER_RTT.h"
 #include "system.h"
-#include "logWriter.h"
+#include "err.h"
 #include "rtc.h"
 
 

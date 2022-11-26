@@ -10,7 +10,7 @@
 #include "twi.h"
 #include "io.h"
 #include "system.h"
-#include "logWriter.h"
+#include "err.h"
 #include "pmc_driver.h"
 
 
