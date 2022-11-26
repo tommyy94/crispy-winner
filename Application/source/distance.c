@@ -2,6 +2,8 @@
 #include "RTOS.h"
 #include "srf05.h"
 #include "logWriter.h"
+#include <stdio.h>
+#include "SEGGER_RTT.h"
 
 
 #define MEAS_INTERVAL_LIMIT_MS  (SRF05_MEAS_INTERVAL_LIMIT_MS)
@@ -30,8 +32,11 @@ void Distance_Task(void *arg)
             SRF05_StopMeasuring();
             Journal_vWriteError(SRF05_ERROR);
         }
-
-        /* Pass message forward here */
+        else
+        {
+            /* Pass message forward here */
+            printf("Distance: %.2f cm\r\n", distanceCm);
+        }
 
         OS_TASK_Delay(MEAS_INTERVAL_LIMIT_MS);
     }
