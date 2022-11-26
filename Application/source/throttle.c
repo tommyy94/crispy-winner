@@ -28,22 +28,22 @@ typedef enum
     THROTTLE_CH_2,
     THROTTLE_CH_3,
     THROTTLE_CH_CNT
-} eThrottleChannel;
+} throttleChannel;
 
 
 typedef struct
 {
-    Pwm             *pxPwm[PWM_CHANNEL_COUNT];
-    PWM_Channel      eCh[PWM_CHANNEL_COUNT];
-} xChannelMap;
+    Pwm             *pPwm[PWM_CHANNEL_COUNT];
+    PWM_Channel      ch[PWM_CHANNEL_COUNT];
+} ChannelMap_t;
 
 typedef struct
 {
-    uint16_t usX;
-    uint16_t usY;
-} xAxisStruct;
+    uint16_t x;
+    uint16_t y;
+} AxisStruct_t;
 
-static xChannelMap xChMap =
+static ChannelMap_t chMap =
 {
     { PWM0,         PWM0,         PWM0,         PWM1         },
     { PWM_CHANNEL0, PWM_CHANNEL1, PWM_CHANNEL3, PWM_CHANNEL0 }
@@ -53,50 +53,50 @@ static xChannelMap xChMap =
 extern OS_QUEUE          throttleQ;
 
 
-static void     vThrottle(xAxisStruct xAxis);
-static uint32_t ulScale(uint16_t usAxis);
-static void     vEnableThrottle(const eThrottleChannel eCh);
-static void     vDisableThrottle(const eThrottleChannel eCh);
-static bool     bCheckDeadZone(const uint16_t usAxis);
-static uint32_t ulSetSteer(const uint32_t ulThrottle,
-                           const uint16_t usSteer);
-static void     vSetThrottle(const eThrottleChannel eCh,
-                             const uint32_t ulThrottle);
-static void     vUpdateThrottle(const uint16_t usJoyPos,
-                                const uint16_t usRightThrottle,
-                                const uint16_t usLeftThrottle);
+static void     Throttle(AxisStruct_t axis);
+static uint32_t Scale(uint16_t axis);
+static void     EnableThrottle(const throttleChannel ch);
+static void     DisableThrottle(const throttleChannel ch);
+static bool     CheckDeadZone(const uint16_t axis);
+static uint32_t SetSteer(const uint32_t throttle,
+                         const uint16_t steer);
+static void     SetThrottle(const throttleChannel ch,
+                             const uint32_t throttle);
+static void     UpdateThrottle(const uint16_t joyPos,
+                               const uint16_t rightThrottle,
+                               const uint16_t leftThrottle);
 
 /**
  * @brief   Task responsible for controlling the DC motors.
  *
- * @param   pvArg   Pointer to the task parameter.
+ * @param   pArg   Pointer to the task parameter.
  *
  * @return  None.
  */
-void throttle_vTask(void *pvArg)
+void throttle_Task(void *pArg)
 {
     uint32_t      ret;
-    char          param[sizeof(xAxisStruct)];
-    xAxisStruct   xAxis;
-    (void)pvArg;
+    char          param[sizeof(AxisStruct_t)];
+    AxisStruct_t  axis;
+    (void)pArg;
 
     while (1)
     {
         ret = OS_QUEUE_GetPtrTimed(&throttleQ, (void **)&param, 10);
         if (ret > 0)
         {
-            xAxis.usX = (param[1] << 8) | param[0];
-            xAxis.usY = (param[3] << 8) | param[2];
+            axis.x = (param[1] << 8) | param[0];
+            axis.y = (param[3] << 8) | param[2];
 
-            vThrottle(xAxis);
+            Throttle(axis);
 
             OS_QUEUE_Purge(&throttleQ);
         }
         else
         {
-            for (eThrottleChannel eCh = THROTTLE_CH_0; eCh < THROTTLE_CH_CNT; eCh++)
+            for (throttleChannel ch = THROTTLE_CH_0; ch < THROTTLE_CH_CNT; ch++)
             {
-                vDisableThrottle(eCh);
+                DisableThrottle(ch);
             }
             //err_report(THROTTLE_TIMEOUT);
         }
@@ -108,45 +108,45 @@ void throttle_vTask(void *pvArg)
  * @brief   Writer analog axis values to digital PWM
  *          channels to control the DC motors.
  *
- * @param   xAxis   Axis values.
+ * @param   axis   Axis values.
  *
  * @return  None.
  */
-static void vThrottle(xAxisStruct xAxis)
+static void Throttle(AxisStruct_t axis)
 {
-    uint32_t usLeftThrottle;
-    uint32_t usRightThrottle;
+    uint32_t leftThrottle;
+    uint32_t rightThrottle;
 
-    if (bCheckDeadZone(xAxis.usX) == false)
+    if (CheckDeadZone(axis.x) == false)
     {
         /* Need to scale duty cycle value (Datasheet Chapter 51.7.41) */
-        usLeftThrottle  = (ulScale(xAxis.usX) * DUTY_SCALE) >> 14;
-        usRightThrottle = usLeftThrottle;
+        leftThrottle  = (Scale(axis.x) * DUTY_SCALE) >> 14;
+        rightThrottle = leftThrottle;
 
         /* Calculate steering if joystick moved */
-        if (bCheckDeadZone(xAxis.usY) == false)
+        if (CheckDeadZone(axis.y) == false)
         {
             /* Positive Y axis means the joystick is turned left.
              * We have to reduce the left motor throttle to steer left.
              * and reduce the right side motor throttle to steer right.
              */
-            if (xAxis.usY > THROTTLE_RESOLUTION)
+            if (axis.y > THROTTLE_RESOLUTION)
             {
-                usLeftThrottle = ulSetSteer(usLeftThrottle, xAxis.usY);
+                leftThrottle = SetSteer(leftThrottle, axis.y);
             }
             else
             {
-                usRightThrottle = ulSetSteer(usRightThrottle, xAxis.usY);
+                rightThrottle = SetSteer(rightThrottle, axis.y);
             }
         }
 
-        vUpdateThrottle(xAxis.usX, usRightThrottle, usLeftThrottle);
+        UpdateThrottle(axis.x, rightThrottle, leftThrottle);
     }
     else
     {
-        for (eThrottleChannel eCh = THROTTLE_CH_0; eCh < THROTTLE_CH_CNT; eCh++)
+        for (throttleChannel ch = THROTTLE_CH_0; ch < THROTTLE_CH_CNT; ch++)
         {
-            vDisableThrottle(eCh);
+            DisableThrottle(ch);
         }
     }
 }
@@ -155,17 +155,17 @@ static void vThrottle(xAxisStruct xAxis)
 /**
  * @brief   Calculate steer modifier for a axis.
  *
- * @param   ulThrottle  Throttle value to modify.
+ * @param   throttle  Throttle value to modify.
  *
- * @param   usSteer     Steer modifier.
+ * @param   steer     Steer modifier.
  *
  * @param   Steer modified throttle value.
  */
-static uint32_t ulSetSteer(const uint32_t ulThrottle, const uint16_t usSteer)
+static uint32_t SetSteer(const uint32_t throttle, const uint16_t steer)
 {
-    uint32_t fSteerPer = (ulScale(usSteer) << 14) / UINT16_MAX;
+    uint32_t steerPer = (Scale(steer) << 14) / UINT16_MAX;
     
-    return (uint32_t)(ulThrottle * fSteerPer) >> 14;
+    return (uint32_t)(throttle * steerPer) >> 14;
 }
 
 /**
@@ -192,99 +192,99 @@ static uint32_t ulSetSteer(const uint32_t ulThrottle, const uint16_t usSteer)
  *            y=0           |               y=2^8-1
  *                          |
  *
- * @param   usAxis  Axis to scale.
+ * @param   axis  Axis to scale.
  *
  * @return  Scaled axis value.
  */
-static uint32_t ulScale(uint16_t usAxis)
+static uint32_t Scale(uint16_t axis)
 {    
-    if (usAxis < THROTTLE_RESOLUTION)
+    if (axis < THROTTLE_RESOLUTION)
     {
-        usAxis = ~usAxis;
+        axis = ~axis;
     }
 
-    return (uint32_t)((usAxis - THROTTLE_RESOLUTION) << 1);
+    return (uint32_t)((axis - THROTTLE_RESOLUTION) << 1);
 }
 
 
 /**
  * @brief   Set the channel throttle value.
  *
- * @param   eCh         Target channel.
+ * @param   ch         Target channel.
  *
- * @param   ulThrottle  Throttle value to set.
+ * @param   throttle  Throttle value to set.
  *
  * @return  None.
  */
-static void vSetThrottle(const eThrottleChannel eCh, const uint32_t ulThrottle)
+static void SetThrottle(const throttleChannel ch, const uint32_t throttle)
 {
-    assert(eCh < THROTTLE_CH_CNT);
-    assert(ulThrottle  <= DUTY_CYCLE_MAX);
-    PWM_UpdateDutyCycle(xChMap.pxPwm[eCh], xChMap.eCh[eCh], ulThrottle);
+    assert(ch < THROTTLE_CH_CNT);
+    assert(throttle  <= DUTY_CYCLE_MAX);
+    PWM_UpdateDutyCycle(chMap.pPwm[ch], chMap.ch[ch], throttle);
 }
 
 
 /**
  * @brief   Enable channel throttle.
  *
- * @param   eCh Channel to enable.
+ * @param   ch Channel to enable.
  *
  * @return None.
  */
-static void vEnableThrottle(const eThrottleChannel eCh)
+static void EnableThrottle(const throttleChannel ch)
 {
-    assert(eCh < THROTTLE_CH_CNT);
-    PWM_Enable(xChMap.pxPwm[eCh], xChMap.eCh[eCh]);
+    assert(ch < THROTTLE_CH_CNT);
+    PWM_Enable(chMap.pPwm[ch], chMap.ch[ch]);
 }
 
 
 /**
  * @brief   Disable channel throttle.
  *
- * @param   eCh Channel to disable.
+ * @param   ch Channel to disable.
  *
  * @return  None.
  */
-static void vDisableThrottle(const eThrottleChannel eCh)
+static void DisableThrottle(const throttleChannel ch)
 {
-    assert(eCh < THROTTLE_CH_CNT);
-    PWM_Disable(xChMap.pxPwm[eCh], xChMap.eCh[eCh]);
+    assert(ch < THROTTLE_CH_CNT);
+    PWM_Disable(chMap.pPwm[ch], chMap.ch[ch]);
 }
 
 
 /**
  * @brief   Update motor throttle.
  *
- * @param   usJoyPos        Joystick position.
+ * @param   joyPos        Joystick position.
  *
- * @param   usRightThrottle Right side channel throttle value.
+ * @param   rightThrottle Right side channel throttle value.
  *
- * @param   usLeftThrottle  Left side channel throttle value.
+ * @param   leftThrottle  Left side channel throttle value.
  *
  * @return  None.
  */
-static void vUpdateThrottle(const uint16_t usJoyPos,
-                            const uint16_t usRightThrottle,
-                            const uint16_t usLeftThrottle)
+static void UpdateThrottle(const uint16_t joyPos,
+                           const uint16_t rightThrottle,
+                           const uint16_t leftThrottle)
 {
     /* Go forward if MSB set (joystick over center) else backward. */
-    if (usJoyPos > THROTTLE_RESOLUTION)
+    if (joyPos > THROTTLE_RESOLUTION)
     {
-        vDisableThrottle(THROTTLE_CH_2);
-        vDisableThrottle(THROTTLE_CH_3);
-        vSetThrottle(THROTTLE_CH_0, usRightThrottle);
-        vSetThrottle(THROTTLE_CH_1, usLeftThrottle);
-        vEnableThrottle(THROTTLE_CH_0);
-        vEnableThrottle(THROTTLE_CH_1);
+        DisableThrottle(THROTTLE_CH_2);
+        DisableThrottle(THROTTLE_CH_3);
+        SetThrottle(THROTTLE_CH_0, rightThrottle);
+        SetThrottle(THROTTLE_CH_1, leftThrottle);
+        EnableThrottle(THROTTLE_CH_0);
+        EnableThrottle(THROTTLE_CH_1);
     }
     else
     {
-        vDisableThrottle(THROTTLE_CH_0);
-        vDisableThrottle(THROTTLE_CH_1);
-        vSetThrottle(THROTTLE_CH_2, usRightThrottle);
-        vSetThrottle(THROTTLE_CH_3, usLeftThrottle);
-        vEnableThrottle(THROTTLE_CH_2);
-        vEnableThrottle(THROTTLE_CH_3);
+        DisableThrottle(THROTTLE_CH_0);
+        DisableThrottle(THROTTLE_CH_1);
+        SetThrottle(THROTTLE_CH_2, rightThrottle);
+        SetThrottle(THROTTLE_CH_3, leftThrottle);
+        EnableThrottle(THROTTLE_CH_2);
+        EnableThrottle(THROTTLE_CH_3);
     }
 }
 
@@ -293,16 +293,16 @@ static void vUpdateThrottle(const uint16_t usJoyPos,
  * @brief   Check if joystick in the dead zone aka
  *          it is not actively controlled.
  *
- * @param   usAxis    Axis to check.
+ * @param   axis    Axis to check.
  *
- * @return  bDeadZone Is axis in the dead zone?
+ * @return  deadZone Is axis in the dead zone?
  */
-static bool bCheckDeadZone(const uint16_t usAxis)
+static bool CheckDeadZone(const uint16_t axis)
 {
-    bool bDeadZone = false;
-    if ((usAxis < DEADZONE_MAX) && (usAxis > DEADZONE_MIN))
+    bool deadZone = false;
+    if ((axis < DEADZONE_MAX) && (axis > DEADZONE_MIN))
     {
-        bDeadZone = true;
+        deadZone = true;
     }
-    return bDeadZone;
+    return deadZone;
 }

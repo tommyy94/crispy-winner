@@ -17,12 +17,12 @@ extern OS_EVENT   svEvt;
  *
  * @return  None.
  */
-void gyro_vTask(void *pvArg)
+void gyro_Task(void *pArg)
 {
     uint32_t    ret;
     uint32_t    evtMask;
     MPU6050_t   mpu6050;
-    (void)pvArg;
+    (void)pArg;
 
     MPU6050_Init();
 
