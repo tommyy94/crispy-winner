@@ -1,3 +1,5 @@
+/** @file */
+
 #ifndef MPU_6050_DEFS_H
 #define MPU_6050_DEFS_H
 
@@ -5,36 +7,36 @@
 #define MPU6050_TIMEOUT                   (1000u)
 
 /* Memory Map */
-#define MPU6050_SELF_TEST_X               (0x0D) /* Read Only   */
-#define MPU6050_SELF_TEST_Y               (0x0E) /* Read Only   */
-#define MPU6050_SELF_TEST_Z               (0x0F) /* Read Only   */
-#define MPU6050_SELF_TEST_A               (0x10) /* Read Only   */
-#define MPU6050_SMPRT_DIV                 (0x19) /* Read/Write  */
-#define MPU6050_CONFIG                    (0x1A) /* Read/Write  */
-#define MPU6050_GYRO_CONFIG               (0x1B) /* Read/Write  */
-#define MPU6050_ACCEL_CONFIG              (0x1C) /* Read/Write  */
-#define MPU6050_FIFO_EN                   (0x23) /* Read/Write  */
-#define MPU6050_ACCEL_XOUT_H              (0x3B) /* Read Only   */
-#define MPU6050_ACCEL_XOUT_L              (0x3C) /* Read Only   */
-#define MPU6050_ACCEL_YOUT_H              (0x3D) /* Read Only   */
-#define MPU6050_ACCEL_YOUT_L              (0x3E) /* Read Only   */
-#define MPU6050_ACCEL_ZOUT_H              (0x3F) /* Read Only   */
-#define MPU6050_ACCEL_ZOUT_L              (0x40) /* Read Only   */
-#define MPU6050_TEMP_OUT_H                (0x41) /* Read Only   */
-#define MPU6050_TEMP_OUT_L                (0x42) /* Read Only   */
-#define MPU6050_GYRO_XOUT_H               (0x43) /* Read Only   */
-#define MPU6050_GYRO_XOUT_L               (0x44) /* Read Only   */
-#define MPU6050_GYRO_YOUT_H               (0x45) /* Read Only   */
-#define MPU6050_GYRO_YOUT_L               (0x46) /* Read Only   */
-#define MPU6050_GYRO_ZOUT_H               (0x47) /* Read Only   */
-#define MPU6050_GYRO_ZOUT_L               (0x48) /* Read Only   */
-#define MPU6050_SIGNAL_PATH_RESET         (0x68) /* Write Only  */
-#define MPU6050_USER_CTRL                 (0x6A) /* Read/Write  */
-#define MPU6050_PWR_MGMT_1                (0x6B) /* Read/Write  */
-#define MPU6050_PWR_MGMT_2                (0x6C) /* Read/Write  */
-#define MPU6050_FIFO_COUNT_H              (0x72) /* Read Only   */
-#define MPU6050_FIFO_COUNT_L              (0x73) /* Read Only   */
-#define MPU6050_WHO_AM_I                  (0x75) /* Read Only   */
+#define MPU6050_SELF_TEST_X               (0x0D) /**< Read Only   */
+#define MPU6050_SELF_TEST_Y               (0x0E) /**< Read Only   */
+#define MPU6050_SELF_TEST_Z               (0x0F) /**< Read Only   */
+#define MPU6050_SELF_TEST_A               (0x10) /**< Read Only   */
+#define MPU6050_SMPRT_DIV                 (0x19) /**< Read/Write  */
+#define MPU6050_CONFIG                    (0x1A) /**< Read/Write  */
+#define MPU6050_GYRO_CONFIG               (0x1B) /**< Read/Write  */
+#define MPU6050_ACCEL_CONFIG              (0x1C) /**< Read/Write  */
+#define MPU6050_FIFO_EN                   (0x23) /**< Read/Write  */
+#define MPU6050_ACCEL_XOUT_H              (0x3B) /**< Read Only   */
+#define MPU6050_ACCEL_XOUT_L              (0x3C) /**< Read Only   */
+#define MPU6050_ACCEL_YOUT_H              (0x3D) /**< Read Only   */
+#define MPU6050_ACCEL_YOUT_L              (0x3E) /**< Read Only   */
+#define MPU6050_ACCEL_ZOUT_H              (0x3F) /**< Read Only   */
+#define MPU6050_ACCEL_ZOUT_L              (0x40) /**< Read Only   */
+#define MPU6050_TEMP_OUT_H                (0x41) /**< Read Only   */
+#define MPU6050_TEMP_OUT_L                (0x42) /**< Read Only   */
+#define MPU6050_GYRO_XOUT_H               (0x43) /**< Read Only   */
+#define MPU6050_GYRO_XOUT_L               (0x44) /**< Read Only   */
+#define MPU6050_GYRO_YOUT_H               (0x45) /**< Read Only   */
+#define MPU6050_GYRO_YOUT_L               (0x46) /**< Read Only   */
+#define MPU6050_GYRO_ZOUT_H               (0x47) /**< Read Only   */
+#define MPU6050_GYRO_ZOUT_L               (0x48) /**< Read Only   */
+#define MPU6050_SIGNAL_PATH_RESET         (0x68) /**< Write Only  */
+#define MPU6050_USER_CTRL                 (0x6A) /**< Read/Write  */
+#define MPU6050_PWR_MGMT_1                (0x6B) /**< Read/Write  */
+#define MPU6050_PWR_MGMT_2                (0x6C) /**< Read/Write  */
+#define MPU6050_FIFO_COUNT_H              (0x72) /**< Read Only   */
+#define MPU6050_FIFO_COUNT_L              (0x73) /**< Read Only   */
+#define MPU6050_WHO_AM_I                  (0x75) /**< Read Only   */
 
 /* Bit Masks */
 #define MPU6050_SELF_TEST_X_XA_TEST           (7u  << 5)
