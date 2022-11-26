@@ -67,12 +67,13 @@ bool SRF05_MeasureDistance(float *pDistanceCm)
 {
     uint32_t  ticks;
     uint32_t  time;
-    uint32_t  mask    = 0;
+    uint32_t  evt;
     bool      status  = false;
 
     SRF05_PulseOutput();
 
-    if (OS_TASKEVENT_GetSingleTimed(mask, SRF05_TIMEOUT_MS) == 0)
+    evt = OS_TASKEVENT_GetSingleTimed(SRF05_EVT_MEAS_FINISHED, SRF05_TIMEOUT_MS);
+    if (evt & SRF05_EVT_MEAS_FINISHED)
     {
         ticks = TC_ReadCounter(TC0, TC_CHANNEL_0);
         time = TC0_CH0_TICKS_TO_US(ticks);
