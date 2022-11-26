@@ -14,31 +14,6 @@
                            ((x) == TC2) || \
                            ((x) == TC3))
 
-/**
- * Convert microseconds to TC0 channel 0 timer ticks.
- *
- * TC0 f_slck configured to 18.75MHz.
- *
- * \f{equation}{
- * period = 1\ tick \div f\_slck
- *        = 0.053us
- * \f}
- *
- * Avoid division, multiply instead:
- * \f{equation}{
- * mul = 1 \div period = 18.867924528
- * \f}
- *
- * In 32_9 format:
- * \f{equation}{
- * mul_s32_9 = mul \times (1 << 9)
- *           = 9660
- * \f}
- *
- * @param[in]   us
- */
-#define US_TO_TICKS(us)   (FPA_MUL_UI32((us), 9660, 9))
-
 
 typedef void (*TC_Callback)(void);
 static TC_Callback *handlerTbl[TC_CHANNEL_COUNT];
