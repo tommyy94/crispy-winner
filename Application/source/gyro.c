@@ -37,7 +37,7 @@ void gyro_vTask(void *pvArg)
             ret = OS_QUEUE_Put(&gyroQ, &mpu6050, sizeof(mpu6050));
             if (ret != 0)
             {
-                //Journal_vWriteError(JOB_QUEUE_FULL);
+                //err_report(JOB_QUEUE_FULL);
             }
         }
     }

@@ -98,7 +98,7 @@ void throttle_vTask(void *pvArg)
             {
                 vDisableThrottle(eCh);
             }
-            //Journal_vWriteError(THROTTLE_TIMEOUT);
+            //err_report(THROTTLE_TIMEOUT);
         }
     }
 }

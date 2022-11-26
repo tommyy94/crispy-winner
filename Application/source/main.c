@@ -25,15 +25,15 @@
 #define TASK_SENSOR_PRIORITY                    (62u)
 #define TASK_VIDEO_PRIORITY                     (63u)
 #define TASK_CONTROL_PRIORITY                   (61u)
-#define TASK_JOURNAL_PRIORITY                   (57u)
+#define TASK_ERROR_PRIORITY                     (57u)
 #define TASK_RTC_PRIORITY                       (58u)
 #define TASK_THROTTLE_PRIORITY                  (59u)
 #define TASK_GYRO_PRIORITY                      (56u)
 #define TASK_DISTANCE_PRIORITY                  (60u)
 
 
-static OS_STACKPTR int stackJournal[512]    __attribute__((aligned(8)));
-       OS_TASK         journalTCB;
+static OS_STACKPTR int stackErr[512]        __attribute__((aligned(8)));
+       OS_TASK         errTCB;
 static OS_STACKPTR int stackRtc[512]        __attribute__((aligned(8)));
        OS_TASK         rtcTCB;
 static OS_STACKPTR int stackWireless[2048]  __attribute__((aligned(8)));
@@ -77,7 +77,7 @@ extern void Wireless_Task(void *arg);
 extern void Sensor_Task(void *arg);
 extern void Control_Task(void *arg);
 extern void Video_Task(void *arg);
-extern void Journal_vErrorTask(void *arg);
+extern void err_task(void *arg);
 extern void RTC_vTask(void *arg);
 extern void throttle_vTask(void *arg);
 extern void gyro_vTask(void *arg);
@@ -119,7 +119,7 @@ static void OS_InitTasks(void)
     //OS_TASK_CREATEEX(&controlTCB, "Control", TASK_CONTROL_PRIORITY, Control_Task, stackControl, NULL);
     OS_TASK_CREATEEX(&videoTCB, "Video", TASK_VIDEO_PRIORITY, Video_Task, stackVideo, NULL);
     //OS_TASK_CREATEEX(&rtcTCB, "RTC", TASK_RTC_PRIORITY, RTC_vTask, stackRtc, NULL);
-    OS_TASK_CREATEEX(&journalTCB, "Journal",  TASK_JOURNAL_PRIORITY, Journal_vErrorTask, stackJournal, NULL);
+    OS_TASK_CREATEEX(&errTCB, "Error",  TASK_ERROR_PRIORITY, err_task, stackErr, NULL);
     //OS_TASK_CREATEEX(&gyroTCB, "Gyro", TASK_GYRO_PRIORITY, gyro_vTask, stackGyro, NULL);
     //OS_TASK_CREATEEX(&throttleTCB, "Throttle", TASK_THROTTLE_PRIORITY, throttle_vTask, stackThrottle, NULL);
     OS_TASK_CREATEEX(&distanceTCB, "Distance", TASK_DISTANCE_PRIORITY, Distance_Task, stackDistance, NULL);

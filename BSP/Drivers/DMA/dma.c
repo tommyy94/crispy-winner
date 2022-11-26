@@ -133,7 +133,7 @@ void XDMAC_IRQHandler(void)
   spiStatus |= (XDMAC->XDMAC_CHID[DMA_SPI0_RX_CH].XDMAC_CIS & dmaErrMask);
   if (spiStatus != 0)
   {
-    Journal_vWriteError(DMA_ERROR);
+    err_report(DMA_ERROR);
     __BKPT();
   }
 

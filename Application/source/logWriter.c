@@ -7,7 +7,7 @@
 #include "rtc.h"
 
 
-extern OS_TASK journalTCB;
+extern OS_TASK errTCB;
 
 
 /*
@@ -17,7 +17,7 @@ extern OS_TASK journalTCB;
  *
  * @return  None.
  */
-static void logError(uint32_t id)
+static void err_log(uint32_t id)
 {
     char *enumTbl[ERROR_COUNT] =
     {
@@ -31,7 +31,8 @@ static void logError(uint32_t id)
         "JOB_QUEUE_FULL",
         "THROTTLE_TIMEOUT",
         "I2C_ERROR",
-        "MPU6050_ERROR"
+        "MPU6050_ERROR",
+        "SRF05_ERROR"
     };
 
     for (uint32_t i = 0; i < ERROR_COUNT; i++)
@@ -52,7 +53,7 @@ static void logError(uint32_t id)
  *
  * @return  None.
  */
-void Journal_vErrorTask(void *arg)
+void err_task(void *arg)
 {
     (void)arg;
     Error_t evtMask;
@@ -60,7 +61,7 @@ void Journal_vErrorTask(void *arg)
     while (1)
     {
         evtMask = (Error_t)OS_TASKEVENT_GetBlocked(0xFFFFFFFF);
-        logError(evtMask);
+        err_log(evtMask);
     }
 }
 
@@ -72,10 +73,10 @@ void Journal_vErrorTask(void *arg)
  *
  * @return  None.
  */
-void Journal_vWriteError(Error_t ulError)
+void err_report(Error_t error)
 {
-    assert(ulError < ERROR_COUNT);
-    OS_TASKEVENT_Set(&journalTCB, 1 << ulError);
+    assert(error < ERROR_COUNT);
+    OS_TASKEVENT_Set(&errTCB, 1 << error);
 }
 
 
@@ -90,9 +91,9 @@ void Journal_vWriteError(Error_t ulError)
  *
  * @return  None.
  */
-void Journal_assert(bool           eval,
-                    const char    *func,
-                    uint32_t       line)
+void err_assert(bool           eval,
+                const char    *func,
+                uint32_t       line)
 {
     if (eval == false)
     {

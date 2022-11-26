@@ -119,7 +119,7 @@ void TC_Delay(
     {
         if (pTc->TC_CHANNEL[ch].TC_SR & TC_SR_COVFS)
         {
-            Journal_vWriteError(TC_ERROR);
+            err_report(TC_ERROR);
             break;
         }
     }

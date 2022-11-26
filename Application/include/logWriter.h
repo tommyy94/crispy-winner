@@ -5,7 +5,7 @@
 #include <stdbool.h>
 
 
-#define assert(x)   Journal_assert(x, __FUNCTION__, __LINE__)
+#define assert(x)   err_assert(x, __FUNCTION__, __LINE__)
 
 
 typedef enum
@@ -27,18 +27,18 @@ typedef enum
 } Error_t;
 
 
-typedef struct Diagnostics
+typedef struct
 {
     uint32_t uptime;            /* Seconds      */
     uint32_t battery;           /* Percentage   */
     uint32_t totalDistance;     /* Kilometers   */
     uint32_t dataTransferred;   /* KB           */
-} Diagnostics;
+} Diagnostics_t;
 
 
-void Journal_vErrorTask(void *arg);
-void Journal_vWriteError(Error_t ulError);
-void Journal_assert(bool eval, const char *func, uint32_t line);
+void err_task(void *arg);
+void err_report(Error_t error);
+void err_assert(bool eval, const char *func, uint32_t line);
 
 
 #endif /* LOGWRITER_H_ */

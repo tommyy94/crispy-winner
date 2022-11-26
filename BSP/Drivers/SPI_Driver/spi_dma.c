@@ -216,7 +216,7 @@ bool SPI0_DMA_TransmitMessage(uint8_t *msg, uint8_t *recv, uint32_t len)
    || ((evtMask & DMA_EVENT_SPI0_RX) == 0))
   {
     ret = false;
-    Journal_vWriteError(DMA_ERROR);
+    err_report(DMA_ERROR);
   }
   return ret;
 }

@@ -30,7 +30,7 @@ void Distance_Task(void *arg)
         if (status == false)
         {
             SRF05_StopMeasuring();
-            Journal_vWriteError(SRF05_ERROR);
+            err_report(SRF05_ERROR);
         }
         else
         {

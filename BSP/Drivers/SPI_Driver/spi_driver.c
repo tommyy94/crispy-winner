@@ -209,7 +209,7 @@ void SPI0_IRQHandler(void)
 
     status = SPI0->SPI_SR;
     assert((status & SPI_SR_MODF)  == 0);
-    Journal_vWriteError(SPI_ERROR);
+    err_report(SPI_ERROR);
 
     OS_INT_Leave();
 }
