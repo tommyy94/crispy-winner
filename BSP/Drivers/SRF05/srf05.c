@@ -22,19 +22,12 @@
 /**
  * Convert echo pulse time to distance (cm):
  * \f{equation}{
- * c = 343 \ (speed\_of\_sound)  \\
- * d(t) = t \times c \div 100 \div 2
- * \f}
- *
- * In s32_9 format:
- * \f{equation}{
- * mul\_s32_8 = (t \times (1.715 \times (1 << 8)) >> 8) \\
- *            = (t \times 439) >> 8
+ * d(t) = t \times 0.02
  * \f}
  *
  * @param[in] t   Time
  */
-#define SRF05_FORMULA(t)          (FPA_MUL_UI32((t), 439, 8))
+#define SRF05_FORMULA(t)          ((t) * 0.02)
 
 
 extern OS_TASK    distanceTCB;
@@ -70,7 +63,7 @@ void SRF05_Init(void)
  *
  * @retval  status        false if timeout else true.
  */
-bool SRF05_MeasureDistance(uint32_t *pDistanceCm)
+bool SRF05_MeasureDistance(float *pDistanceCm)
 {
     uint32_t  time;
     uint32_t  mask    = 0;

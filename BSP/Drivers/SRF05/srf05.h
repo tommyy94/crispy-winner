@@ -6,7 +6,7 @@
 
 
 void      SRF05_Init(void);
-bool      SRF05_MeasureDistance(uint32_t *pDistanceCm);
+bool      SRF05_MeasureDistance(float *pDistanceCm);
 void      SRF05_StartMeasuring(void);
 void      SRF05_StopMeasuring(void);
 
