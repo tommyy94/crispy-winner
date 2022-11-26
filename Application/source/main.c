@@ -53,7 +53,7 @@ static OS_STACKPTR int stackGyro[512]       __attribute__((aligned(8)));
 static OS_TASK         gyroTCB;
 static OS_STACKPTR int stackStartup[512]    __attribute__((aligned(8)));
 static OS_TASK         startupTCB;
-static OS_STACKPTR int stackDistance[128]   __attribute__((aligned(8)));
+static OS_STACKPTR int stackDistance[256]   __attribute__((aligned(8)));
        OS_TASK         distanceTCB;
 
 
