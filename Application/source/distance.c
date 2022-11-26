@@ -17,7 +17,7 @@
 void Distance_Task(void *arg)
 {
     (void)arg;
-    uint32_t  distanceCm;
+    float     distanceCm;
     bool      status;
 
     SRF05_Init();
