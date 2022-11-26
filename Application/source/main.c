@@ -32,17 +32,14 @@
 #define TASK_DISTANCE_PRIORITY                  (60u)
 
 
-static OS_STACKPTR int stackErr[512]        __attribute__((aligned(8)));
+static OS_STACKPTR int stackErr[128]        __attribute__((aligned(8)));
        OS_TASK         errTCB;
-static OS_STACKPTR int stackRtc[512]        __attribute__((aligned(8)));
+static OS_STACKPTR int stackRtc[128]        __attribute__((aligned(8)));
        OS_TASK         rtcTCB;
 static OS_STACKPTR int stackWireless[2048]  __attribute__((aligned(8)));
 static OS_TASK         wirelessTCB;
-
-/* TODO: Temporarily increased sensor task stack size !!! */
 static OS_STACKPTR int stackSensor[1024]     __attribute__((aligned(8)));
 static OS_TASK         sensorTCB;
-
 static OS_STACKPTR int stackControl[512]    __attribute__((aligned(8)));
 static OS_TASK         controlTCB;
 static OS_STACKPTR int stackVideo[1024]      __attribute__((aligned(8)));
