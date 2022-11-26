@@ -56,7 +56,7 @@ bool MPU6050_Init(void)
     status = MPU6050_ReadReg(MPU6050_WHO_AM_I, &id);
     if (id == 0xFF)
     {
-        Journal_vWriteError(MPU6050_ERROR);
+        err_report(MPU6050_ERROR);
     }
 
     /* Reset device just to be safe */
@@ -72,7 +72,7 @@ bool MPU6050_Init(void)
     status &= MPU6050_SelfTest(SENSOR_GYRO);
     if (status == false)
     {
-        Journal_vWriteError(MPU6050_ERROR);
+        err_report(MPU6050_ERROR);
     }
 
     return status;
