@@ -131,7 +131,7 @@ static bool MPU6050_ValidateSelfTest(const uint8_t ft,
         test = (str - ft) / ft;
     }
     if ((test >= SELF_TEST_RESPONSE_MAX)
-     || (test <= SELF_TEST_RESPONSE_MIN))
+     && (test <= SELF_TEST_RESPONSE_MIN))
     {
         pass = false;
     }
