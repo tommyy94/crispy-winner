@@ -61,10 +61,13 @@ OS_EVENT          dmaEvt;
 OS_EVENT          svEvt;
 OS_EVENT          wlessEvt;
 OS_MUTEX          wlessMutex;
+OS_MAILBOX        twiMbox;
+OS_SEMAPHORE      twiSema;
 
 #define Q_MSG_SIZE  (1u)
 #define Q_MSG_CNT   (32u)
 #define Q_SIZE      (Q_MSG_CNT * (Q_MSG_SIZE + OS_Q_SIZEOF_HEADER) + MESSAGE_ALIGNMENT)
+char              _twiMemBuffer[sizeof(TWI_Msg *)];
 char              _tsMemBuffer[Q_SIZE];
 char              _gyroMemBuffer[Q_SIZE];
 char              _throttleMemBuffer[Q_SIZE];
@@ -132,15 +135,23 @@ static void OS_InitTasks(void)
  */
 static void OS_InitServices(void)
 {
+    /* Events */
     OS_EVENT_CreateEx(&dmaEvt, OS_EVENT_MASK_MODE_AND_LOGIC);
     OS_EVENT_CreateEx(&svEvt, OS_EVENT_MASK_MODE_OR_LOGIC);
     OS_EVENT_CreateEx(&wlessEvt, OS_EVENT_MASK_MODE_OR_LOGIC);
 
+    /* Queues */
     OS_QUEUE_Create(&throttleQ, &_throttleMemBuffer, sizeof(_throttleMemBuffer));
-    
     OS_QUEUE_Create(&gyroQ, &_gyroMemBuffer, sizeof(_gyroMemBuffer));
     OS_QUEUE_Create(&tsQ, &_tsMemBuffer, sizeof(_tsMemBuffer));
 
+    /* Mailboxes */
+    OS_MAILBOX_Create(&twiMbox, sizeof(TWI_Msg *), 1, &_twiMemBuffer);
+
+    /* Semaphores */
+    OS_SEMAPHORE_Create(&twiSema, 0);
+
+    /* Mutexes */
     OS_MUTEX_Create(&wlessMutex);
 }
 
