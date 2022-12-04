@@ -34,11 +34,13 @@ void gyro_Task(void *pArg)
         ret = MPU6050_SensorsRead(&mpu6050.accel, &mpu6050.gyro);
         if (ret == true)
         {
+            /*
             ret = OS_QUEUE_Put(&gyroQ, &mpu6050, sizeof(mpu6050));
             if (ret != 0)
             {
                 //err_report(JOB_QUEUE_FULL);
             }
+            */
         }
     }
 }
