@@ -76,7 +76,7 @@ void PWM_Init(void)
 /* PWM0 channels:
  *    PA0:  PWM0_CH0+
  *    PA2:  PWM0_CH1+
- *    PB4:  PWM0_CH2+
+ *    PA12: PWM1_CH0+
  *    PA17: PWM0_CH3+
  */
 static void PWM_IO_Init(void)
