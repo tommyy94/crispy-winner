@@ -87,7 +87,7 @@ IRQn_Type IO_ConfigureIRQ(Pio         *pio,
 {
     IRQn_Type irqn;
 
-    assert(PORT_IS_PIO(pio));
+    assert(IS_PIO(pio));
     assert(sense < IO_SENSE_COUNT);
 
     switch (sense)
@@ -141,7 +141,7 @@ IRQn_Type IO_ConfigureIRQ(Pio         *pio,
  */
 static IRQn_Type IO_Pio2NVICn(Pio *pio)
 {
-    assert(PORT_IS_PIO(pio));
+    assert(IS_PIO(pio));
     
     IRQn_Type const irqnTbl[PIO_INST_COUNT] =
     {
@@ -178,7 +178,7 @@ static IRQn_Type IO_Pio2NVICn(Pio *pio)
  */
 void IO_EnableIRQ(Pio *pio, uint32_t mask)
 {
-    assert(PORT_IS_PIO(pio));
+    assert(IS_PIO(pio));
     pio->PIO_IER = mask;
 }
 
@@ -194,7 +194,7 @@ void IO_EnableIRQ(Pio *pio, uint32_t mask)
  */
 void IO_DisableIRQ(Pio *pio, uint32_t mask)
 {
-    assert(PORT_IS_PIO(pio));
+    assert(IS_PIO(pio));
     pio->PIO_IDR = mask;
 }
 
@@ -210,7 +210,7 @@ void IO_DisableIRQ(Pio *pio, uint32_t mask)
  */
 IO_PinLevel_t IO_GetPinLevel(Pio *pio, uint32_t pin)
 {
-    assert(PORT_IS_PIO(pio));
+    assert(IS_PIO(pio));
     
     if (pio->PIO_PDSR & IO_MASK(pin))
     {

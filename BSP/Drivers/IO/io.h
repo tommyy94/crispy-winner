@@ -9,11 +9,11 @@
 #define PORT_GROUP_D    (PIOD)
 #define PORT_GROUP_E    (PIOE)
 
-#define PORT_IS_PIO(x)  ((x == PIOA)    \
-                        || (x == PIOB)  \
-                        || (x == PIOC)  \
-                        || (x == PIOD)  \
-                        || (x == PIOE))
+#define IS_PIO(x)       (((x) == PIOA) || \
+                         ((x) == PIOB) || \
+                         ((x) == PIOC) || \
+                         ((x) == PIOD) || \
+                         ((x) == PIOE))
 
 
 typedef enum
