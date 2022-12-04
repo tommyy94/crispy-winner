@@ -139,7 +139,7 @@ bool TWI_Xfer(TWI_Adapter *pAdap, const uint32_t count)
         {
             TWI_AbortXfer(pAdap);
             err_report(I2C_ERROR);
-            printf("TWI @ 0x%08x reset\r\n", pAdap->pInst);
+            printf("TWI @ 0x%08X reset\r\n", pAdap->pInst);
             goto Cleanup;
         }
     }
