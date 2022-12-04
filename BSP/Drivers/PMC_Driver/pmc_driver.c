@@ -3,6 +3,9 @@
 #include "err.h"
 
 
+#define PCK_COUNT   (7)
+
+
 /*
  * @brief   Enable peripheral clock.
  *
@@ -64,4 +67,54 @@ void PMC_PeripheralClockDisable(const uint32_t pid)
     {
 
     }
+}
+
+
+/*
+ * Initialize programmable clock n.
+ *
+ * @param   n     Peripheral clock number.
+ *
+ * @param   pres  Selected clock is divided by pres+1.
+ *
+ * @param   src   Clock source.
+ *
+ * @return  None.
+ */
+void PMC_ProgrammableClockInit(
+    uint32_t      const   n,
+    uint8_t       const   pres,
+    PCK_Source_t  const   src)
+{
+    assert(n <= PCK_COUNT);
+
+    PMC->PMC_PCK[n] = PMC_PCK_PRES(pres) | PMC_PCK_CSS(src);
+}
+
+
+/*
+ * Enable programmable clock n.
+ *
+ * @param   n     Peripheral clock number.
+ *
+ * @return  None.
+ */
+void PMC_ProgrammableClockEnable(const uint32_t n)
+{
+    assert(n <= PCK_COUNT);
+    PMC->PMC_SCER = PMC_SCER_PCK0 << n;
+}
+
+
+/*
+ * Disable programmable clock n.
+ *
+ * @param   n     Peripheral clock number.
+ *
+ * @return  None.
+ */
+void PMC_ProgrammableClockDisable(const uint32_t n)
+{
+    assert(n <= PCK_COUNT);
+    PMC->PMC_SCDR = PMC_SCDR_PCK0 << n;
 }
