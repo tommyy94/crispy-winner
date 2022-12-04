@@ -19,6 +19,7 @@
 #define TWI0_PORT       (PIOA)
 #define PIN_TWCK0       (1 << 4u)
 #define PIN_TWD0        (1 << 3u)
+#define TWI_TIMEOUT_MS          (100)
 #define TWI_BUS_FREE_TIME_US    (2)
 
 
@@ -231,7 +232,7 @@ static bool TWI_Write(
 
     /* Enabling IRQ starts xfer and begin waiting until xfer done */
     pTwi->TWIHS_IER = TWIHS_IER_TXRDY;
-    ret = OS_SEMAPHORE_TakeTimed(&twiSema, 100);
+    ret = OS_SEMAPHORE_TakeTimed(&twiSema, TWI_TIMEOUT_MS);
     assert(ret != 0);
 
     assert((pTwi->TWIHS_SR & TWI_ERR_MASK) == 0);
@@ -275,7 +276,7 @@ static bool TWI_Read(
 
     /* Enabling IRQ starts xfer and begin waiting until xfer done */
     pTwi->TWIHS_IER = TWIHS_IER_RXRDY;
-    ret = OS_SEMAPHORE_TakeTimed(&twiSema, 100);
+    ret = OS_SEMAPHORE_TakeTimed(&twiSema, TWI_TIMEOUT_MS);
     assert(ret != 0);
 
     assert((pTwi->TWIHS_SR & TWI_ERR_MASK) == 0);
