@@ -154,6 +154,7 @@ static void OS_InitServices(void)
 
     /* Mutexes */
     OS_MUTEX_Create(&wlessMutex);
+    OS_MUTEX_Create(&twiMutex);
 }
 
 
