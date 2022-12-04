@@ -24,6 +24,7 @@
 
 extern OS_MAILBOX         twiMbox;
 extern OS_SEMAPHORE       twiSema;
+extern OS_MUTEX           twiMutex;
 
 
 static void    TWI0_IO_Init(void);
@@ -109,7 +110,7 @@ bool TWI_Xfer(TWI_Adapter *pAdap, const uint32_t count)
     /* Sanity check */
     assert((pAdap->pInst == TWIHS0)
               || (pAdap->pInst == TWIHS1)
-              || (pAdap->pInst == TWIHS2));
+    OS_MUTEX_LockBlocked(&twiMutex);
 
     for (uint32_t k = 0; k < count; k++)
     {
@@ -155,6 +156,9 @@ Cleanup:
      * to allow other devies on the bus to detect a free bus.
      */
     TC_Delay(TC0, TC_CHANNEL_1, TC0_CH0_US_TO_TICKS(TWI_BUS_FREE_TIME_US));
+
+    OS_MUTEX_Unlock(&twiMutex);
+
     return ret;
 }
 
