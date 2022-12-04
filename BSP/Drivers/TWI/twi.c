@@ -16,9 +16,14 @@
 #include "tc_driver.h"
 
 
-#define TWI0_PORT       (PIOA)
-#define PIN_TWCK0       (1 << 4u)
-#define PIN_TWD0        (1 << 3u)
+#define IS_TWIHS(x)             (((x) == TWIHS0) || \
+                                 ((x) == TWIHS1) || \
+                                 ((x) == TWIHS2))
+
+#define TWI0_PORT               (PIOA)
+#define PIN_TWCK0               (1 << 4u)
+#define PIN_TWD0                (1 << 3u)
+
 #define TWI_TIMEOUT_MS          (100)
 #define TWI_BUS_FREE_TIME_US    (2)
 
@@ -109,14 +114,14 @@ bool TWI_Xfer(TWI_Adapter *pAdap, const uint32_t count)
     bool ret = false;
 
     /* Sanity check */
-    assert((pAdap->pInst == TWIHS0)
-              || (pAdap->pInst == TWIHS1)
+    IS_TWIHS(pAdap->pInst);
+
     OS_MUTEX_LockBlocked(&twiMutex);
 
     for (uint32_t k = 0; k < count; k++)
     {
         assert((pAdap->msgArr[k].flags == TWI_WRITE)
-                  || (pAdap->msgArr[k].flags == TWI_READ));
+            || (pAdap->msgArr[k].flags == TWI_READ));
 
         if (pAdap->msgArr[k].flags == TWI_READ)
         {
@@ -221,7 +226,7 @@ static bool TWI_Write(
 {
     uint32_t ret;
 
-    assert((pTwi == TWIHS0) || (pTwi == TWIHS1) || (pTwi == TWIHS2));
+    IS_TWIHS(pTwi);
 
     ret = OS_MAILBOX_Put(&twiMbox, &msgArr);
     assert(ret == 0);
@@ -259,7 +264,7 @@ static bool TWI_Read(
     uint32_t    ret;
     uint32_t    mask       = TWIHS_CR_START;
 
-    assert((pTwi == TWIHS0) || (pTwi == TWIHS1) || (pTwi == TWIHS2));
+    IS_TWIHS(pTwi);
 
     ret = OS_MAILBOX_Put(&twiMbox, &msgArr);
     assert(ret == 0);
@@ -306,7 +311,7 @@ static void TWI_ReleaseSlave(Twihs *pTwi)
  */
 static void TWI_SetMasterMode(Twihs *pTwi)
 {
-    assert((pTwi == TWIHS0) || (pTwi == TWIHS1) || (pTwi == TWIHS2));
+    IS_TWIHS(pTwi);
     TWI_WriteCR(TWIHS0, TWIHS_CR_MSEN | TWIHS_CR_SVDIS);
 }
 
@@ -320,7 +325,7 @@ static void TWI_SetMasterMode(Twihs *pTwi)
  */
 static void TWI_SetSlaveMode(Twihs *pTwi)
 {
-    assert((pTwi == TWIHS0) || (pTwi == TWIHS1) || (pTwi == TWIHS2));
+    IS_TWIHS(pTwi);
     TWI_WriteCR(TWIHS0, TWIHS_CR_MSDIS | TWIHS_CR_SVEN);
 }
 
@@ -334,5 +339,6 @@ static void TWI_SetSlaveMode(Twihs *pTwi)
  */
 static void TWI_FlushTHR(Twihs *pTwi)
 {
+    IS_TWIHS(pTwi);
     TWI_WriteCR(pTwi, TWIHS_CR_THRCLR);
 }
