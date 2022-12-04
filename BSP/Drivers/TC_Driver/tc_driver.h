@@ -84,6 +84,6 @@ void      TC_Stop(
 void TC_Delay(
     Tc            *pTc,
     TC_Channel_t   ch,
-    uint32_t       us);
+    uint32_t       ticks);
 
 #endif /* TC_DRIVER */
