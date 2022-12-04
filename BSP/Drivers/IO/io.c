@@ -41,7 +41,7 @@ void IO_ConfigurePull(Pio          *pio,
                       uint32_t      mask,
                       IO_PullType   pull)
 {
-    assert(PORT_IS_PIO(pio));
+    assert(IS_PIO(pio));
     assert((pull == IO_PULLUP) || pull == IO_PULLDOWN);
 
     if (pull == IO_PULLUP)
@@ -86,7 +86,7 @@ void IO_SetPeripheralFunction(Pio                *pio,
                               const uint32_t      mask,
                               const IO_PeriphFunc func)
 {
-    assert(PORT_IS_PIO(pio));
+    assert(IS_PIO(pio));
     assert((func == IO_PERIPH_A)
         || (func == IO_PERIPH_B)
         || (func == IO_PERIPH_C)
@@ -133,7 +133,7 @@ void IO_ConfigureOutput(Pio   *const      pio,
                         const  uint32_t   pinMask,
                         const  uint32_t   driveMask)
 {
-    assert(PORT_IS_PIO(pio));
+    assert(IS_PIO(pio));
 
     pio->PIO_PER     = pinMask;
     pio->PIO_OER     = pinMask;
@@ -184,7 +184,7 @@ void IO_ConfigureInput(Pio   *const      pio,      /* Port pointer     */
  */
 void IO_SetOutput(Pio *pio, const uint32_t mask)
 {
-    assert(PORT_IS_PIO(pio));
+    assert(IS_PIO(pio));
     pio->PIO_SODR = mask;
 }
 
@@ -200,6 +200,6 @@ void IO_SetOutput(Pio *pio, const uint32_t mask)
  */
 void IO_ClearOutput(Pio *pio, const uint32_t mask)
 {
-    assert(PORT_IS_PIO(pio));
+    assert(IS_PIO(pio));
     pio->PIO_CODR = mask;
 }
