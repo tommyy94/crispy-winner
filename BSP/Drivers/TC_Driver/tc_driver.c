@@ -31,6 +31,7 @@ extern void TC0_IRQHandler(void);
 void TC0_Init(void)
 {
     PMC_PeripheralClockEnable(ID_TC0);
+    PMC_PeripheralClockEnable(ID_TC1);
 
     /*
      * 150 MHz MCK
