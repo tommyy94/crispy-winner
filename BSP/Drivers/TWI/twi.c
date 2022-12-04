@@ -13,11 +13,13 @@
 #include "system.h"
 #include "err.h"
 #include "pmc_driver.h"
+#include "tc_driver.h"
 
 
 #define TWI0_PORT       (PIOA)
 #define PIN_TWCK0       (1 << 4u)
 #define PIN_TWD0        (1 << 3u)
+#define TWI_BUS_FREE_TIME_US    (2)
 
 
 extern OS_MAILBOX         twiMbox;
@@ -148,6 +150,11 @@ bool TWI_Xfer(TWI_Adapter *pAdap, const uint32_t count)
 Cleanup:
     TWI_FlushTHR(pAdap->pInst);
 
+    /* According to I2C specification Fast Mode needs at least
+     * 1.3us bus free time between stop and start conditions
+     * to allow other devies on the bus to detect a free bus.
+     */
+    TC_Delay(TC0, TC_CHANNEL_1, TC0_CH0_US_TO_TICKS(TWI_BUS_FREE_TIME_US));
     return ret;
 }
 
