@@ -227,8 +227,7 @@ static bool TWI_Write(
     assert(ret == 0);
 
     /* START bit sent automatically when writing */
-    pTwi->TWIHS_MMR &= ~TWIHS_MMR_MREAD;
-    pTwi->TWIHS_MMR |= TWIHS_MMR_DADR(target);
+    pTwi->TWIHS_MMR = TWIHS_MMR_DADR(target);
 
     /* Enabling IRQ starts xfer and begin waiting until xfer done */
     pTwi->TWIHS_IER = TWIHS_IER_TXRDY;
@@ -265,7 +264,7 @@ static bool TWI_Read(
     ret = OS_MAILBOX_Put(&twiMbox, &msgArr);
     assert(ret == 0);
 
-    pTwi->TWIHS_MMR |= TWIHS_MMR_DADR(target) | TWIHS_MMR_MREAD;
+    pTwi->TWIHS_MMR = TWIHS_MMR_DADR(target) | TWIHS_MMR_MREAD;;
 
     /* START & STOP on single byte read */
     if (msgArr->len == 1)
