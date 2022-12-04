@@ -4,6 +4,7 @@
 #define TC_DRIVER
 
 #include "same70.h"
+#include "fpa.h"
 
 /**
  * Convert microseconds to TC0 channel 0 timer ticks.
