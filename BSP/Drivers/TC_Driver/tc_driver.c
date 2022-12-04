@@ -22,7 +22,7 @@ extern void TC0_IRQHandler(void);
 
 
 /**
- * @brief   Initialize TC0 channel 0 timer.
+ * @brief   Initialize TC0 channels 0 and 1 timers.
  *
  * @param   None.
  *
