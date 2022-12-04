@@ -40,7 +40,8 @@ void TC0_Init(void)
      * f_slck = 150MHz / 8
      *                = 18.75MHz
      */
-    TC0[TC_CHANNEL_0].TC_CHANNEL->TC_CMR = TC_CMR_TCCLKS_TIMER_CLOCK2;
+    TC0->TC_CHANNEL[TC_CHANNEL_0].TC_CMR = TC_CMR_TCCLKS_TIMER_CLOCK2;
+    TC0->TC_CHANNEL[TC_CHANNEL_1].TC_CMR = TC_CMR_TCCLKS_TIMER_CLOCK2;
 }
 
 
@@ -61,9 +62,9 @@ void TC_Start(
     assert(ch < TC_CHANNEL_COUNT);
 
     /* Enable clock and start the timer */
-    pTc[ch].TC_CHANNEL->TC_CCR = TC_CCR_CLKEN | TC_CCR_SWTRG;
+    pTc->TC_CHANNEL[ch].TC_CCR = TC_CCR_CLKEN | TC_CCR_SWTRG;
     
-    while (!(TC0[TC_CHANNEL_0].TC_CHANNEL->TC_SR & TC_SR_CLKSTA))
+    while (!(pTc->TC_CHANNEL[ch].TC_SR & TC_SR_CLKSTA))
     {
         ; /* Wait until clock enabled */
     }
@@ -87,9 +88,9 @@ void TC_Stop(
     assert(ch < TC_CHANNEL_COUNT);
 
     /* Disable clock stopping the timer */
-    pTc[ch].TC_CHANNEL->TC_CCR = TC_CCR_CLKDIS;
+    pTc->TC_CHANNEL[ch].TC_CCR = TC_CCR_CLKDIS;
 
-    while (TC0[TC_CHANNEL_0].TC_CHANNEL->TC_SR & TC_SR_CLKSTA)
+    while (pTc->TC_CHANNEL[ch].TC_SR & TC_SR_CLKSTA)
     {
         ; /* Wait until clock disabled */
     }
@@ -144,9 +145,9 @@ void TC0_IRQHandler(void)
 
     OS_INT_Enter();
 
-    mask = TC0[TC_CHANNEL_0].TC_CHANNEL->TC_IMR;
+    mask = TC0->TC_CHANNEL[TC_CHANNEL_0].TC_IMR;
 
-    status = TC0[TC_CHANNEL_0].TC_CHANNEL->TC_SR & mask;
+    status = TC0->TC_CHANNEL[TC_CHANNEL_0].TC_SR & mask;
     if (status & TC_SR_COVFS)
     {
         /* Counter overflow */
