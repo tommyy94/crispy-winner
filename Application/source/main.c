@@ -30,6 +30,7 @@
 #define TASK_THROTTLE_PRIORITY                  (59u)
 #define TASK_GYRO_PRIORITY                      (56u)
 #define TASK_DISTANCE_PRIORITY                  (60u)
+#define TASK_IMAGE_PRIORITY                     (68u)
 
 
 static OS_STACKPTR int stackErr[128]        __attribute__((aligned(8)));
@@ -52,6 +53,8 @@ static OS_STACKPTR int stackStartup[512]    __attribute__((aligned(8)));
 static OS_TASK         startupTCB;
 static OS_STACKPTR int stackDistance[256]   __attribute__((aligned(8)));
        OS_TASK         distanceTCB;
+static OS_STACKPTR int stackImage[2048]     __attribute__((aligned(8)));
+       OS_TASK         imageTCB;
 
 
 OS_QUEUE          throttleQ;
@@ -83,6 +86,7 @@ extern void RTC_Task(void *arg);
 extern void throttle_Task(void *arg);
 extern void gyro_Task(void *arg);
 extern void Distance_Task(void *arg);
+extern void Image_Task(void *arg);
 static void Startup_Task(void *arg);
 
 static void OS_InitTasks(void);
@@ -124,6 +128,7 @@ static void OS_InitTasks(void)
     //OS_TASK_CREATEEX(&gyroTCB, "Gyro", TASK_GYRO_PRIORITY, gyro_Task, stackGyro, NULL);
     OS_TASK_CREATEEX(&throttleTCB, "Throttle", TASK_THROTTLE_PRIORITY, throttle_Task, stackThrottle, NULL);
     OS_TASK_CREATEEX(&distanceTCB, "Distance", TASK_DISTANCE_PRIORITY, Distance_Task, stackDistance, NULL);
+    OS_TASK_CREATEEX(&imageTCB, "Image", TASK_IMAGE_PRIORITY, Image_Task, stackImage, NULL);
 }
 
 
