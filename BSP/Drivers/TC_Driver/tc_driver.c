@@ -28,7 +28,7 @@ extern void TC0_IRQHandler(void);
  *
  * @retval  None. 
  */
-void TC0_Ch0_Init(void)
+void TC0_Init(void)
 {
     PMC_PeripheralClockEnable(ID_TC0);
 

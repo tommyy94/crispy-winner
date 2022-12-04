@@ -71,7 +71,7 @@ void      TC_InstallIrqHandler(
     Tc            *pTc,
     TC_Channel_t   ch,
     void          *pfIsr);
-void      TC0_Ch0_Init(void);
+void      TC0_Init(void);
 uint32_t  TC_ReadCounter(
     Tc            *pTc,
     TC_Channel_t   ch);

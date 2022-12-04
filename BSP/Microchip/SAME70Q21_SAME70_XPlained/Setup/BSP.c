@@ -31,7 +31,7 @@ void BSP_Init(void)
     //PWM_Init();
 
     /* Initialize timer */
-    TC0_Ch0_Init();
+    TC0_Init();
 
     /* Start RTC last so it won't notify non-existent task */
     RTC_Init();
