@@ -63,6 +63,7 @@ OS_EVENT          wlessEvt;
 OS_MUTEX          wlessMutex;
 OS_MAILBOX        twiMbox;
 OS_SEMAPHORE      twiSema;
+OS_MUTEX          twiMutex;
 
 #define Q_MSG_SIZE  (1u)
 #define Q_MSG_CNT   (32u)
