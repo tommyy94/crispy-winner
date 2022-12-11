@@ -534,10 +534,31 @@
           </file>
         </folder>
         <folder Name="OV5640">
-          <file file_name="../../Drivers/OV5640/ov5640.c" />
-          <file file_name="../../Drivers/OV5640/ov5640.h" />
           <file file_name="../../Drivers/OV5640/ov5640_i2c_layer.h" />
           <file file_name="../../Drivers/OV5640/ov5640_i2c_layer.c" />
+          <folder Name="STM32-OV5640">
+            <folder Name="_htmresc">
+              <file file_name="../../Drivers/OV5640/stm32-ov5640/_htmresc/Add button.svg" />
+              <file file_name="../../Drivers/OV5640/stm32-ov5640/_htmresc/favicon.png" />
+              <file file_name="../../Drivers/OV5640/stm32-ov5640/_htmresc/mini-st_2020.css" />
+              <file file_name="../../Drivers/OV5640/stm32-ov5640/_htmresc/st_logo.png" />
+              <file file_name="../../Drivers/OV5640/stm32-ov5640/_htmresc/st_logo_2020.png" />
+              <file file_name="../../Drivers/OV5640/stm32-ov5640/_htmresc/Update.svg" />
+            </folder>
+            <file file_name="../../Drivers/OV5640/stm32-ov5640/CODE_OF_CONDUCT.md" />
+            <file file_name="../../Drivers/OV5640/stm32-ov5640/CONTRIBUTING.md" />
+            <file file_name="../../Drivers/OV5640/stm32-ov5640/License.md" />
+            <file file_name="../../Drivers/OV5640/stm32-ov5640/ov5640.c" />
+            <file file_name="../../Drivers/OV5640/stm32-ov5640/ov5640.h" />
+            <file file_name="../../Drivers/OV5640/stm32-ov5640/ov5640_reg.c" />
+            <file file_name="../../Drivers/OV5640/stm32-ov5640/ov5640_reg.h" />
+            <file file_name="../../Drivers/OV5640/stm32-ov5640/README.md" />
+            <file file_name="../../Drivers/OV5640/stm32-ov5640/Release_Notes.html" />
+          </folder>
+          <folder Name="STM32-BSP-Common">
+            <file file_name="../../Drivers/OV5640/stm32-bsp-common/camera.h" />
+          </folder>
+        </folder>
         </folder>
       </folder>
     </folder>
