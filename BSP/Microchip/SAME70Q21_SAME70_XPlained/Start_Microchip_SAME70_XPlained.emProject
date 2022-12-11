@@ -559,6 +559,9 @@
             <file file_name="../../Drivers/OV5640/stm32-bsp-common/camera.h" />
           </folder>
         </folder>
+        <folder Name="Camera">
+          <file file_name="../../Drivers/Camera/same70_camera.c" />
+          <file file_name="../../Drivers/Camera/same70_camera.h" />
         </folder>
       </folder>
     </folder>
