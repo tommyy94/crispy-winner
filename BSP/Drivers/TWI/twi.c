@@ -154,9 +154,13 @@ bool TWI_Xfer(TWI_Adapter *pAdap, const uint32_t count)
 Cleanup:
     TWI_FlushTHR(pAdap->pInst);
 
-    /* According to I2C specification Fast Mode needs at least
-     * 1.3us bus free time between stop and start conditions
-     * to allow other devies on the bus to detect a free bus.
+    /* According to I2C specification bus free time (t_buff)
+     * between stop and start conditions is needed to
+     * allow other devices on the bus to detect a free bus.
+     *
+     * Symbol | Standard-mode | Fast-mode  | Fast-mode Plus | unit
+     * ------------------------------------------------------------
+     * t_buff |   4.7         |    1.3     |    0.5         |  us
      */
     TC_Delay(TC0, TC_CHANNEL_1, TC0_CH0_US_TO_TICKS(TWI_BUS_FREE_TIME_US));
 
