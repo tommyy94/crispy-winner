@@ -1,8 +1,12 @@
 /** @file */
 
+#include "RTOS.h"
 #include "ov5640_i2c_layer.h"
 #include "twi.h"
 #include "ov5640.h"
+
+
+extern OS_MUTEX twiMutex;
 
 
 TWI_Adapter OV5640_Adap =
@@ -26,7 +30,7 @@ TWI_Adapter OV5640_Adap =
  */
 int32_t OV5640_ReadReg(uint16_t addr, uint16_t reg, uint8_t *val, uint16_t len)
 {
-    bool ret;
+    int32_t ret;
     uint8_t seq[] =
     {
         (reg >> 8) & 0xFF,
@@ -40,15 +44,21 @@ int32_t OV5640_ReadReg(uint16_t addr, uint16_t reg, uint8_t *val, uint16_t len)
     OV5640_Adap.msgArr[1].pBuf  = val;
     OV5640_Adap.msgArr[1].len   = len;
     OV5640_Adap.msgArr[1].flags = TWI_READ;
-    ret = TWI_Xfer(&OV5640_Adap, 2);
-    if (ret == true)
+
+    OS_MUTEX_LockBlocked(&twiMutex);
+
+    if (TWI_Xfer(&OV5640_Adap, 2) == true)
     {
-        return OV5640_OK;
+        ret = OV5640_OK;
     }
     else
     {
-        return OV5640_ERROR;
+        ret = OV5640_ERROR;
     }
+    
+    OS_MUTEX_Unlock(&twiMutex);
+
+    return ret;
 }
 
 
@@ -67,7 +77,7 @@ int32_t OV5640_ReadReg(uint16_t addr, uint16_t reg, uint8_t *val, uint16_t len)
  */
 int32_t OV5640_WriteReg(uint16_t addr, uint16_t reg, uint8_t *val, uint16_t len)
 {
-    bool ret;
+    int32_t ret;
     uint8_t seq[] =
     {
         (reg >> 8) & 0xFF,
@@ -79,15 +89,21 @@ int32_t OV5640_WriteReg(uint16_t addr, uint16_t reg, uint8_t *val, uint16_t len)
     OV5640_Adap.msgArr[0].pBuf  = seq;
     OV5640_Adap.msgArr[0].len   = 2 + len;
     OV5640_Adap.msgArr[0].flags = TWI_WRITE;
-    ret = TWI_Xfer(&OV5640_Adap, 1);
-    if (ret == true)
+
+    OS_MUTEX_LockBlocked(&twiMutex);
+
+    if (TWI_Xfer(&OV5640_Adap, 1) == true)
     {
-        return OV5640_OK;
+        ret = OV5640_OK;
     }
     else
     {
-        return OV5640_ERROR;
+        ret = OV5640_ERROR;
     }
+    
+    OS_MUTEX_Unlock(&twiMutex);
+
+    return ret;
 }
 
 
