@@ -3,6 +3,7 @@
 #include "mpu-6050_i2c_layer.h"
 #include "mpu-6050_defs.h"
 #include "err.h"
+#include "RTOS.h"
 
 
 static TWI_Adapter twiAdap =
@@ -10,6 +11,8 @@ static TWI_Adapter twiAdap =
     .pInst = TWIHS0,
     .addr  = MPU6050_ADDR
 };
+
+extern OS_MUTEX twiMutex;
 
 
 /**
@@ -42,7 +45,11 @@ bool MPU6050_SensorRead(AxisStruct_t    *pxAxis,
     twiAdap.msgArr[1].pBuf     = recv;
     twiAdap.msgArr[1].len     = plenTbl[sensor];
     twiAdap.msgArr[1].flags   = TWI_READ;
+    
+    OS_MUTEX_LockBlocked(&twiMutex);
     status  = TWI_Xfer(&twiAdap, 2);
+    OS_MUTEX_Unlock(&twiMutex);
+
     status &= TWI_SUCCESS;
     if (status == true)
     {
@@ -78,7 +85,11 @@ bool MPU6050_SensorsRead(AxisStruct_t *pAccel,
     twiAdap.msgArr[1].pBuf     = ucRecv;
     twiAdap.msgArr[1].len     = 14;
     twiAdap.msgArr[1].flags   = TWI_READ;
+
+    OS_MUTEX_LockBlocked(&twiMutex);
     status  = TWI_Xfer(&twiAdap, 2);
+    OS_MUTEX_Unlock(&twiMutex);
+
     status &= TWI_SUCCESS;
     if (status == true)
     {
@@ -120,7 +131,10 @@ uint8_t MPU6050_ReadReg(uint8_t reg, uint8_t *pVal)
     twiAdap.msgArr[1].pBuf     = pVal;
     twiAdap.msgArr[1].len     = 1;
     twiAdap.msgArr[1].flags   = TWI_READ;
+
+    OS_MUTEX_LockBlocked(&twiMutex);
     status = TWI_Xfer(&twiAdap, 2);
+    OS_MUTEX_Unlock(&twiMutex);
 
     return status & TWI_SUCCESS;
 }
@@ -143,7 +157,10 @@ bool MPU6050_WriteReg(uint8_t reg, uint8_t val)
     twiAdap.msgArr[0].pBuf     = buf;
     twiAdap.msgArr[0].len     = 2;
     twiAdap.msgArr[0].flags   = TWI_WRITE;
+
+    OS_MUTEX_LockBlocked(&twiMutex);
     status = TWI_Xfer(&twiAdap, 1);
+    OS_MUTEX_Unlock(&twiMutex);
     
     return status & TWI_SUCCESS;
 }
@@ -168,7 +185,11 @@ bool MPU6050_AccelRead(AxisStruct_t *pAccel)
     twiAdap.msgArr[1].pBuf     = ucRecv;
     twiAdap.msgArr[1].len     = 6;
     twiAdap.msgArr[1].flags   = TWI_READ;
+    
+    OS_MUTEX_LockBlocked(&twiMutex);
     status = TWI_Xfer(&twiAdap, 2);
+    OS_MUTEX_Unlock(&twiMutex);
+
     if (status == true)
     {
         pAccel->x = (ucRecv[0] << 4) | ucRecv[1];
@@ -198,7 +219,11 @@ bool MPU6050_GyroRead(AxisStruct_t *pGyro)
     twiAdap.msgArr[1].pBuf     = ucRecv;
     twiAdap.msgArr[1].len     = 6;
     twiAdap.msgArr[1].flags   = TWI_READ;
+    
+    OS_MUTEX_LockBlocked(&twiMutex);
     status  = TWI_Xfer(&twiAdap, 2);
+    OS_MUTEX_Unlock(&twiMutex);
+
     status &= TWI_SUCCESS;
     if (status == true)
     {
