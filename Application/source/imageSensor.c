@@ -1,6 +1,7 @@
 #include "RTOS.h"
 #include "imageSensor.h"
-#include "ov5640.h"
+#include "same70_camera.h"
+
 
 
 /**
@@ -14,8 +15,8 @@ void Image_Task(void *arg)
 {
     (void)arg;
 
-    OV5640_Init();
-
+    BSP_CAMERA_Init(CAMERA_INSTANCE, OV5640_R640x480, OV5640_RGB565);
+   
     while (1)
     {
         OS_TASK_Delay(100);
