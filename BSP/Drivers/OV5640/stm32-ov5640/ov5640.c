@@ -20,6 +20,7 @@
 /* Includes ------------------------------------------------------------------*/
 #include "ov5640.h"
 #include "delay.h"
+#include "ov5640_i2c_layer.h"
 
 /** @addtogroup BSP
   * @{
@@ -133,11 +134,10 @@ int32_t OV5640_RegisterBusIO(OV5640_Object_t *pObj, OV5640_IO_t *pIO)
   */
 int32_t OV5640_Init(OV5640_Object_t *pObj, uint32_t Resolution, uint32_t PixelFormat)
 {
-  uint32_t index;
   int32_t ret = OV5640_OK;
 
   /* Initialization sequence for OV5640 */
-  static const uint16_t OV5640_Common[][2] =
+  static const OV5640_Register_t OV5640_Common[] =
   {
     {OV5640_SCCB_SYSTEM_CTRL1, 0x11},
     {OV5640_SYSTEM_CTROL0, 0x82},
@@ -394,7 +394,6 @@ int32_t OV5640_Init(OV5640_Object_t *pObj, uint32_t Resolution, uint32_t PixelFo
     {OV5640_AEC_CTRL1F, 0x14},
     {OV5640_SYSTEM_CTROL0, 0x02},
   };
-  uint8_t tmp;
 
   if (pObj->IsInitialized == 0U)
   {
@@ -409,17 +408,11 @@ int32_t OV5640_Init(OV5640_Object_t *pObj, uint32_t Resolution, uint32_t PixelFo
     else
     {
       /* Set common parameters for all resolutions */
-      for (index = 0; index < (sizeof(OV5640_Common) / 4U) ; index++)
+      if (ret != OV5640_ERROR)
       {
-        if (ret != OV5640_ERROR)
-        {
-          tmp = (uint8_t)OV5640_Common[index][1];
-
-          if (ov5640_write_reg(&pObj->Ctx, OV5640_Common[index][0], &tmp, 1) != OV5640_OK)
-          {
-            ret = OV5640_ERROR;
-          }
-        }
+        ret = OV5640_LoadRegisters(pObj,
+                                   (OV5640_Register_t *)OV5640_Common,
+                                   sizeof(OV5640_Common) / 4U);
       }
 
       if (ret == OV5640_OK)

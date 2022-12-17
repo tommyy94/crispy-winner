@@ -96,6 +96,12 @@ typedef struct
 
 typedef struct
 {
+    uint16_t reg;
+    uint8_t  bits;
+} OV5640_Register_t;
+
+typedef struct
+{
   int32_t (*Init)(OV5640_Object_t *, uint32_t, uint32_t);
   int32_t (*DeInit)(OV5640_Object_t *);
   int32_t (*ReadID)(OV5640_Object_t *, uint32_t *);

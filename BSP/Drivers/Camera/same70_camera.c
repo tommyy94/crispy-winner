@@ -253,7 +253,7 @@ int32_t BSP_CAMERA_Init(uint32_t Instance, uint32_t Resolution, uint32_t PixelFo
   {
     /* TODO: Init SAME70 ISI */
 
-    /* STM32 eval board probably has this tied to RESETB */
+    /* ST eval board probably has this deasserted */
     IO_SetOutput(OV5640_PORT, OV5640_RST_PIN);
 
     if(BSP_CAMERA_HwReset(CAMERA_INSTANCE) != BSP_ERROR_NONE)
