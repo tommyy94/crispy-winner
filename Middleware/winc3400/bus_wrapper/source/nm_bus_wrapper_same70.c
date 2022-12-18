@@ -74,7 +74,7 @@ static sint8 spi_rw(uint8* pu8Mosi, uint8* pu8Miso, uint16 u16Sz)
     ret = SPI0_DMA_TransmitMessage(pu8Mosi, pu8Miso, u16Sz);
     if (ret == true)
     {
-        //Journal_vWriteError(DMA_ERROR);
+        err_report(DMA_ERROR);
         status = M2M_SUCCESS;
     }
     return status;
