@@ -35,7 +35,7 @@ void Distance_Task(void *arg)
         else
         {
             /* Pass message forward here */
-            printf("Distance: %.2f cm\r\n", distanceCm);
+            printf("Distance_Task > Distance: %.2f cm\r\n", distanceCm);
         }
 
         OS_TASK_Delay(MEAS_INTERVAL_LIMIT_MS);
