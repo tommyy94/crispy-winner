@@ -9,9 +9,9 @@
 #include "fpa.h"
 
 
-#define SRF05_PORT                (PIOD)
-#define SRF05_ECHO_PIN            (15u)
-#define SRF05_TRIGGER_PIN         (16u)
+#define SRF05_PORT                (PIOC)
+#define SRF05_ECHO_PIN            (30u)
+#define SRF05_TRIGGER_PIN         (31u)
 #define SRF05_PULSE_US            (10u)
 #define SRF05_TIMEOUT_MS          (30u)
 
@@ -51,7 +51,7 @@ void SRF05_Init(void)
     IO_ClearOutput(SRF05_PORT, IO_MASK(SRF05_TRIGGER_PIN));
 
     (void)IO_ConfigureIRQ(SRF05_PORT, IO_SENSE_RISE_FALL, IO_MASK(SRF05_ECHO_PIN));
-    IO_InstallIrqHandler(SRF05_ECHO_PIN, SRF05_EchoHandler);
+    IO_InstallIrqHandler(SRF05_PORT, SRF05_ECHO_PIN, SRF05_EchoHandler);
     IO_ConfigurePull(SRF05_PORT, IO_MASK(SRF05_ECHO_PIN), IO_PULLDOWN);
 }
 
