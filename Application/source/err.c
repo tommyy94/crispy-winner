@@ -19,7 +19,7 @@ extern OS_TASK errTCB;
  */
 static void err_log(uint32_t id)
 {
-    char  msg[64] = { "err_Task > ... " };
+    char  msg[64] = { "err_Task > " };
     char *enumTbl[ERROR_COUNT] =
     {
         "SPI_ERROR",

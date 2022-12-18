@@ -1280,21 +1280,23 @@ static int32_t OV5640_Probe(uint32_t Resolution, uint32_t PixelFormat)
 
     ov5640_obj.IsInitialized = 0U;
 
+    puts("Image_Task  > Initializing camera...");
+
     if (OV5640_RegisterBusIO(&ov5640_obj, &ov5640_io) != OV5640_OK)
     {
-        puts("Image_Task  > ... OV5640_RegisterBusIO() fail\r\n");
+        puts("Image_Task  > OV5640_RegisterBusIO() fail");
         return BSP_ERROR_NO_INIT;
     }
 
     if (OV5640_ReadID(&ov5640_obj, &id) != OV5640_OK)
     {
-        puts("Image_Task  > ... OV5640_ReadID() fail\r\n");
+        puts("Image_Task  > OV5640_ReadID() fail");
         return BSP_ERROR_NO_INIT;
     }
     
     if (id != OV5640_ID)
     {
-        puts("Image_Task  > ... Invalid camera ID\r\n");
+        puts("Image_Task  > Invalid camera ID");
         return BSP_ERROR_NO_INIT;
     }
     else
@@ -1303,17 +1305,17 @@ static int32_t OV5640_Probe(uint32_t Resolution, uint32_t PixelFormat)
         Camera_CompObj = &ov5640_obj;
         if(Camera_Drv->Init(Camera_CompObj, Resolution, PixelFormat) != OV5640_OK)
         {
-            puts("Image_Task  > ... Camera_Drv->Init() fail\r\n");
+            puts("Image_Task  > Camera_Drv->Init() fail");
             return BSP_ERROR_NO_INIT;
         }
         else if(Camera_Drv->GetCapabilities(Camera_CompObj, &Camera_Cap) != OV5640_OK)
         {
-            puts("Image_Task  > ... Camera_Drv->GetCapabilities() fail\r\n");
+            puts("Image_Task  > Camera_Drv->GetCapabilities() fail");
             return BSP_ERROR_NO_INIT;
         }
         else
         {
-            puts("Image_Task  > ... Camera init success\r\n");
+            puts("Image_Task  > Camera init success");
         }
     }
 

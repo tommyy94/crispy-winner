@@ -54,7 +54,7 @@ void SDRAMC_Init(SDRAMC_Memory_t *pMem, uint32_t clkFreq)
 {
     uint32_t tmp;
 
-    puts("SDRAM > ... Initializing...");
+    puts("SDRAM > Initializing...");
 
     PMC_PeripheralClockEnable(ID_SDRAMC);
 
