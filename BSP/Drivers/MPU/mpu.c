@@ -10,6 +10,7 @@
 extern unsigned char __FLASH_segment_start__[];
 extern unsigned char __RAM_segment_start__[];
 extern unsigned char __PER_segment_start__[];
+extern unsigned char __SDRAM_segment_start__[];
 
 
 bool MPU_Config(void)
@@ -28,7 +29,11 @@ bool MPU_Config(void)
         {
             ARM_MPU_RBAR(2, (uint32_t)&__PER_segment_start__),
             ARM_MPU_RASR_EX(true, ARM_MPU_AP_FULL, ARM_MPU_ACCESS_DEVICE(true), false, ARM_MPU_REGION_SIZE_512MB)
-        } 
+        },
+        {
+            ARM_MPU_RBAR(3, (uint32_t)&__SDRAM_segment_start__),
+            ARM_MPU_RASR_EX(true, ARM_MPU_AP_FULL, ARM_MPU_ACCESS_NORMAL(ARM_MPU_CACHEP_NOCACHE, ARM_MPU_CACHEP_NOCACHE, true), false, ARM_MPU_REGION_SIZE_2MB)
+        }
     };
 
     if (MPU->TYPE != 0)
@@ -37,7 +42,7 @@ bool MPU_Config(void)
 
         ARM_MPU_Disable();
     
-        for (i = 0; i <= 3; i++)
+        for (i = 0; i <= 4; i++)
         {
             ARM_MPU_SetRegionEx(i, regTbl[i].RBAR, regTbl[i].RASR);
         }
