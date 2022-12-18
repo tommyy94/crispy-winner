@@ -44,9 +44,9 @@ void BSP_Init(void)
         .cfg.bk1                            = 21
     };
 
-    MPU_Config();
-
     SDRAMC_Init(&sdram, SystemCoreClock);
+
+    MPU_Config();
 
     /* Enable PORT and PIO clock gating */
     IO_Init();
