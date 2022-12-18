@@ -36,7 +36,7 @@ typedef struct
 } Diagnostics_t;
 
 
-void err_task(void *arg);
+void err_Task(void *arg);
 void err_report(Error_t error);
 void err_assert(bool eval, const char *func, uint32_t line);
 
