@@ -14,6 +14,7 @@ uint8_t  SPI0_vTransmitByte(uint8_t const byte);
 
 void     SPI0_DMA_Init(void);
 bool     SPI0_DMA_TransmitMessage(uint8_t *msg, uint8_t *recv, uint32_t len);
+void     SPI0_IO_Init(void);
 
 
 #endif /* SPI_H_ */

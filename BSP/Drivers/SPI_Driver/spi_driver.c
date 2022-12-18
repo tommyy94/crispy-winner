@@ -30,7 +30,6 @@ typedef enum
 
 extern void SPI0_IRQHandler(void);
 
-__STATIC_INLINE void SPI0_IO_Init(void);
 __STATIC_INLINE void SPI_Reset(Spi *spi);
 __STATIC_INLINE void SPI_SetMode(Spi *spi, SPI_SlaveSelect slave, SPI_Mode mode);
 
@@ -83,7 +82,7 @@ void SPI0_Init(void)
 }
 
 
-__STATIC_INLINE void SPI0_IO_Init(void)
+void SPI0_IO_Init(void)
 {
     //const uint32_t selfTestPin = PIO_ABCDSR_P2;   /* CS0  */
     const uint32_t spiMask     = PIO_ABCDSR_P25   /* CS1  */

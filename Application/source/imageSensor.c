@@ -2,6 +2,9 @@
 #include "imageSensor.h"
 #include "same70_camera.h"
 
+#ifdef EVABOARD_WORKAROUND
+extern OS_MUTEX evabrdWaMutex;
+#endif /* EVABOARD_WORKAROUND */
 
 
 /**
@@ -19,6 +22,18 @@ void Image_Task(void *arg)
    
     while (1)
     {
+#ifdef EVABOARD_WORKAROUND
+        OS_MUTEX_Lock(&evabrdWaMutex);
+        /* ISI_InitIO(); */
+        /* BSP_CAMERA_Read(); */
+#endif /* EVABOARD_WORKAROUND */
+
+        /* Do magic here */
+
+#ifdef EVABOARD_WORKAROUND
+        OS_MUTEX_Unlock(&evabrdWaMutex);
+#endif /* EVABOARD_WORKAROUND */
+
         OS_TASK_Delay(100);
     }
 }
