@@ -23,7 +23,7 @@ void Image_Task(void *arg)
     while (1)
     {
 #ifdef EVABOARD_WORKAROUND
-        OS_MUTEX_Lock(&evabrdWaMutex);
+        OS_MUTEX_LockBlocked(&evabrdWaMutex);
         /* ISI_InitIO(); */
         /* BSP_CAMERA_Read(); */
 #endif /* EVABOARD_WORKAROUND */
