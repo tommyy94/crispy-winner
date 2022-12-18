@@ -11,6 +11,9 @@
 #define SPI_DMA_TIMEOUT   (1000u) /* ms */
 
 extern OS_EVENT dmaEvt;
+#ifdef EVABOARD_WORKAROUND
+extern OS_MUTEX evabrdWaMutex;
+#endif /* EVABOARD_WORKAROUND */
 
 
 static void SPI_DMA_InitTransaction(Spi *pSpi, uint8_t *msg, uint8_t *recv, uint32_t len);
@@ -177,6 +180,11 @@ bool SPI0_DMA_TransmitMessage(uint8_t *msg, uint8_t *recv, uint32_t len)
 
   __DMB();
 
+#ifdef EVABOARD_WORKAROUND
+  OS_MUTEX_LockBlocked(&evabrdWaMutex);
+  SPI0_IO_Init();
+#endif /* EVABOARD_WORKAROUND */
+
   /* Enable DMA IRQ */
   XDMAC->XDMAC_GIE = XDMAC_GIE_IE2 | XDMAC_GIE_IE1;
   pTxCh->XDMAC_CIE = XDMAC_CIE_BIE;
@@ -200,6 +208,10 @@ bool SPI0_DMA_TransmitMessage(uint8_t *msg, uint8_t *recv, uint32_t len)
   pTxCh->XDMAC_CID = XDMAC_CID_BID;
   pRxCh->XDMAC_CID = XDMAC_CID_BID;
   XDMAC->XDMAC_GID = XDMAC_GID_ID2 | XDMAC_GID_ID1;
+
+#ifdef EVABOARD_WORKAROUND
+  OS_MUTEX_Unlock(&evabrdWaMutex);
+#endif /* EVABOARD_WORKAROUND */
   
   /* Invalidate DCache after DMA tansfer (AT17417) */
   if (msg != NULL)

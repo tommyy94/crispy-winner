@@ -63,10 +63,13 @@ OS_QUEUE          tsQ;
 OS_EVENT          dmaEvt;
 OS_EVENT          svEvt;
 OS_EVENT          wlessEvt;
-OS_MUTEX          wlessMutex;
 OS_MAILBOX        twiMbox;
 OS_SEMAPHORE      twiSema;
+OS_MUTEX          wlessMutex;
 OS_MUTEX          twiMutex;
+#ifdef EVABOARD_WORKAROUND
+OS_MUTEX          evabrdWaMutex;
+#endif /* EVABOARD_WORKAROUND */
 
 #define Q_MSG_SIZE  (1u)
 #define Q_MSG_CNT   (32u)
@@ -160,6 +163,19 @@ static void OS_InitServices(void)
     /* Mutexes */
     OS_MUTEX_Create(&wlessMutex);
     OS_MUTEX_Create(&twiMutex);
+
+    /* SPI0 and ISI share pins in SAME70 Xplained evaluation kit:
+     * - PD20: SPI0_MISO only
+     * - PD21: SPI0_MOSI / ISI_D1
+     * - PD22: SPI0_SCK / ISI_D0
+     * - PD25: SPI0_SS / ISI_VSYNC
+     *
+     * Therefore the pins have to be reconfigured
+     * before operating with SPI0/ISI peripheral.
+     */
+#ifdef EVABOARD_WORKAROUND
+    OS_MUTEX_Create(&evabrdWaMutex);
+#endif /* EVABOARD_WORKAROUND */
 }
 
 
