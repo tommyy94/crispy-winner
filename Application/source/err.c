@@ -19,6 +19,7 @@ extern OS_TASK errTCB;
  */
 static void err_log(uint32_t id)
 {
+    char  msg[64] = { "err_task > ... " };
     char *enumTbl[ERROR_COUNT] =
     {
         "SPI_ERROR",
@@ -39,8 +40,9 @@ static void err_log(uint32_t id)
     {
         if (id & (1 << i))
         {
-            puts(enumTbl[i]);
-            puts("\n\r");
+            
+            strncat(msg, enumTbl[i], strlen(enumTbl[i]));
+            puts(msg);
         }
     }
 }
