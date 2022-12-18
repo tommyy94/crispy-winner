@@ -39,7 +39,7 @@ void BSP_Init(void)
         .cfg.rowColumnDelay                 = 3,
         .cfg.activePrechargeDelay           = 7,
         .cfg.rowPrechargeDelay              = 3,
-        .cfg.exitSelfRefreshActiveDelay     = 0,
+        .cfg.exitSelfRefreshActiveDelay     = 8, /* TODO: Find this */
         /* Block1 is at the bit 21, 1(M0)+8(Col)+11(Row)+1(BK1): */
         .cfg.bk1                            = 21
     };
