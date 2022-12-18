@@ -46,7 +46,8 @@ define memory with size = 4G;
 //
 // Symbol definitions
 //
-define symbol Size_RTT = 0x1000;
+define symbol Size_RTT          = 0x00001000;
+define symbol Size_video_buffer = 0x00200000;
 
 //
 // Block definitions
@@ -60,10 +61,11 @@ define block tbss                           { section .tbss,      section .tbss.
 define block tdata                          { section .tdata,     section .tdata.* };
 define block tls                            { block tbss, block tdata };
 define block tdata_load                     { copy of block tdata };
-define block heap  with size = __HEAPSIZE__,  alignment = 8, /* fill =0x00, */ readwrite access { };
-define block stack with size = __STACKSIZE__, alignment = 8, /* fill =0xCD, */ readwrite access { };
-define block RTT_Data with alignment = 8, size = Size_RTT { section .RTT_Buffers };
-define block RTT_Code with alignment = 8 { section .RTT_Text };
+define block heap         with size = __HEAPSIZE__,       alignment = 8, readwrite access { }; /* fill =0x00, */ 
+define block stack        with size = __STACKSIZE__,      alignment = 8, readwrite access { }; /* fill =0xCD, */ 
+define block video_buffer with size = Size_video_buffer,  alignment = 8 { section .video_buffer };
+define block RTT_Data     with size = Size_RTT,           alignment = 8 { section .RTT_Buffers };
+define block RTT_Code     with                            alignment = 8 { section .RTT_Text };
 
 
 //
@@ -95,16 +97,19 @@ assert with warning "constructors, destructors, or exception index is malformed"
 };
 
 
-place at start of FLASH                     { block vectors };                         // Vector table section
-place in FLASH with minimum size order      { section .init,   section .init.*,        // Init code section
+//
+// FLASH Placement
+//
+place at start of FLASH                     { block vectors };                              // Vector table section
+place in FLASH with minimum size order      { section .init,   section .init.*,             // Init code section
                                               section .init_rodata, section .init_rodata.*, // Init read-only section
-                                              section .text,   section .text.*,        // Code section
-                                              section .rodata, section .rodata.*,      // Read-only data section
-                                              section .segger.*,                       // Auto-generated initialization
-                                              block exidx,                             // ARM exception unwinding block
-                                              block ctors,                             // Constructors block
-                                              block dtors };                           // Destructors block
-place in FLASH                              { block tdata_load };                      // Thread-local-storage load image
+                                              section .text,   section .text.*,             // Code section
+                                              section .rodata, section .rodata.*,           // Read-only data section
+                                              section .segger.*,                            // Auto-generated initialization
+                                              block exidx,                                  // ARM exception unwinding block
+                                              block ctors,                                  // Constructors block
+                                              block dtors };                                // Destructors block
+place in FLASH                              { block tdata_load };                           // Thread-local-storage load image
 
 
 
@@ -112,18 +117,22 @@ place in FLASH                              { block tdata_load };               
 // RAM Placement
 //
 place at start of RAM                       { block vectors_ram };
-place in RAM                                { section .non_init, section .non_init.*,  // No initialization section
-                                              block tls };                             // Thread-local-storage block
-place in RAM with auto order                { section .fast, section .fast.*,          // "ramfunc" section
-                                              section .data, section .data.*,          // Initialized data section
+place in RAM                                { section .non_init, section .non_init.*,       // No initialization section
+                                              block tls };                                  // Thread-local-storage block
+place in RAM with auto order                { section .fast, section .fast.*,               // "ramfunc" section
+                                              section .data, section .data.*,               // Initialized data section
                                               section .bss, section .bss.*
-                                            };          // Static data section
-place in RAM                                { block heap };           // Heap reserved block
+                                            };                                              // Static data section
+place in RAM                                { block heap };                                 // Heap reserved block
+place at end of RAM                         { block stack };                                // Stack reserved block at the end
 
-place at end of RAM                         { block stack };          // Stack reserved block at the end
+//
+// SDRAM placement
+//
+place in SDRAM with auto order              { block video_buffer, readwrite };
 
 //
 // RTT Placement
 //
-place in RAM with auto order               { block RTT_Data, readwrite };      // Initialized data section
-place in FLASH with auto order               { block RTT_Code, readexec, readonly };       // Code section
+place in RAM with auto order                { block RTT_Data, readwrite };                  // Initialized data section
+place in FLASH with auto order              { block RTT_Code, readexec, readonly };         // Code section
