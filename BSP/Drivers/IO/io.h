@@ -79,8 +79,10 @@ void IO_ConfigureInput(Pio *const pio,
     const uint32_t pullDir);
 void IO_SetOutput(Pio *pio, const uint32_t mask);
 void IO_ClearOutput(Pio *pio, const uint32_t mask);
-void IO_InstallIrqHandler(uint32_t const pin,
-    void *pfIsr);
+void IO_InstallIrqHandler(
+    Pio             *pio,
+    uint32_t const   line,
+    void            *pfIsr);
 IO_PinLevel_t IO_GetPinLevel(Pio *pio, uint32_t pin);
 
 #endif /* PORT_H */

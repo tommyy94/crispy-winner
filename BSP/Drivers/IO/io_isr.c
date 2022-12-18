@@ -11,13 +11,49 @@
 
 typedef void (*IO_Callback)(void);
 
-static IO_Callback   *handlerTbl[IOn];
+static IO_Callback   *piocHandlerTbl[IOn];
+static IO_Callback   *piodHandlerTbl[IOn];
 static IRQn_Type      IO_Pio2NVICn(Pio *pio);
+static uint32_t       piocFirstIrqN           = 31;
+static uint32_t       piocLastIrqN            = 0;
 static uint32_t       piodFirstIrqN           = 31;
 static uint32_t       piodLastIrqN            = 0;
 
+void PIOC_IRQHandler(void);
 void PIOD_IRQHandler(void);
 
+
+/**
+ * PIOC IRQ handler.
+ */
+void PIOC_IRQHandler(void)
+{
+    uint32_t      status;
+    IO_Callback   pioCb;
+
+    OS_INT_Enter();
+
+    status  = PIOC->PIO_ISR;
+
+    for (uint32_t i = piocFirstIrqN; i <= piocLastIrqN; i++)
+    {
+        if ((status & (1u << i)) != 0)
+        {
+            pioCb = (IO_Callback)piocHandlerTbl[i];
+            if (pioCb != NULL)
+            {
+                pioCb();
+            }
+        }
+    }
+
+    OS_INT_Leave();
+}
+
+
+/**
+ * PIOD IRQ handler.
+ */
 void PIOD_IRQHandler(void)
 {
     uint32_t      status;
@@ -31,7 +67,7 @@ void PIOD_IRQHandler(void)
     {
         if ((status & (1u << i)) != 0)
         {
-            pioCb = (IO_Callback)handlerTbl[i];
+            pioCb = (IO_Callback)piodHandlerTbl[i];
             if (pioCb != NULL)
             {
                 pioCb();
@@ -46,26 +82,54 @@ void PIOD_IRQHandler(void)
 /*
  * @brief Install PIO IRQ handler.
  *
+ * @param pio     Pointer to PIO instance.
+ *
  * @param line    IO line.
  *
  * @param pfIsr   Pointer to handler to install.
  */
-void IO_InstallIrqHandler(uint32_t const   line,
-                          void            *pfIsr)
+void IO_InstallIrqHandler(
+    Pio             *pio,
+    uint32_t const   line,
+    void            *pfIsr)
 {
+    assert(IS_PIO(pio));
     assert(line  <= IOn);
     assert(pfIsr != NULL);
 
-    handlerTbl[line] = pfIsr;
-
-    if (line <= piodFirstIrqN)
+    if (pio == PIOC)
     {
-        piodFirstIrqN = line;
+        piocHandlerTbl[line] = pfIsr;
+
+        if (line <= piocFirstIrqN)
+        {
+            piocFirstIrqN = line;
+        }
+
+        if (line >= piocLastIrqN)
+        {
+            piocLastIrqN = line;
+        }
     }
-
-    if (line >= piodLastIrqN)
+    else if (pio == PIOD)
     {
-        piodLastIrqN = line;
+        piodHandlerTbl[line] = pfIsr;
+
+        if (line <= piodFirstIrqN)
+        {
+            piodFirstIrqN = line;
+        }
+
+        if (line >= piodLastIrqN)
+        {
+            piodLastIrqN = line;
+        }
+    }
+    else
+    {
+        /* Should not end here,
+         * already asserted.
+         */
     }
 }
 
