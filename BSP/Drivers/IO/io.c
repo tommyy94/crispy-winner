@@ -22,6 +22,7 @@ void IO_Init(void)
 {
    PMC_PeripheralClockEnable(ID_PIOA);
    PMC_PeripheralClockEnable(ID_PIOB);
+   PMC_PeripheralClockEnable(ID_PIOC);
    PMC_PeripheralClockEnable(ID_PIOD);
 }
 
