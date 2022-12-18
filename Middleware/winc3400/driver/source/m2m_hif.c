@@ -725,7 +725,7 @@ static sint8 hif_isr(void)
         else
         {
 #ifndef WIN32
-            M2M_ERR("(hif) False interrupt %lx", reg);
+            M2M_ERR("(hif) False interrupt %lx\n", reg);
             goto ERR1;
 #endif
         }

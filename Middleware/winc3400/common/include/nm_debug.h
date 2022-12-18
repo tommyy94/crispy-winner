@@ -62,16 +62,16 @@
 #define M2M_PRINT(...)							do{CONF_WINC_PRINTF(__VA_ARGS__);}while(0)
 #if (M2M_LOG_LEVEL >= M2M_LOG_ERROR)
 #undef M2M_ERR
-#define M2M_ERR(...)							do{CONF_WINC_PRINTF("(APP)(ERR)[%s][%d]",__FUNCTION__,__LINE__); CONF_WINC_PRINTF(__VA_ARGS__);CONF_WINC_PRINTF("\r");}while(0)
+#define M2M_ERR(...)							do{CONF_WINC_PRINTF("WINC Error > [%s] [%d]",__FUNCTION__,__LINE__); CONF_WINC_PRINTF(__VA_ARGS__);}while(0)
 #if (M2M_LOG_LEVEL >= M2M_LOG_INFO)
 #undef M2M_INFO
-#define M2M_INFO(...)							do{CONF_WINC_PRINTF("(APP)(INFO)"); CONF_WINC_PRINTF(__VA_ARGS__);CONF_WINC_PRINTF("\r");}while(0)
+#define M2M_INFO(...)							do{CONF_WINC_PRINTF("WINC Info > "); CONF_WINC_PRINTF(__VA_ARGS__);}while(0)
 #if (M2M_LOG_LEVEL >= M2M_LOG_REQ)
 #undef M2M_REQ
-#define M2M_REQ(...)							do{CONF_WINC_PRINTF("(APP)(R)"); CONF_WINC_PRINTF(__VA_ARGS__);CONF_WINC_PRINTF("\r");}while(0)
+#define M2M_REQ(...)							do{CONF_WINC_PRINTF("WINC Request > "); CONF_WINC_PRINTF(__VA_ARGS__);}while(0)
 #if (M2M_LOG_LEVEL >= M2M_LOG_DBG)
 #undef M2M_DBG
-#define M2M_DBG(...)							do{CONF_WINC_PRINTF("(APP)(DBG)[%s][%d]",__FUNCTION__,__LINE__); CONF_WINC_PRINTF(__VA_ARGS__);CONF_WINC_PRINTF("\r");}while(0)
+#define M2M_DBG(...)							do{CONF_WINC_PRINTF("WINC Debug > [%s] [%d]",__FUNCTION__,__LINE__); CONF_WINC_PRINTF(__VA_ARGS__);}while(0)
 #endif
 #endif
 #endif
