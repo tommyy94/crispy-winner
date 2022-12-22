@@ -52,10 +52,7 @@ bool MPU_Config(void)
             ARM_MPU_ClrRegion(i++);
         }
 
-        /*
         ARM_MPU_Enable(ARM_MPU_AP_NONE);
-        */
-        ARM_MPU_Enable(ARM_MPU_AP_FULL);
 
         ret = true;
     }
