@@ -48,9 +48,9 @@
 
 #define WINC3400_IRQ_PORT   (PIOD)
 #define WINC3400_PORT       (PIOD)
-#define WINC3400_CE_PIN     (27u)  /* PORTD */
+#define WINC3400_CE_PIN     (19u)  /* PORTD */
 #define WINC3400_RST_PIN    (18u)  /* PORTD */
-#define WINC3400_IRQ_PIN    (28u)  /* PORTD */
+#define WINC3400_IRQ_PIN    (30u)  /* PORTD */
 
 
 static IRQn_Type nmIrqn;
@@ -136,7 +136,7 @@ void nm_bsp_sleep(uint32 u32TimeMsec)
 void nm_bsp_register_isr(tpfNmBspIsr pfIsr)
 {
     nmIrqn = IO_ConfigureIRQ(WINC3400_IRQ_PORT, IO_SENSE_FALL, IO_MASK(WINC3400_IRQ_PIN));
-    IO_InstallIrqHandler(WINC3400_IRQ_PIN, pfIsr);
+    IO_InstallIrqHandler(WINC3400_IRQ_PORT, WINC3400_IRQ_PIN, pfIsr);
     
     IO_ConfigurePull(WINC3400_IRQ_PORT, IO_MASK(WINC3400_IRQ_PIN), IO_PULLUP);
 }
