@@ -42,7 +42,7 @@ bool MPU_Config(void)
 
         ARM_MPU_Disable();
     
-        for (i = 0; i <= 4; i++)
+        for (i = 0; i < 4; i++)
         {
             ARM_MPU_SetRegionEx(i, regTbl[i].RBAR, regTbl[i].RASR);
         }
