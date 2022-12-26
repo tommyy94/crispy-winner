@@ -224,7 +224,7 @@ static int32_t BSP_CAMERA_ConfigureIO(void)
 
     /* Configure the host controller to feed clock input to OV5640
      * MCK (System Clock) = 150 MHz
-     * 150MHz / 6 = 25MHz
+     * PCK0 = 150MHz / 6 = 25MHz
      */
     PMC_ProgrammableClockInit(0, 5, PCK_SOURCE_MCK_CLK);
     PMC_ProgrammableClockEnable(0);
