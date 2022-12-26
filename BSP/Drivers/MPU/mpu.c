@@ -24,7 +24,7 @@ bool MPU_Config(void)
         },
         {
             ARM_MPU_RBAR(1, (uint32_t)&__RAM_segment_start__),
-            ARM_MPU_RASR_EX(false, ARM_MPU_AP_FULL, ARM_MPU_ACCESS_NORMAL(ARM_MPU_CACHEP_WB_WRA, ARM_MPU_CACHEP_WB_WRA, false), false, ARM_MPU_REGION_SIZE_256KB)
+            ARM_MPU_RASR_EX(true, ARM_MPU_AP_FULL, ARM_MPU_ACCESS_NORMAL(ARM_MPU_CACHEP_WB_WRA, ARM_MPU_CACHEP_WB_WRA, false), false, ARM_MPU_REGION_SIZE_256KB)
         },
         {
             ARM_MPU_RBAR(2, (uint32_t)&__PER_segment_start__),
