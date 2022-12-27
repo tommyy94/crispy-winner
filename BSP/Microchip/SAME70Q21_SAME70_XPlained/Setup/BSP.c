@@ -14,6 +14,7 @@
 #include "mpu.h"
 #include "tc_driver.h"
 #include "sdram.h"
+#include "isi_driver.h"
 
 
 void BSP_Init(void)
@@ -38,6 +39,8 @@ void BSP_Init(void)
 
     /* Initialize timer */
     TC0_Init();
+
+    ISI_Init();
 
     /* Start RTC last so it won't notify non-existent task */
     RTC_Init();

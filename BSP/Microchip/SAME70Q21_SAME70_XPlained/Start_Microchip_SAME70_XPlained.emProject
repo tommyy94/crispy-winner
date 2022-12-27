@@ -529,10 +529,10 @@
         </folder>
         <folder Name="ISI Driver">
           <file file_name="../../Drivers/ISI_Driver/isi_driver.c">
-            <configuration Name="Debug" build_exclude_from_build="Yes" />
+            <configuration Name="Debug" build_exclude_from_build="No" />
           </file>
           <file file_name="../../Drivers/ISI_Driver/isi_driver.h">
-            <configuration Name="Debug" build_exclude_from_build="Yes" />
+            <configuration Name="Debug" build_exclude_from_build="No" />
           </file>
         </folder>
         <folder Name="OV5640">
