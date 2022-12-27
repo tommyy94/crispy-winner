@@ -2,6 +2,9 @@
 #include "isi_driver.h"
 #include "pmc_driver.h"
 #include "io.h"
+#include "system.h"
+
+
 static void ISI_IO_Init(void);
 
 
@@ -13,6 +16,12 @@ int32_t ISI_Init(void)
     PMC_PeripheralClockEnable(ID_ISI);
 
     ISI_IO_Init();
+
+
+
+    NVIC_ClearPendingIRQ(ISI_IRQn);
+    NVIC_SetPriority(ISI_IRQn, ISI_IRQ_PRIO);
+    NVIC_EnableIRQ(ISI_IRQn);
 
     return 0;
 }
