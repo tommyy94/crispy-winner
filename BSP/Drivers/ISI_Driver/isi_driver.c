@@ -1,5 +1,6 @@
 #include "same70.h"
 #include "isi_driver.h"
+#include "pmc_driver.h"
 #include "io.h"
 static void ISI_IO_Init(void);
 
@@ -9,6 +10,7 @@ static void ISI_IO_Init(void);
  */
 int32_t ISI_Init(void)
 {
+    PMC_PeripheralClockEnable(ID_ISI);
 
     ISI_IO_Init();
 
