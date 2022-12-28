@@ -133,6 +133,7 @@
 #include "same70.h"
 #include "io.h"
 #include "pmc_driver.h"
+#include "isi_driver.h"
 #include "delay.h"
 
 /** @addtogroup BSP
@@ -243,6 +244,22 @@ static int32_t BSP_CAMERA_ConfigureIO(void)
   */
 int32_t BSP_CAMERA_Init(uint32_t Instance, uint32_t Resolution, uint32_t PixelFormat)
 {
+
+  Resolution_t  res;
+  uint32_t      pf;
+  uint32_t      pfTbl[] =
+  {
+      PF_RGB565, PF_RGB888, PF_YUV, PF_GRAYSCALE
+  };
+  Resolution_t  resTbl[] = 
+  {
+      { 160, 120 }, /* OV5640_R160x120 */
+      { 320, 240 }, /* OV5640_R320x240 */
+      { 480, 272 }, /* OV5640_R480x272 */
+      { 640, 480 }, /* OV5640_R640x480 */
+      { 800, 480 }  /* OV5640_R800x480 */
+  };
+
   int32_t ret = BSP_ERROR_NONE;
 
   if(Instance >= CAMERA_INSTANCES_NBR)
@@ -251,7 +268,32 @@ int32_t BSP_CAMERA_Init(uint32_t Instance, uint32_t Resolution, uint32_t PixelFo
   }
   else
   {
-    /* TODO: Init SAME70 ISI */
+    /* Validity check */
+    if (Resolution > OV5640_R800x480)
+    {
+      res.h = 0xFFFFFFFF;
+      res.v = 0xFFFFFFFF;
+    }
+    else
+    {
+      res = resTbl[Resolution];
+    }
+
+    /* Validity check */
+    if (PixelFormat >= PF_UNSUPPORTED)
+    {
+      pf = PF_UNSUPPORTED;
+    }
+    else
+    {
+      pf = pfTbl[PixelFormat];
+    }
+
+    ret = ISI_Init(res, pf);
+    if (ret != ISI_OK)
+    {
+        return BSP_ERROR_PERIPH_FAILURE;
+    }
 
     /* ST eval board probably has this deasserted */
     IO_SetOutput(OV5640_PORT, OV5640_RST_PIN);
