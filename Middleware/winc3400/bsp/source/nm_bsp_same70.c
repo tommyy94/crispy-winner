@@ -50,7 +50,7 @@
 #define WINC3400_PORT       (PIOD)
 #define WINC3400_CE_PIN     (19u)  /* PORTD */
 #define WINC3400_RST_PIN    (18u)  /* PORTD */
-#define WINC3400_IRQ_PIN    (30u)  /* PORTD */
+#define WINC3400_IRQ_PIN    (26u)  /* PORTD */
 
 
 static IRQn_Type nmIrqn;
