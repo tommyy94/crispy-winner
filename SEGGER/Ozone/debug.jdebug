@@ -22,8 +22,6 @@ void OnProjectLoad (void) {
   //
   // Dialog-generated settings
   //
-  Project.SetTraceSource ("Trace Pins");
-  Project.SetTracePortWidth (1);
   Project.SetDevice ("ATSAME70Q21A");
   Project.SetHostIF ("IP", "192.168.10.5");
   Project.SetTargetIF ("SWD");
@@ -36,8 +34,6 @@ void OnProjectLoad (void) {
   // User settings
   //
   Edit.Preference (PREF_TIMESTAMP_FORMAT, TIMESTAMP_FORMAT_INST_CNT);
-  Edit.SysVar (VAR_TRACE_MAX_INST_CNT, 1000000000);
-  Edit.SysVar (VAR_TRACE_CORE_CLOCK, 300000000);
   Project.SetOSPlugin ("embOSPlugin");
   File.Open ("/home/tommy/device_same70/BSP/Microchip/SAME70Q21_SAME70_XPlained/Output/Debug/Start_SAME70_XPlained.elf");
 }
@@ -157,7 +153,7 @@ void AfterTargetReset (void) {
 **********************************************************************
 */
 void BeforeTargetConnect (void) {
-Project.SetJLinkScript("/home/tommy/device_same70/SEGGER/Ozone/JLinkScript.pex"); 
+//Project.SetJLinkScript("/home/tommy/device_same70/SEGGER/Ozone/JLinkScript.pex"); 
  }
 
 /*********************************************************************
