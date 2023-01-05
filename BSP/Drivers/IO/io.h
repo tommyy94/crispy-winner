@@ -50,7 +50,7 @@ typedef enum
 
 
 #define IO_MASK(pin)     (1u << pin)
-#define IOn              (31u)
+#define IOn              (32u)
 
 #define IO_PULL_DISABLE  (0u)
 #define IO_PULL_ENABLE   (1u)
