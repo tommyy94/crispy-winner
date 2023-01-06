@@ -55,11 +55,12 @@ static void err_log(uint32_t id)
 void err_Task(void *arg)
 {
     (void)arg;
-    Error_t evtMask;
+    uint32_t evtMask;
     
     while (1)
     {
-        evtMask = (Error_t)OS_TASKEVENT_GetBlocked(0xFFFFFFFF);
+        evtMask = OS_TASKEVENT_GetBlocked(0xFFFFFFFF);
+        assert(evtMask);
         err_log(evtMask);
     }
 }
