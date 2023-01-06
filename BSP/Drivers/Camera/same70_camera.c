@@ -128,12 +128,13 @@
 ------------------------------------------------------------------------------*/
 
 /* Includes ------------------------------------------------------------------*/
+#include <stdio.h>
 #include "same70_camera.h"
 #include "ov5640_i2c_layer.h"
 #include "same70.h"
+#include "isi_driver.h"
 #include "io.h"
 #include "pmc_driver.h"
-#include "isi_driver.h"
 #include "delay.h"
 
 /** @addtogroup BSP
@@ -152,7 +153,6 @@
   * @{
   */
 void                *Camera_CompObj = NULL;
-//DCMI_HandleTypeDef  hcamera_dcmi;
 CAMERA_Ctx_t        Camera_Ctx[CAMERA_INSTANCES_NBR];
 /**
   * @}
@@ -163,7 +163,6 @@ CAMERA_Ctx_t        Camera_Ctx[CAMERA_INSTANCES_NBR];
   */
 static CAMERA_Drv_t *Camera_Drv = NULL;
 static CAMERA_Capabilities_t Camera_Cap;
-//static uint32_t HSPolarity = DCMI_HSPOLARITY_LOW;
 static uint32_t CameraId;
 /**
   * @}
@@ -271,7 +270,7 @@ int32_t BSP_CAMERA_Init(uint32_t Instance, uint32_t Resolution, uint32_t PixelFo
   else
   {
     /* Validity check */
-    if (Resolution > OV5640_R800x480)
+    if (Resolution > OV5640_R640x480)
     {
       res.h = 0xFFFFFFFF;
       res.v = 0xFFFFFFFF;
@@ -297,6 +296,13 @@ int32_t BSP_CAMERA_Init(uint32_t Instance, uint32_t Resolution, uint32_t PixelFo
         return BSP_ERROR_PERIPH_FAILURE;
     }
 
+    /*
+    if (ISI_InstallCallback(NULL) != ISI_OK)
+    {
+        return BSP_ERROR_WRONG_PARAM;
+    }
+    */
+
     /* ST eval board probably has this deasserted */
     IO_SetOutput(OV5640_RST_PORT, OV5640_RST_PIN);
 
@@ -319,27 +325,14 @@ int32_t BSP_CAMERA_Init(uint32_t Instance, uint32_t Resolution, uint32_t PixelFo
       }
       else
       {
-        //HSPolarity = DCMI_HSPOLARITY_HIGH;
-        /* Initialize the camera driver structure */
-        //if(MX_DCMI_Init(&hcamera_dcmi) != HAL_OK)
-        //{
-        //  ret = BSP_ERROR_PERIPH_FAILURE;
-        //}
-
-        if(ret == BSP_ERROR_NONE)
+        if(BSP_CAMERA_HwReset(CAMERA_INSTANCE) != BSP_ERROR_NONE)
         {
-          if(BSP_CAMERA_HwReset(CAMERA_INSTANCE) != BSP_ERROR_NONE)
-          {
-            ret = BSP_ERROR_BUS_FAILURE;
-          }
+          ret = BSP_ERROR_BUS_FAILURE;
         }
 
         if(ret == BSP_ERROR_NONE)
         {
-          Camera_Ctx[Instance].CameraId  = CameraId;
-        }
-        if(ret == BSP_ERROR_NONE)
-        {
+          Camera_Ctx[Instance].CameraId    = CameraId;
           Camera_Ctx[Instance].Resolution  = Resolution;
           Camera_Ctx[Instance].PixelFormat = PixelFormat;
         }
@@ -371,10 +364,22 @@ int32_t BSP_CAMERA_DeInit(uint32_t Instance)
   */
 int32_t BSP_CAMERA_Start(uint32_t Instance, uint8_t *pBff, uint32_t Mode)
 {
-    (void)Instance;
-    (void)pBff;
     (void)Mode;
-    return 0;
+
+    if(Instance >= CAMERA_INSTANCES_NBR)
+    {
+      return BSP_ERROR_WRONG_PARAM;
+    }
+
+    if (Mode == CAMERA_MODE_CONTINUOUS)
+    {
+        puts("Image_Task  > Continuous mode not supported!");
+        return BSP_ERROR_FEATURE_NOT_SUPPORTED;
+    }
+
+    ISI_Capture(ISI_CHANNEL_PREVIEW, pBff);
+
+    return BSP_ERROR_NONE;
 }
 
 /**
@@ -1303,7 +1308,6 @@ static int32_t GetSize(uint32_t Resolution, uint32_t PixelFormat)
   */
 
 #if (USE_CAMERA_SENSOR_OV5640 == 1)
-#include <stdio.h>
 
 /**
   * @brief  Register Bus IOs if component ID is OK
@@ -1363,7 +1367,7 @@ static int32_t OV5640_Probe(uint32_t Resolution, uint32_t PixelFormat)
         }
     }
 
-  return BSP_ERROR_NONE;
+    return BSP_ERROR_NONE;
 }
 #endif
 

@@ -18,8 +18,8 @@
   */
 
 /* Define to prevent recursive inclusion -------------------------------------*/
-#ifndef STM32H747I_DISCO_CAMERA_H
-#define STM32H747I_DISCO_CAMERA_H
+#ifndef SAME70_CAMERA_H
+#define SAME70_CAMERA_H
 
 #ifdef __cplusplus
  extern "C" {
@@ -27,6 +27,7 @@
 
 /* Includes ------------------------------------------------------------------*/
 #include "camera.h"
+#include "isi_driver.h"
 
 #ifndef USE_CAMERA_SENSOR_OV5640
 #define USE_CAMERA_SENSOR_OV5640         1
@@ -36,8 +37,6 @@
 #if (USE_CAMERA_SENSOR_OV5640 == 1)
 #include "ov5640.h"
 #endif
-
-#include "camera.h"
 
 /** @addtogroup BSP
   * @{
@@ -96,8 +95,8 @@ typedef struct
 #define CAMERA_INSTANCES_NBR           1U
 #define CAMERA_INSTANCE                0U
 
-#define CAMERA_MODE_CONTINUOUS         DCMI_MODE_CONTINUOUS
-#define CAMERA_MODE_SNAPSHOT           DCMI_MODE_SNAPSHOT
+#define CAMERA_MODE_CONTINUOUS         ISI_MODE_CONTINUOUS
+#define CAMERA_MODE_SNAPSHOT           ISI_MODE_SNAPSHOT
 
 /* Camera resolutions */
 #define CAMERA_R160x120                 0U     /* QQVGA Resolution            */
@@ -253,4 +252,4 @@ void    BSP_CAMERA_DMA_IRQHandler(uint32_t Instance);
 }
 #endif
 
-#endif /* STM32H747I_DISCO_CAMERA_H */
+#endif /* SAME70_CAMERA_H */
