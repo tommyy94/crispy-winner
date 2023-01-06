@@ -100,9 +100,9 @@ void err_assert(bool           eval,
     if (eval == false)
     {
         printf(
-            "Assert:\n\r"
-            "    Function: %s()\n\r"
-            "    Line: %u\n\r",
+            "Assert:\r\n"
+            "    Function: %s()\r\n"
+            "    Line: %u\r\n",
             func,
             line
         );
