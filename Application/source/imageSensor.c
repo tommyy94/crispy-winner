@@ -1,6 +1,7 @@
 #include "RTOS.h"
 #include "imageSensor.h"
 #include "same70_camera.h"
+#include "isi_driver.h"
 
 #ifdef EVABOARD_WORKAROUND
 extern OS_MUTEX evabrdWaMutex;
@@ -18,13 +19,13 @@ void Image_Task(void *arg)
 {
     (void)arg;
 
-    BSP_CAMERA_Init(CAMERA_INSTANCE, OV5640_R640x480, OV5640_RGB565);
+    //BSP_CAMERA_Init(CAMERA_INSTANCE, OV5640_R800x480, OV5640_RGB565);
    
     while (1)
     {
 #ifdef EVABOARD_WORKAROUND
         OS_MUTEX_LockBlocked(&evabrdWaMutex);
-        /* ISI_InitIO(); */
+        /* ISI_IO_Init(); */
         /* BSP_CAMERA_Read(); */
 #endif /* EVABOARD_WORKAROUND */
 
