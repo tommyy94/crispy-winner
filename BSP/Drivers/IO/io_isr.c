@@ -11,16 +11,88 @@
 
 typedef void (*IO_Callback)(void);
 
+static IO_Callback   *pioaHandlerTbl[IOn];
+static IO_Callback   *piobHandlerTbl[IOn];
 static IO_Callback   *piocHandlerTbl[IOn];
 static IO_Callback   *piodHandlerTbl[IOn];
+static IO_Callback   *pioeHandlerTbl[IOn];
 static IRQn_Type      IO_Pio2NVICn(Pio *pio);
+static uint32_t       pioaFirstIrqN           = 31;
+static uint32_t       pioaLastIrqN            = 0;
+static uint32_t       piobFirstIrqN           = 31;
+static uint32_t       piobLastIrqN            = 0;
 static uint32_t       piocFirstIrqN           = 31;
 static uint32_t       piocLastIrqN            = 0;
 static uint32_t       piodFirstIrqN           = 31;
 static uint32_t       piodLastIrqN            = 0;
+static uint32_t       pioeFirstIrqN           = 31;
+static uint32_t       pioeLastIrqN            = 0;
 
+void PIOA_IRQHandler(void);
+void PIOB_IRQHandler(void);
 void PIOC_IRQHandler(void);
 void PIOD_IRQHandler(void);
+void PIOE_IRQHandler(void);
+
+
+/**
+ * PIOA IRQ handler.
+ */
+void PIOA_IRQHandler(void)
+{
+    uint32_t      status;
+    uint32_t      mask;
+    IO_Callback   pioCb;
+
+    OS_INT_Enter();
+
+    status  = PIOA->PIO_ISR;
+    mask    = PIOA->PIO_IMR;
+
+    for (uint32_t i = pioaFirstIrqN; i <= pioaLastIrqN; i++)
+    {
+        if (((status & mask) & (1u << i)))
+        {
+            pioCb = (IO_Callback)pioaHandlerTbl[i];
+            if (pioCb != NULL)
+            {
+                pioCb();
+            }
+        }
+    }
+
+    OS_INT_Leave();
+}
+
+
+/**
+ * PIOB IRQ handler.
+ */
+void PIOB_IRQHandler(void)
+{
+    uint32_t      status;
+    uint32_t      mask;
+    IO_Callback   pioCb;
+
+    OS_INT_Enter();
+
+    status  = PIOB->PIO_ISR;
+    mask    = PIOB->PIO_IMR;
+
+    for (uint32_t i = piobFirstIrqN; i <= piobLastIrqN; i++)
+    {
+        if (((status & mask) & (1u << i)))
+        {
+            pioCb = (IO_Callback)piobHandlerTbl[i];
+            if (pioCb != NULL)
+            {
+                pioCb();
+            }
+        }
+    }
+
+    OS_INT_Leave();
+}
 
 
 /**
@@ -29,15 +101,17 @@ void PIOD_IRQHandler(void);
 void PIOC_IRQHandler(void)
 {
     uint32_t      status;
+    uint32_t      mask;
     IO_Callback   pioCb;
 
     OS_INT_Enter();
 
     status  = PIOC->PIO_ISR;
+    mask    = PIOC->PIO_IMR;
 
     for (uint32_t i = piocFirstIrqN; i <= piocLastIrqN; i++)
     {
-        if ((status & (1u << i)) != 0)
+        if (((status & mask) & (1u << i)))
         {
             pioCb = (IO_Callback)piocHandlerTbl[i];
             if (pioCb != NULL)
@@ -57,17 +131,49 @@ void PIOC_IRQHandler(void)
 void PIOD_IRQHandler(void)
 {
     uint32_t      status;
+    uint32_t      mask;
     IO_Callback   pioCb;
 
     OS_INT_Enter();
 
     status  = PIOD->PIO_ISR;
+    mask    = PIOD->PIO_IMR;
 
     for (uint32_t i = piodFirstIrqN; i <= piodLastIrqN; i++)
     {
-        if ((status & (1u << i)) != 0)
+        if (((status & mask) & (1u << i)))
         {
             pioCb = (IO_Callback)piodHandlerTbl[i];
+            if (pioCb != NULL)
+            {
+                pioCb();
+            }
+        }
+    }
+
+    OS_INT_Leave();
+}
+
+
+/**
+ * PIOE IRQ handler.
+ */
+void PIOE_IRQHandler(void)
+{
+    uint32_t      status;
+    uint32_t      mask;
+    IO_Callback   pioCb;
+
+    OS_INT_Enter();
+
+    status  = PIOE->PIO_ISR;
+    mask    = PIOE->PIO_IMR;
+
+    for (uint32_t i = pioeFirstIrqN; i <= pioeLastIrqN; i++)
+    {
+        if (((status & mask) & (1u << i)))
+        {
+            pioCb = (IO_Callback)pioeHandlerTbl[i];
             if (pioCb != NULL)
             {
                 pioCb();
@@ -97,7 +203,35 @@ void IO_InstallIrqHandler(
     assert(line  <= IOn);
     assert(pfIsr != NULL);
 
-    if (pio == PIOC)
+    if (pio == PIOA)
+    {
+        pioaHandlerTbl[line] = pfIsr;
+
+        if (line <= pioaFirstIrqN)
+        {
+            pioaFirstIrqN = line;
+        }
+
+        if (line >= pioaLastIrqN)
+        {
+            pioaLastIrqN = line;
+        }
+    }
+    else if (pio == PIOB)
+    {
+        piobHandlerTbl[line] = pfIsr;
+
+        if (line <= piobFirstIrqN)
+        {
+            piobFirstIrqN = line;
+        }
+
+        if (line >= piobLastIrqN)
+        {
+            piobLastIrqN = line;
+        }
+    }
+    else if (pio == PIOC)
     {
         piocHandlerTbl[line] = pfIsr;
 
@@ -123,6 +257,20 @@ void IO_InstallIrqHandler(
         if (line >= piodLastIrqN)
         {
             piodLastIrqN = line;
+        }
+    }
+    else if (pio == PIOE)
+    {
+        pioeHandlerTbl[line] = pfIsr;
+
+        if (line <= pioeFirstIrqN)
+        {
+            pioeFirstIrqN = line;
+        }
+
+        if (line >= pioeLastIrqN)
+        {
+            pioeLastIrqN = line;
         }
     }
     else
