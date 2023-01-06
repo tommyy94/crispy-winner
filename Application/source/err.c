@@ -61,6 +61,7 @@ void err_Task(void *arg)
     {
         evtMask = OS_TASKEVENT_GetBlocked(0xFFFFFFFF);
         assert(evtMask);
+        assert(evtMask < (1 << ERROR_COUNT));
         err_log(evtMask);
     }
 }
