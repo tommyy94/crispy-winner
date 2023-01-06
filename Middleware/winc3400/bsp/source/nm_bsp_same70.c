@@ -135,10 +135,9 @@ void nm_bsp_sleep(uint32 u32TimeMsec)
  */
 void nm_bsp_register_isr(tpfNmBspIsr pfIsr)
 {
-    nmIrqn = IO_ConfigureIRQ(WINC3400_IRQ_PORT, IO_SENSE_FALL, IO_MASK(WINC3400_IRQ_PIN));
     IO_InstallIrqHandler(WINC3400_IRQ_PORT, WINC3400_IRQ_PIN, pfIsr);
-    
     IO_ConfigurePull(WINC3400_IRQ_PORT, IO_MASK(WINC3400_IRQ_PIN), IO_PULLUP);
+    nmIrqn = IO_ConfigureIRQ(WINC3400_IRQ_PORT, IO_SENSE_FALL, IO_MASK(WINC3400_IRQ_PIN));
 }
 
 
