@@ -47,10 +47,11 @@
 #include "io.h"
 
 #define WINC3400_IRQ_PORT   (PIOD)
-#define WINC3400_PORT       (PIOD)
-#define WINC3400_CE_PIN     (19u)  /* PORTD */
-#define WINC3400_RST_PIN    (18u)  /* PORTD */
-#define WINC3400_IRQ_PIN    (26u)  /* PORTD */
+#define WINC3400_CE_PORT    (PIOC)
+#define WINC3400_RST_PORT   (PIOA)
+#define WINC3400_IRQ_PIN    (28u)
+#define WINC3400_CE_PIN     (17u)
+#define WINC3400_RST_PIN    (19u)
 
 
 static IRQn_Type nmIrqn;
@@ -62,11 +63,12 @@ static IRQn_Type nmIrqn;
  */
 static void init_chip_pins(void)
 {
-    const uint32_t outMask = IO_MASK(WINC3400_CE_PIN) | IO_MASK(WINC3400_RST_PIN);
-    IO_ConfigureOutput(WINC3400_PORT, outMask, outMask);
-    IO_ClearOutput(WINC3400_PORT, outMask);
+    IO_ConfigureOutput(WINC3400_CE_PORT, IO_MASK(WINC3400_CE_PIN), IO_MASK(WINC3400_CE_PIN));
+    IO_ConfigureOutput(WINC3400_RST_PORT, IO_MASK(WINC3400_RST_PIN), IO_MASK(WINC3400_RST_PIN));
+    IO_ClearOutput(WINC3400_CE_PORT, IO_MASK(WINC3400_CE_PIN));
+    IO_ClearOutput(WINC3400_RST_PORT, IO_MASK(WINC3400_RST_PIN));
 
-    IO_ConfigurePull(WINC3400_PORT, IO_MASK(WINC3400_RST_PIN), IO_PULLUP);
+    IO_ConfigurePull(WINC3400_RST_PORT, IO_MASK(WINC3400_RST_PIN), IO_PULLUP);
 }
 
 /*
@@ -92,7 +94,8 @@ sint8 nm_bsp_init(void)
  */
 sint8 nm_bsp_deinit(void)
 {
-    IO_ClearOutput(WINC3400_PORT, IO_MASK(WINC3400_CE_PIN) | IO_MASK(WINC3400_RST_PIN));
+    IO_ClearOutput(WINC3400_CE_PORT, IO_MASK(WINC3400_CE_PIN));
+    IO_ClearOutput(WINC3400_RST_PORT, IO_MASK(WINC3400_RST_PIN));
     nm_bsp_sleep(10);
     return M2M_SUCCESS;
 }
@@ -104,11 +107,12 @@ sint8 nm_bsp_deinit(void)
  */
 void nm_bsp_reset(void)
 {
-    IO_ClearOutput(WINC3400_PORT, IO_MASK(WINC3400_CE_PIN) | IO_MASK(WINC3400_RST_PIN));
+    IO_ClearOutput(WINC3400_CE_PORT, IO_MASK(WINC3400_CE_PIN));
+    IO_ClearOutput(WINC3400_RST_PORT, IO_MASK(WINC3400_RST_PIN));
     nm_bsp_sleep(100);
-    IO_SetOutput(WINC3400_PORT, IO_MASK(WINC3400_CE_PIN));
+    IO_SetOutput(WINC3400_CE_PORT, IO_MASK(WINC3400_CE_PIN));
     nm_bsp_sleep(100);
-    IO_SetOutput(WINC3400_PORT, IO_MASK(WINC3400_RST_PIN));
+    IO_SetOutput(WINC3400_RST_PORT, IO_MASK(WINC3400_RST_PIN));
     nm_bsp_sleep(100);
 }
 
