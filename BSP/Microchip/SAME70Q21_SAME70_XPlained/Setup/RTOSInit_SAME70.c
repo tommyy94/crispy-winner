@@ -221,8 +221,8 @@ void OS_InitHW(void)
   SEGGER_SYSVIEW_Conf();
 #endif
 
-    /* Configure RTT */
-    SEGGER_RTT_Init();
+  /* Configure RTT */
+  SEGGER_RTT_Init();
 
   /* Initialize the optional communication for embOSView */
 #if (OS_VIEW_IFSELECT != OS_VIEW_DISABLED)
