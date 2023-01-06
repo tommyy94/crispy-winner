@@ -188,9 +188,12 @@ IRQn_Type IO_ConfigureIRQ(Pio         *pio,
     
     irqn = IO_Pio2NVICn(pio);
 
-    NVIC_ClearPendingIRQ(irqn);
-    NVIC_SetPriority(irqn, IO_IRQ_PRIO);
-    NVIC_EnableIRQ(irqn);
+    if (NVIC_GetEnableIRQ(irqn) == 0)
+    {
+        NVIC_ClearPendingIRQ(irqn);
+        NVIC_SetPriority(irqn, IO_IRQ_PRIO);
+        NVIC_EnableIRQ(irqn);
+    }
 
     return irqn;
 }
