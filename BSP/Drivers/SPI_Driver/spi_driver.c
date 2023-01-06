@@ -61,7 +61,7 @@ void SPI0_Init(void)
      * NOTE: SCBR should not be 0!
      * 8 bits per transfer
      */
-    spi->SPI_CSR[slave] = SPI_CSR_SCBR(32) | SPI_CSR_BITS_8_BIT; /* 2.6 MHz */
+    spi->SPI_CSR[slave] = SPI_CSR_SCBR(3) | SPI_CSR_BITS_8_BIT; /* 25 MHz */
     assert((spi->SPI_CSR[slave] & SPI_CSR_SCBR_Msk) != 0);
     
     /* CPOL = 0, CPHA = 1, SPCK inactive LOW */
