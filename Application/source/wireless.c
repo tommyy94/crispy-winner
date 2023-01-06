@@ -427,6 +427,8 @@ static void Wireless_Init(void)
                      M2M_WIFI_CH_ALL);
 
     OS_MUTEX_Unlock(&wlessMutex);
+
+    puts("Wireless_Task > ATWINC3400 configured!");
 }
 
 
