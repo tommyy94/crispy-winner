@@ -188,9 +188,11 @@ static int32_t OV5640_Probe(uint32_t Resolution, uint32_t PixelFormat);
 #define CAMERA_480x272_RES_Y      272
 
 
-#define OV5640_PORT       (PIOB)
-#define OV5640_RST_PIN    (1u << 0)
-#define OV5640_PWDN_PIN   (1u << 1)
+#define OV5640_RST_PORT   (PIOA)
+#define OV5640_PCK_PORT   (PIOA)
+#define OV5640_PWD_PORT   (PIOC)
+#define OV5640_RST_PIN    (1u << 13)
+#define OV5640_PWD_PIN    (1u << 19)
 #define OV5640_XCLK_PIN   (1u << 6)
 
 
@@ -219,9 +221,9 @@ static int32_t OV5640_Probe(uint32_t Resolution, uint32_t PixelFormat);
  */
 static int32_t BSP_CAMERA_ConfigureIO(void)
 {
-    IO_ConfigureOutput(OV5640_PORT, OV5640_PWDN_PIN, OV5640_PWDN_PIN);
-    IO_ConfigureOutput(OV5640_PORT, OV5640_RST_PIN, OV5640_RST_PIN);
-    IO_SetPeripheralFunction(PIOA, OV5640_XCLK_PIN, IO_PERIPH_B);
+    IO_ConfigureOutput(OV5640_PWD_PORT, OV5640_PWD_PIN, OV5640_PWD_PIN);
+    IO_ConfigureOutput(OV5640_RST_PORT, OV5640_RST_PIN, OV5640_RST_PIN);
+    IO_SetPeripheralFunction(OV5640_PCK_PORT, OV5640_XCLK_PIN, IO_PERIPH_B);
 
     /* Configure the host controller to feed clock input to OV5640
      * MCK (System Clock) = 150 MHz
@@ -296,7 +298,7 @@ int32_t BSP_CAMERA_Init(uint32_t Instance, uint32_t Resolution, uint32_t PixelFo
     }
 
     /* ST eval board probably has this deasserted */
-    IO_SetOutput(OV5640_PORT, OV5640_RST_PIN);
+    IO_SetOutput(OV5640_RST_PORT, OV5640_RST_PIN);
 
     if(BSP_CAMERA_HwReset(CAMERA_INSTANCE) != BSP_ERROR_NONE)
     {
@@ -1105,12 +1107,12 @@ int32_t BSP_CAMERA_HwReset(uint32_t Instance)
   else
   {
     /* De-assert the camera POWER_DOWN pin (active high) */
-    IO_SetOutput(OV5640_PORT, OV5640_PWDN_PIN);
+    IO_SetOutput(OV5640_PWD_PORT, OV5640_PWD_PIN);
     /* POWER_DOWN de-asserted during 100 ms */
     delayMs(100);
 
     /* Assert the camera POWER_DOWN pin (active high) */
-    IO_ClearOutput(OV5640_PORT, OV5640_PWDN_PIN);
+    IO_ClearOutput(OV5640_PWD_PORT, OV5640_PWD_PIN);
     delayMs(20);
   }
 
@@ -1132,8 +1134,8 @@ int32_t BSP_CAMERA_PwrDown(uint32_t Instance)
   }
   else
   {
-      /* Assert the camera POWER_DOWN pin (active high) */
-    IO_SetOutput(OV5640_PORT, OV5640_PWDN_PIN);
+      /* De-assert the camera POWER_DOWN pin (active high) */
+    IO_SetOutput(OV5640_PWD_PORT, OV5640_PWD_PIN);
   }
 
   return ret;
@@ -1155,7 +1157,7 @@ int32_t BSP_CAMERA_PwrUp(uint32_t Instance)
   else
   {
     /* Assert the camera POWER_DOWN pin (active high) */
-    IO_ClearOutput(OV5640_PORT, OV5640_PWDN_PIN);
+    IO_ClearOutput(OV5640_PWD_PORT, OV5640_PWD_PIN);
   }
 
   return ret;
