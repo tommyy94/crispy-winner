@@ -1,8 +1,8 @@
 #include <same70.h>
 #include "pwm_driver.h"
-#include "pio.h"
 #include "err.h"
 #include "pmc_driver.h"
+#include "io.h"
 
 
 static void     PWM_IO_Init(void);
@@ -74,39 +74,21 @@ void PWM_Init(void)
 
 
 /* PWM0 channels:
- *    PA0:  PWM0_CH0+
+ *    PA23: PWM0_CH0+
  *    PA2:  PWM0_CH1+
- *    PA12: PWM1_CH0+
+ *    PB4:  PWM0_CH2+
  *    PA17: PWM0_CH3+
  */
 static void PWM_IO_Init(void)
-{    
-    /*
-     * _______________________________________
-     * |            |           |             |
-     * |  ABCDSR1   |  ABCDSR2  | Peripheral  |
-     * |------------+-----------+-------------|
-     * |     0      |     0     |     A       |
-     * |     1      |     0     |     B       |
-     * |     0      |     1     |     C       |
-     * |     1      |     1     |     D       |
-     * |____________|___________|_____________|
-     */
-
-    /* Select peripheral A for PA2 & PA0 */
-    PIOA->PIO_ABCDSR[0] &= ~(PIO_ABCDSR_P2 | PIO_ABCDSR_P0);
-    PIOA->PIO_ABCDSR[1] &= ~(PIO_ABCDSR_P2 | PIO_ABCDSR_P0);
+{
+    /* Select peripheral A for PA2 & PA1 */
+    IO_SetPeripheralFunction(PIOA, PIO_ABCDSR_P2 | PIO_ABCDSR_P1, IO_PERIPH_A);
     
-    /* Select peripheral C for PA17 & PA12 */
-    PIOA->PIO_ABCDSR[0] &= ~PIO_ABCDSR_P17 | PIO_ABCDSR_P12;
-    PIOA->PIO_ABCDSR[1] |=  PIO_ABCDSR_P17 | PIO_ABCDSR_P12;
-
-    /* Set peripheral function */
-    PIOA->PIO_PDR |= PIO_ABCDSR_P17 | PIO_ABCDSR_P12
-                  |  PIO_ABCDSR_P2  | PIO_ABCDSR_P0;
-
-    /* Enabling the pullup distorts the signal */
-    //PIO_ConfigurePull(PIOA, pioaMask, PIO_PULLUP);
+    /* Select peripheral B for PB4 */
+    IO_SetPeripheralFunction(PIOB, PIO_ABCDSR_P4, IO_PERIPH_B);
+    
+    /* Select peripheral C for PA17 */
+    IO_SetPeripheralFunction(PIOA, PIO_ABCDSR_P17, IO_PERIPH_C);
 }
 
 
