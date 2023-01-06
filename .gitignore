@@ -21,3 +21,5 @@ SEGGER/Syscalls
 BSP/Microchip/SAME70Q21_SAME70_XPlained/Output/
 Application/include/wifi_conf.h
 /doc/out
+
+.~lock.*
