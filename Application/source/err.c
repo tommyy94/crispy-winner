@@ -59,7 +59,7 @@ void err_Task(void *arg)
     
     while (1)
     {
-        evtMask = OS_TASKEVENT_GetBlocked(0xFFFFFFFF);
+        evtMask = OS_TASKEVENT_GetSingleBlocked(0xFFFFFFFF);
         assert(evtMask);
         assert(evtMask < (1 << ERROR_COUNT));
         err_log(evtMask);
