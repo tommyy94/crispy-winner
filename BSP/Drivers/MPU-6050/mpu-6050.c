@@ -1,6 +1,5 @@
 #include <stdbool.h>
 #include <math.h>
-#include <stdio.h>
 
 #include "RTOS.h"
 
@@ -8,6 +7,7 @@
 #include "mpu-6050_defs.h"
 #include "mpu-6050_i2c_layer.h"
 #include "err.h"
+#include "trace.h"
 
 
 #define SELF_TEST_RESPONSE_MIN            (-14)
@@ -59,7 +59,7 @@ bool MPU6050_Init(void)
     {
         err_report(MPU6050_ERROR);
     }
-    printf("Gyro_Task > MPU-6050 chip ID: 0x%02X\r\n", id);
+    TRACE_INFO("MPU-6050 > chip ID: 0x%02X\r\n", id);
 
     /* Reset device just to be safe */
     status &= MPU6050_WriteReg(MPU6050_PWR_MGMT_1, MPU6050_PWR_MGMT_1_DEVICE_RESET);

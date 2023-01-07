@@ -56,6 +56,7 @@
         <file file_name="../../../Application/include/err.h" />
         <file file_name="../../../Application/include/imageSensor.h" />
         <file file_name="../../../Application/include/delay.h" />
+        <file file_name="../../../Application/include/trace.h" />
       </folder>
       <folder Name="source">
         <file file_name="../../../Application/source/gyro.c">
@@ -72,6 +73,7 @@
         <file file_name="../../../Application/source/err.c" />
         <file file_name="../../../Application/source/imageSensor.c" />
         <file file_name="../../../Application/source/delay.c" />
+        <file file_name="../../../Application/source/trace.c" />
       </folder>
     </folder>
     <folder Name="COMPRESS">

@@ -47,9 +47,9 @@
 extern "C" {
 #endif
 
-#include <stdio.h>
 #include "conf_winc.h"
 #include "RTOS.h"
+#include "trace.h"
 /*
    ---------------------------------
    ---------- PIN settings ---------
@@ -121,7 +121,7 @@ extern "C" {
 /* Debug variable, defined here instead of IAR project options */
 #define CONF_WINC_DEBUG				            1
 #ifdef CONF_WINC_DEBUG
-#   define CONF_WINC_PRINTF   printf
+#   define CONF_WINC_PRINTF   TRACE_INFO
 #else
 #   define CONF_WINC_PRINTF
 #endif

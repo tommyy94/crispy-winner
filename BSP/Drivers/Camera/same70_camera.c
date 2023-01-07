@@ -128,7 +128,6 @@
 ------------------------------------------------------------------------------*/
 
 /* Includes ------------------------------------------------------------------*/
-#include <stdio.h>
 #include "same70_camera.h"
 #include "ov5640_i2c_layer.h"
 #include "same70.h"
@@ -136,6 +135,7 @@
 #include "io.h"
 #include "pmc_driver.h"
 #include "delay.h"
+#include "trace.h"
 
 /** @addtogroup BSP
   * @{
@@ -373,7 +373,7 @@ int32_t BSP_CAMERA_Start(uint32_t Instance, uint8_t *pBff, uint32_t Mode)
 
     if (Mode == CAMERA_MODE_CONTINUOUS)
     {
-        puts("Image_Task  > Continuous mode not supported!");
+        TRACE_INFO("CAMERA  > Continuous mode not supported!");
         return BSP_ERROR_FEATURE_NOT_SUPPORTED;
     }
 
@@ -1328,23 +1328,23 @@ static int32_t OV5640_Probe(uint32_t Resolution, uint32_t PixelFormat)
 
     ov5640_obj.IsInitialized = 0U;
 
-    puts("Image_Task  > Initializing camera...");
+    TRACE_INFO("CAMERA  > Initializing camera...");
 
     if (OV5640_RegisterBusIO(&ov5640_obj, &ov5640_io) != OV5640_OK)
     {
-        puts("Image_Task  > OV5640_RegisterBusIO() fail");
+        TRACE_INFO("CAMERA  > OV5640_RegisterBusIO() fail");
         return BSP_ERROR_NO_INIT;
     }
 
     if (OV5640_ReadID(&ov5640_obj, &id) != OV5640_OK)
     {
-        puts("Image_Task  > OV5640_ReadID() fail");
+        TRACE_INFO("CAMERA  > OV5640_ReadID() fail");
         return BSP_ERROR_NO_INIT;
     }
     
     if (id != OV5640_ID)
     {
-        puts("Image_Task  > Invalid camera ID");
+        TRACE_INFO("CAMERA  > Invalid camera ID");
         return BSP_ERROR_NO_INIT;
     }
     else
@@ -1353,17 +1353,17 @@ static int32_t OV5640_Probe(uint32_t Resolution, uint32_t PixelFormat)
         Camera_CompObj = &ov5640_obj;
         if(Camera_Drv->Init(Camera_CompObj, Resolution, PixelFormat) != OV5640_OK)
         {
-            puts("Image_Task  > Camera_Drv->Init() fail");
+            TRACE_INFO("CAMERA  > Camera_Drv->Init() fail");
             return BSP_ERROR_NO_INIT;
         }
         else if(Camera_Drv->GetCapabilities(Camera_CompObj, &Camera_Cap) != OV5640_OK)
         {
-            puts("Image_Task  > Camera_Drv->GetCapabilities() fail");
+            TRACE_INFO("CAMERA  > Camera_Drv->GetCapabilities() fail");
             return BSP_ERROR_NO_INIT;
         }
         else
         {
-            puts("Image_Task  > Camera init success");
+            TRACE_INFO("CAMERA  > Camera init success");
         }
     }
 
