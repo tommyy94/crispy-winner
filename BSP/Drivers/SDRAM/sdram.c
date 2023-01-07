@@ -1,7 +1,7 @@
 /** @file */
 
 #include "sdram.h"
-#include <stdio.h>
+#include "trace.h"
 
 
 #define RELAXED_TIMINGS
@@ -26,7 +26,7 @@ int32_t SDRAM_Init(SDRAM_Device_t dev, uint32_t clkFreq)
     int32_t             ret;
     SDRAMC_Descriptor_t desc;
 
-    puts("SDRAM > Initializing...");
+    TRACE_INFO("SDRAM > Initializing...");
 
     if (dev == IS42S16100F)
     {
@@ -40,11 +40,43 @@ int32_t SDRAM_Init(SDRAM_Device_t dev, uint32_t clkFreq)
     ret = SDRAMC_Init(&desc, clkFreq);
     if (ret == SDRAM_OK)
     {
-        puts("SDRAM > ... Init done");
+        TRACE_INFO(
+            " done!\r\n"
+            "\r\n"
+            "##### IS42S16100F 200 MHz SDRAM #####\r\n"
+            "Size:          %u Mb\r\n"
+            "Bus width:     %u-bit\r\n"
+            "Row bits:      %u\r\n"
+            "Column bits:   %u\r\n"
+            "Banks:         %u\r\n"
+            "CAS:           %u\r\n"
+            "Timing parameters (cycles):\r\n"
+            "  tWR:  %u\r\n"
+            "  tRC:  %u\r\n"
+            "  tRFC: %u\r\n"
+            "  tRCD: %u\r\n"
+            "  tRAS: %u\r\n"
+            "  tRP:  %u\r\n"
+            "  tXSR: %u\r\n"
+            "  tMRD: %u\r\n",
+            BYTE_TO_MBIT(desc.size),
+            desc.dataBusWidth,
+            desc.rowBits,
+            desc.columnBits,
+            desc.banks,
+            desc.cas,
+            desc.timings.twr,
+            desc.timings.trc,
+            desc.timings.trfc,
+            desc.timings.trcd,
+            desc.timings.tras,
+            desc.timings.trp,
+            desc.timings.txsr,
+            desc.timings.tmrd);
     }
     else
     {
-        puts("SDRAM > ... Init fail!");
+        TRACE_INFO("fail!\r\n");
     }
 
     return ret;
@@ -93,36 +125,4 @@ static void IS42S16100F_Init(SDRAMC_Descriptor_t *pDesc)
     pDesc->timings.txsr     = 8;
     pDesc->timings.tmrd     = 2;
 #endif /* RELAXED_TIMINGS */
-
-    printf(
-        "IS42S16100F 200 MHz SDRAM\r\n"
-        "Size:          %u Mb\r\n"
-        "Bus width:     %u-bit\r\n"
-        "Row bits:      %u\r\n"
-        "Column bits:   %u\r\n"
-        "Banks:         %u\r\n"
-        "CAS:           %u\r\n"
-        "Timing parameters (cycles):\r\n"
-        "  tWR:  %u\r\n"
-        "  tRC:  %u\r\n"
-        "  tRFC: %u\r\n"
-        "  tRCD: %u\r\n"
-        "  tRAS: %u\r\n"
-        "  tRP:  %u\r\n"
-        "  tXSR: %u\r\n"
-        "  tMRD: %u\r\n",
-        BYTE_TO_MBIT(pDesc->size),
-        pDesc->dataBusWidth,
-        pDesc->rowBits,
-        pDesc->columnBits,
-        pDesc->banks,
-        pDesc->cas,
-        pDesc->timings.twr,
-        pDesc->timings.trc,
-        pDesc->timings.trfc,
-        pDesc->timings.trcd,
-        pDesc->timings.tras,
-        pDesc->timings.trp,
-        pDesc->timings.txsr,
-        pDesc->timings.tmrd);
 }

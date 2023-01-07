@@ -1,10 +1,13 @@
-#include <stdio.h>
 #include "same70.h"
 #include "RTOS.h"
 #include "SEGGER_RTT.h"
 #include "system.h"
 #include "err.h"
 #include "rtc.h"
+#include "trace.h"
+
+
+#define ASSERT_MSG_LIMIT    (128u)
 
 
 extern OS_TASK errTCB;
@@ -19,27 +22,24 @@ extern OS_TASK errTCB;
  */
 static void err_log(uint32_t id)
 {
-    char  msg[64] = { "err_Task > " };
     char *enumTbl[ERROR_COUNT] =
     {
-        "SPI_ERROR",
-        "SPI_SELFTEST_FAIL",
-        "RTC_SETTIME_ERROR",
-        "DMA_ERROR",
-        "RTOS_ERROR",
-        "THROTTLE_TIMEOUT",
-        "I2C_ERROR",
-        "MPU6050_ERROR",
-        "SRF05_ERROR"
+        "Error > SPI_ERROR\r\n",
+        "Error > SPI_SELFTEST_FAIL\r\n",
+        "Error > RTC_SETTIME_ERROR\r\n",
+        "Error > DMA_ERROR\r\n",
+        "Error > RTOS_ERROR\r\n",
+        "Error > THROTTLE_TIMEOUT\r\n",
+        "Error > I2C_ERROR\r\n",
+        "Error > MPU6050_ERROR\r\n",
+        "Error > SRF05_ERROR\r\n"
     };
 
     for (uint32_t i = 0; i < ERROR_COUNT; i++)
     {
         if (id & (1 << i))
         {
-            
-            strncat(msg, enumTbl[i], strlen(enumTbl[i]));
-            puts(msg);
+            TRACE_ERROR(enumTbl[i]);
         }
     }
 }
@@ -98,10 +98,8 @@ void err_assert(bool           eval,
 {
     if (eval == false)
     {
-        printf(
-            "Assert:\r\n"
-            "    Function: %s()\r\n"
-            "    Line: %u\r\n",
+        TRACE_INFO(
+            "Info > Assert @ Function: %s(), line: %u\r\n",
             func,
             line
         );

@@ -1,7 +1,6 @@
 /* Device includes */
 #include <same70.h>
 #include <stdbool.h>
-#include <stdio.h>
 
 /* RTOS includes */
 #include "RTOS.h"
@@ -14,6 +13,7 @@
 #include "err.h"
 #include "pmc_driver.h"
 #include "tc_driver.h"
+#include "trace.h"
 
 
 #define IS_TWIHS(x)             (((x) == TWIHS0) || \
@@ -141,7 +141,7 @@ bool TWI_Xfer(TWI_Adapter *pAdap, const uint32_t count)
         {
             TWI_AbortXfer(pAdap);
             err_report(I2C_ERROR);
-            printf("TWI @ 0x%08X reset\r\n", pAdap->pInst);
+            TRACE_INFO("TWI @ 0x%08X reset\r\n", pAdap->pInst);
             goto Cleanup;
         }
     }

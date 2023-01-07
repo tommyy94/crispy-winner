@@ -67,6 +67,7 @@ OS_MAILBOX        twiMbox;
 OS_SEMAPHORE      twiSema;
 OS_MUTEX          wlessMutex;
 OS_MUTEX          twiMutex;
+OS_MUTEX          traceMutex;
 #ifdef EVABOARD_WORKAROUND
 OS_MUTEX          evabrdWaMutex;
 #endif /* EVABOARD_WORKAROUND */
@@ -163,6 +164,7 @@ static void OS_InitServices(void)
     /* Mutexes */
     OS_MUTEX_Create(&wlessMutex);
     OS_MUTEX_Create(&twiMutex);
+    OS_MUTEX_Create(&traceMutex);
 
     /* SPI0 and ISI share pins in SAME70 Xplained evaluation kit:
      * - PD20: SPI0_MISO only

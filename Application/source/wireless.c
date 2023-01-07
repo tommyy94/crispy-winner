@@ -1,9 +1,7 @@
 /* System includes */
-#include <stdio.h>
 #include <stdint.h>
 #include "wireless.h"
 #include "RTOS.h"
-#include "SEGGER_RTT.h"
 
 /* ATWINC3400 */
 #include "driver/include/m2m_wifi.h"
@@ -16,6 +14,7 @@
 #include "wifi_conf.h"
 #include "wireless.h"
 #include "err.h"
+#include "trace.h"
 #include "radiopacket.h"
 
 
@@ -259,7 +258,7 @@ void Video_Task(void *arg)
                 OS_MUTEX_Unlock(&wlessMutex);
                 if (videoSocket < 0)
                 {
-                    puts("Video_Task > failed to create TX UDP client socket error!");
+                    TRACE_INFO("Video_Task > failed to create TX UDP client socket error!");
                     continue;
                 }
             }
@@ -269,11 +268,11 @@ void Video_Task(void *arg)
                 ret = Wireless_Transmit(videoSocket, &addr, jpgData, 5447);
                 if (ret == true)
                 {
-                    puts("Video_Task > message sent");
+                    TRACE_INFO("Video_Task > message sent");
                 }
                 else
                 {
-                    puts("Video_Task > failed to send status report error!");
+                    TRACE_INFO("Video_Task > failed to send status report error!");
                 }
             }
         }
@@ -316,7 +315,7 @@ void Sensor_Task(void *arg)
                 OS_MUTEX_Unlock(&wlessMutex);
                 if (sensorSocket < 0)
                 {
-                    puts("Sensor_Task > failed to create TX UDP client socket error!");
+                    TRACE_INFO("Sensor_Task > failed to create TX UDP client socket error!");
                     continue;
                 }
             }
@@ -326,11 +325,11 @@ void Sensor_Task(void *arg)
                 ret = Wireless_Transmit(sensorSocket, &addr, test, 9);
                 if (ret == true)
                 {
-                    puts("Sensor_Task > message sent");
+                    TRACE_INFO("Sensor_Task > message sent");
                 }
                 else
                 {
-                    puts("Sensor_Task > failed to send status report error!");
+                    TRACE_INFO("Sensor_Task > failed to send status report error!");
                 }
             }
         }
@@ -397,7 +396,7 @@ static void Wireless_Init(void)
     tstrWifiInitParam param;
     int8_t            ret;
 
-    puts("Wireless_Task > Configuring ATWINC3400...");
+    TRACE_INFO("WINC > Configuring ATWINC3400...");
     
     nm_bsp_init();
 
@@ -411,7 +410,7 @@ static void Wireless_Init(void)
     ret = m2m_wifi_init(&param);
     if (M2M_SUCCESS != ret)
     {
-        printf("Wireless_Task > m2m_wifi_init call error!(%d)\r\n", ret);
+        TRACE_INFO("WINC > m2m_wifi_init call error!");
         OS_TASK_Terminate(NULL);
     }
   
@@ -428,7 +427,7 @@ static void Wireless_Init(void)
 
     OS_MUTEX_Unlock(&wlessMutex);
 
-    puts("Wireless_Task > ATWINC3400 configured!");
+    TRACE_INFO("WINC > ATWINC3400 configured!");
 }
 
 
@@ -455,12 +454,12 @@ static void wifi_cb(uint8_t u8MsgType, void *pvMsg)
             pstrWifiState = (tstrM2mWifiStateChanged *)pvMsg;
             if (pstrWifiState->u8CurrState == M2M_WIFI_CONNECTED)
             {
-                puts("wifi_cb > M2M_WIFI_RESP_CON_STATE_CHANGED: CONNECTED");
+                TRACE_INFO("wifi_cb > M2M_WIFI_RESP_CON_STATE_CHANGED: CONNECTED");
                 m2m_wifi_request_dhcp_client();
             }
             else if (pstrWifiState->u8CurrState == M2M_WIFI_DISCONNECTED)
             {
-                puts("wifi_cb > M2M_WIFI_RESP_CON_STATE_CHANGED: DISCONNECTED");
+                TRACE_INFO("wifi_cb > M2M_WIFI_RESP_CON_STATE_CHANGED: DISCONNECTED");
                 wifiConnected = M2M_WIFI_DISCONNECTED;
                 m2m_wifi_connect((char *)WLAN2_SSID,
                                  sizeof(WLAN2_SSID),
@@ -472,7 +471,7 @@ static void wifi_cb(uint8_t u8MsgType, void *pvMsg)
         case M2M_WIFI_REQ_DHCP_CONF:
             pu8IPAddress = (uint8_t *)pvMsg;
             wifiConnected = M2M_WIFI_CONNECTED;
-            printf("wifi_cb > M2M_WIFI_REQ_DHCP_CONF: IP is %u.%u.%u.%u\r\n",
+            TRACE_INFO("wifi_cb > M2M_WIFI_REQ_DHCP_CONF: IP is %u.%u.%u.%u\r\n",
                    pu8IPAddress[0],
                    pu8IPAddress[1],
                    pu8IPAddress[2],
@@ -485,20 +484,20 @@ static void wifi_cb(uint8_t u8MsgType, void *pvMsg)
                    ((pu8IPAddress[3] & 0xFF) << 24);
             break;
         case M2M_WIFI_RESP_SCAN_RESULT:
-            puts("wifi_cb > M2M_WIFI_RESP_SCAN_RESULT");
+            TRACE_INFO("wifi_cb > M2M_WIFI_RESP_SCAN_RESULT");
             break;
         case M2M_WIFI_RESP_GET_SYS_TIME:
-            puts("wifi_cb > M2M_WIFI_RESP_GET_SYS_TIME");
+            TRACE_INFO("wifi_cb > M2M_WIFI_RESP_GET_SYS_TIME");
             break;
         case M2M_WIFI_REQ_SET_BATTERY_VOLTAGE:
-            puts("wifi_cb > M2M_WIFI_REQ_SET_BATTERY_VOLTAGE");
+            TRACE_INFO("wifi_cb > M2M_WIFI_REQ_SET_BATTERY_VOLTAGE");
             break;
         case M2M_WIFI_RESP_BLE_API_RECV:
             /* Seems like an expected message */
-            puts("wifi_cb > M2M_WIFI_RESP_BLE_API_RECV");
+            TRACE_INFO("wifi_cb > M2M_WIFI_RESP_BLE_API_RECV");
             break;
         default:
-            printf("wibi_cb > Unknown callback %d\r\n", u8MsgType);
+            TRACE_INFO("wibi_cb > Unknown callback!\r\n");
             break;
     }
 }
@@ -540,7 +539,7 @@ static void socket_cb(SOCKET sock, uint8_t u8Msg, void *pvMsg)
     }
     else
     {
-        puts("socket_cb > Unknown socket!");
+        TRACE_INFO("socket_cb > Unknown socket!");
     }
 }
 
@@ -570,7 +569,7 @@ static void ControlSocketCb(uint8_t u8Msg, void *pvMsg)
             if (pstrBind && pstrBind->status == 0)
             {
                 /* Prepare next buffer reception. */
-                puts("ControlSocketCb > bind success!");
+                TRACE_INFO("ControlSocketCb > bind success!");
                 recvfrom(sock,
                          ctrlRecv,
                          WIFI_M2M_BUFFER_SIZE,
@@ -578,13 +577,13 @@ static void ControlSocketCb(uint8_t u8Msg, void *pvMsg)
             }
             else
             {
-                puts("ControlSocketCb > bind error!");
+                TRACE_INFO("ControlSocketCb > bind error!");
             }
             break;
         case SOCKET_MSG_RECVFROM:
             pstrRx = (tstrSocketRecvMsg *)pvMsg;
 
-            printf("ControlSocketCb > Received '%c'\r\n", (char)pstrRx->pu8Buffer[0]);
+            TRACE_INFO("ControlSocketCb > Received '%c'\r\n", (char)pstrRx->pu8Buffer[0]);
             if (pstrRx->pu8Buffer && pstrRx->s16BufferSize)
             {
                 /* Prepare next buffer reception */
@@ -645,51 +644,4 @@ static void VideoSocketCb(uint8_t u8Msg, void *pvMsg)
     (void)u8Msg;
     (void)pvMsg;
     OS_EVENT_SetMask(&wlessEvt, WLESS_EVT_VIDEO);
-}
-
-
-/**
- * @brief   Ping command callback.
- *
- * @param   u32IPAddr     IP address in hexadecimal format.
- *
- * @param   u32RTT        Round-Trip Time.
- *
- * @param   u8ErrorCode   Possible error code.
- *
- * @retval  None.
- */
-static void ping_cb(uint32 u32IPAddr, uint32 u32RTT, uint8 u8ErrorCode)
-{
-    if (!u8ErrorCode)
-    {
-        puts("ping_cb > PING_SUCCESS");
-        printf("ping_cb > > Reply from %x IP: RTT= %dms\r\n", u32IPAddr, u32RTT);
-    }
-    else if (u8ErrorCode==1)
-    {
-        puts("ping_cb > PING_ERR_DEST_UNREACH");
-    }
-    else if (u8ErrorCode==2)
-    {
-        puts("ping_cb > PING_ERR_TIMEOUT");
-    }
-}
-
-
-/**
- * @brief   Ping command.
- *
- * @param   dstIPaddr   IP address to ping.
- *
- * @retval  None.
- */
-void WiFi_Ping(char *dstIPaddr)
-{
-    /*Ping request */
-    uint32_t dstIP = nmi_inet_addr(dstIPaddr);
-    uint8 u8TTL = 250;
-
-    printf("Pinging [%s] with TTL=%d\r\n", dstIPaddr, u8TTL);
-    m2m_ping_req(dstIP, u8TTL, ping_cb);
 }
