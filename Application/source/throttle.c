@@ -4,7 +4,6 @@
 
 /* User includes */
 #include "throttle.h"
-#include "pwm_driver.h"
 #include "err.h"
 
 /* RTOS includes */
@@ -33,21 +32,9 @@ typedef enum
 
 typedef struct
 {
-    Pwm             *pPwm[PWM_CHANNEL_COUNT];
-    PWM_Channel      ch[PWM_CHANNEL_COUNT];
-} ChannelMap_t;
-
-typedef struct
-{
     uint16_t x;
     uint16_t y;
 } AxisStruct_t;
-
-static ChannelMap_t chMap =
-{
-    { PWM0,         PWM0,         PWM0,         PWM1         },
-    { PWM_CHANNEL0, PWM_CHANNEL1, PWM_CHANNEL3, PWM_CHANNEL0 }
-};
 
 
 extern OS_QUEUE          throttleQ;
@@ -220,7 +207,8 @@ static void SetThrottle(const ThrottleChannel_t ch, const uint32_t throttle)
 {
     assert(ch < THROTTLE_CH_CNT);
     assert(throttle  <= DUTY_CYCLE_MAX);
-    PWM_UpdateDutyCycle(chMap.pPwm[ch], chMap.ch[ch], throttle);
+
+    //ESC_Write(chMap.pPwm[ch], chMap.ch[ch], throttle);
 }
 
 
@@ -234,7 +222,7 @@ static void SetThrottle(const ThrottleChannel_t ch, const uint32_t throttle)
 static void EnableThrottle(const ThrottleChannel_t ch)
 {
     assert(ch < THROTTLE_CH_CNT);
-    PWM_Enable(chMap.pPwm[ch], chMap.ch[ch]);
+    //ESC_Enable(chMap.pPwm[ch], chMap.ch[ch]);
 }
 
 
@@ -248,7 +236,7 @@ static void EnableThrottle(const ThrottleChannel_t ch)
 static void DisableThrottle(const ThrottleChannel_t ch)
 {
     assert(ch < THROTTLE_CH_CNT);
-    PWM_Disable(chMap.pPwm[ch], chMap.ch[ch]);
+    //ESC_Disable(chMap.pPwm[ch], chMap.ch[ch]);
 }
 
 

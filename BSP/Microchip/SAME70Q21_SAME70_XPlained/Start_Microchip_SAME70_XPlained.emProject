@@ -498,12 +498,6 @@
           <file file_name="../../../BSP/Drivers/IO/io.h" />
           <file file_name="../../../BSP/Drivers/IO/io_isr.c" />
         </folder>
-        <folder Name="PWM Driver">
-          <file file_name="duty_cycle.py" />
-          <file file_name="../../../BSP/Drivers/PWM_Driver/pwm_driver.c" />
-          <file file_name="../../../BSP/Drivers/PWM_Driver/pwm_driver.h" />
-          <file file_name="../../../BSP/Drivers/PWM_Driver/pwm_tables.c" />
-        </folder>
         <folder Name="SPI Driver">
           <file file_name="../../../BSP/Drivers/SPI_Driver/spi_dma.c" />
           <file file_name="../../../BSP/Drivers/SPI_Driver/spi_driver.c" />
