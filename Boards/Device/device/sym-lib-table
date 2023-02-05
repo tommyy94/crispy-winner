@@ -1,0 +1,5 @@
+(sym_lib_table
+  (lib (name "atsame70q21b-an")(type "KiCad")(uri "${KICAD_USER_LIBRARY}/user-symbols/atsame70q21b-an.kicad_sym")(options "")(descr ""))
+  (lib (name "mcp2558fd-xmny")(type "KiCad")(uri "${KICAD_USER_LIBRARY}/user-symbols/mcp2558fd-xmny.kicad_sym")(options "")(descr ""))
+  (lib (name "OV5640-connector")(type "KiCad")(uri "${KICAD_USER_LIBRARY}/user-symbols/OV5640-connector.kicad_sym")(options "")(descr ""))
+)
